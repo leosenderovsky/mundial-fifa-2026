@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://mundial-fifa-2026.netlify.app/sitemap.xml

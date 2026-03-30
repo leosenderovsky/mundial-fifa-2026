@@ -1,0 +1,11 @@
+@tailwind base; @tailwind components; @tailwind utilities;
+@layer base {
+  :root { --canvas: #f6f3f2; --card: #ffffff; }
+  .dark { --canvas: #0f172a; --card: #1e293b; }
+  body { @apply bg-surface-canvas text-slate-900 dark:text-slate-100 font-body transition-colors duration-300; }
+}
+@layer components {
+  .display-lg { @apply font-headline font-black text-6xl lg:text-8xl tracking-tighter uppercase leading-none; }
+  .label-caps { @apply font-headline font-bold text-xs uppercase tracking-[0.2em] text-fifa-blue dark:text-fifa-gold; }
+  .stadium-card { @apply bg-surface-card rounded-2xl shadow-stadium dark:shadow-stadium-dark overflow-hidden transition-transform; }
+}
