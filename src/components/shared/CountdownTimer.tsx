@@ -53,8 +53,12 @@ export const CountdownTimer = () => {
 
   if (isFinished || !duration) return null;
 
+  const totalMonths = (duration.years ?? 0) * 12 + (duration.months ?? 0);
+
   return (
     <div className="flex flex-wrap justify-center gap-6 lg:gap-12 py-12">
+      <FlipBlock value={totalMonths} label="Meses" />
+      <span className="text-white text-4xl hidden lg:block self-center mb-10">:</span>
       <FlipBlock value={duration.days ?? 0} label="Días" />
       <span className="text-white text-4xl hidden lg:block self-center mb-10">:</span>
       <FlipBlock value={duration.hours ?? 0} label="Horas" />
