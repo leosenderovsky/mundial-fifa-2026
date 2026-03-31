@@ -56,15 +56,12 @@ export const CountdownTimer = () => {
   const totalMonths = (duration.years ?? 0) * 12 + (duration.months ?? 0);
 
   if (totalMonths >= 1) {
-    const monthsLabel = totalMonths === 1 ? 'mes' : 'meses';
     const daysValue = duration.days ?? 0;
-    const daysLabel = daysValue === 1 ? 'día' : 'días';
     return (
-      <div className="py-12 text-center">
-        <p className="text-white text-4xl lg:text-5xl font-bold tracking-tight">
-          {totalMonths} {monthsLabel} {daysValue} {daysLabel}
-        </p>
-        <p className="label-caps text-white/70 mt-3">Hasta el inicio</p>
+      <div className="flex flex-wrap justify-center gap-6 lg:gap-12 py-12 lg:min-h-[220px]">
+        <FlipBlock value={totalMonths} label="Meses" />
+        <span className="text-white text-4xl hidden lg:block self-center mb-10">:</span>
+        <FlipBlock value={daysValue} label="Días" />
       </div>
     );
   }
