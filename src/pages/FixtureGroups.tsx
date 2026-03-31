@@ -14,13 +14,13 @@ type ViewType = 'groups' | 'calendar' | 'knockout';
 
 export default function FixtureGroups() {
   const [activeView, setActiveView] = useState<ViewType>('groups');
-  const { data: standingsData } = useApiData<{ standings: Standing[] }>(
+  const { data: standingsData, error: standingsError } = useApiData<{ standings: Standing[] }>(
     ['standings'],
     () => api.getStandings()
   );
-  const { data: matchesData, isLoading: matchesLoading } = useApiData<{ matches: Match[] }>(
-    ['matches'],
-    () => api.getMatches()
+  const { data: matchesData, isLoading: matchesLoading, error: matchesError } = useApiData<{ matches: Match[] }>(
+    ['matches', '2026-06-01', '2026-07-31'],
+    () => api.getMatches({ dateFrom: '2026-06-01', dateTo: '2026-07-31' })
   );
 
   const standings = standingsData?.standings ?? [];
@@ -80,6 +80,12 @@ export default function FixtureGroups() {
           </div>
         </header>
 
+        {(standingsError || matchesError) && (
+          <div className="mb-8 stadium-card border border-red-200 dark:border-red-900/40 bg-red-50/80 dark:bg-red-950/30 p-4 text-sm text-red-700 dark:text-red-300">
+            No pudimos cargar datos del fixture desde la API. Revisá la clave y los límites de la API, y volvé a intentar.
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
           <motion.div
             key={activeView}
@@ -96,18 +102,20 @@ export default function FixtureGroups() {
                     groupName={group.key}
                     entries={group.entries}
                     nextMatch={group.nextMatch}
+                    hasStandingsError={Boolean(standingsError)}
+                    hasMatchesError={Boolean(matchesError)}
                   />
                 ))}
               </div>
             )}
 
             {activeView === 'calendar' && (
-              <CalendarView matches={matches} isLoading={matchesLoading} />
+              <CalendarView matches={matches} isLoading={matchesLoading} errorMessage={matchesError ? String(matchesError) : null} />
             )}
 
             {activeView === 'knockout' && (
               <div className="overflow-x-auto pb-12">
-                <KnockoutBracket matches={matches} isLoading={matchesLoading} />
+                <KnockoutBracket matches={matches} isLoading={matchesLoading} errorMessage={matchesError ? String(matchesError) : null} />
               </div>
             )}
           </motion.div>

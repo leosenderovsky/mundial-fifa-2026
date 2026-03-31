@@ -13,7 +13,10 @@ export const api = {
     const res = await fetch(url, {
       headers: API_KEY ? { 'X-Auth-Token': API_KEY } : undefined
     });
-    if (!res.ok) throw new Error('API Error');
+    if (!res.ok) {
+      const detail = await res.text();
+      throw new Error(`API Error ${res.status}${detail ? `: ${detail}` : ''}`);
+    }
     return res.json();
   },
   async getLiveMatches() { return this.fetch('/competitions/WC/matches', { status: 'LIVE' }); },

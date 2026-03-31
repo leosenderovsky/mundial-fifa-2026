@@ -3,6 +3,7 @@ import type { Match } from '../../types/api';
 interface KnockoutBracketProps {
   matches: Match[];
   isLoading?: boolean;
+  errorMessage?: string | null;
 }
 
 const STAGE_LABELS: Record<string, string> = {
@@ -19,11 +20,19 @@ const stageOrder = Object.keys(STAGE_LABELS);
 const formatKickoff = (utcDate: string) =>
   new Date(utcDate).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' }).toUpperCase();
 
-export const KnockoutBracket = ({ matches, isLoading }: KnockoutBracketProps) => {
+export const KnockoutBracket = ({ matches, isLoading, errorMessage }: KnockoutBracketProps) => {
   if (isLoading) {
     return (
       <div className="stadium-card p-10 text-center text-sm text-slate-500">
         Cargando fase eliminatoria...
+      </div>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <div className="stadium-card p-10 text-center text-sm text-slate-500">
+        No se pudo cargar la fase eliminatoria por un error de API.
       </div>
     );
   }

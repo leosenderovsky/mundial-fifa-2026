@@ -3,6 +3,7 @@ import type { Match } from '../../types/api';
 interface CalendarViewProps {
   matches: Match[];
   isLoading?: boolean;
+  errorMessage?: string | null;
 }
 
 const formatDateHeader = (utcDate: string) =>
@@ -15,12 +16,30 @@ const formatDateHeader = (utcDate: string) =>
 const formatKickoff = (utcDate: string) =>
   new Date(utcDate).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
 
-export const CalendarView = ({ matches, isLoading }: CalendarViewProps) => {
+export const CalendarView = ({ matches, isLoading, errorMessage }: CalendarViewProps) => {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-6 text-center">
         <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center animate-pulse" />
         <p className="text-slate-500 dark:text-slate-400 text-sm">Cargando calendario...</p>
+      </div>
+    );
+  }
+
+  if (errorMessage) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 gap-6 text-center">
+        <div className="w-20 h-20 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center">
+          <span className="text-red-500 text-3xl">⚠</span>
+        </div>
+        <div>
+          <h3 className="font-headline font-bold text-xl uppercase tracking-tight mb-2">
+            No pudimos cargar el calendario
+          </h3>
+          <p className="text-slate-500 dark:text-slate-400 text-sm max-w-sm">
+            Hubo un problema al consultar la API. Reintentá en unos minutos.
+          </p>
+        </div>
       </div>
     );
   }

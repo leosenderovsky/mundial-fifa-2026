@@ -6,6 +6,8 @@ interface GroupCardProps {
   groupName: string;
   entries: StandingEntry[];
   nextMatch?: Match | null;
+  hasStandingsError?: boolean;
+  hasMatchesError?: boolean;
 }
 
 const formatGroupLabel = (group: string) =>
@@ -19,7 +21,7 @@ const formatKickoff = (utcDate?: string) => {
   return { time, date: day };
 };
 
-export const GroupCard = ({ groupName, entries, nextMatch }: GroupCardProps) => {
+export const GroupCard = ({ groupName, entries, nextMatch, hasStandingsError, hasMatchesError }: GroupCardProps) => {
   const kickoff = formatKickoff(nextMatch?.utcDate);
 
   return (
@@ -44,7 +46,14 @@ export const GroupCard = ({ groupName, entries, nextMatch }: GroupCardProps) => 
             </tr>
           </thead>
           <tbody className="font-medium">
-            {entries.length === 0 && (
+            {hasStandingsError && (
+              <tr>
+                <td colSpan={4} className="py-6 text-center text-xs text-slate-500">
+                  No se pudieron cargar las posiciones.
+                </td>
+              </tr>
+            )}
+            {!hasStandingsError && entries.length === 0 && (
               <tr>
                 <td colSpan={4} className="py-6 text-center text-xs text-slate-500">
                   Posiciones aún no disponibles.
@@ -80,7 +89,11 @@ export const GroupCard = ({ groupName, entries, nextMatch }: GroupCardProps) => 
 
         <div className="space-y-3">
           <p className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Próximo Partido</p>
-          {nextMatch ? (
+          {hasMatchesError ? (
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-500 text-center">
+              No se pudo cargar el fixture desde la API.
+            </div>
+          ) : nextMatch ? (
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 group cursor-pointer hover:bg-slate-100 transition-colors">
               <span className="font-bold text-xs">{nextMatch.homeTeam.tla ?? nextMatch.homeTeam.name}</span>
               <div className="flex flex-col items-center">
