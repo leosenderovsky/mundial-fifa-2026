@@ -1,4 +1,5 @@
 import type { Match } from '../../types/api';
+import { getFlagCode } from '../../lib/flags';
 
 interface CalendarViewProps {
   matches: Match[];
@@ -81,7 +82,13 @@ export const CalendarView = ({ matches, isLoading, errorMessage }: CalendarViewP
             {grouped[date].map((match) => (
               <div key={match.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900/60 rounded-xl">
                 <div className="flex items-center gap-4">
-                  {match.homeTeam.crest ? (
+                  {getFlagCode(match.homeTeam) ? (
+                    <span
+                      className={`fi fi-${getFlagCode(match.homeTeam)} w-8 h-6 rounded-sm`}
+                      title={match.homeTeam.name}
+                      aria-label={match.homeTeam.name}
+                    />
+                  ) : match.homeTeam.crest ? (
                     <img src={match.homeTeam.crest} alt={match.homeTeam.name} className="w-8 h-8 object-contain" />
                   ) : (
                     <div className="w-8 h-8 bg-slate-200 rounded" />
@@ -94,7 +101,13 @@ export const CalendarView = ({ matches, isLoading, errorMessage }: CalendarViewP
                 </div>
                 <div className="flex items-center gap-4 justify-end">
                   <span className="font-bold text-sm">{match.awayTeam.name}</span>
-                  {match.awayTeam.crest ? (
+                  {getFlagCode(match.awayTeam) ? (
+                    <span
+                      className={`fi fi-${getFlagCode(match.awayTeam)} w-8 h-6 rounded-sm`}
+                      title={match.awayTeam.name}
+                      aria-label={match.awayTeam.name}
+                    />
+                  ) : match.awayTeam.crest ? (
                     <img src={match.awayTeam.crest} alt={match.awayTeam.name} className="w-8 h-8 object-contain" />
                   ) : (
                     <div className="w-8 h-8 bg-slate-200 rounded" />

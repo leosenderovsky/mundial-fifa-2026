@@ -29,6 +29,9 @@ export const api = {
     });
     return this.fetch('/competitions/WC/matches', cleanParams);
   },
+  async getCompetitionTeams() {
+    return this.fetch('/competitions/WC/teams');
+  },
   async getTopScorers(limit: number = 10) { 
     return this.fetch('/competitions/WC/scorers', { limit: String(limit) }); 
   },
