@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { intervalToDuration, isAfter } from 'date-fns';
+import { intervalToDuration, isAfter, type Duration } from 'date-fns';
+import { cn } from '../../lib/utils';
 
 const TARGET_DATE = new Date(Date.UTC(2026, 5, 11, 20, 0, 0));
 
-const FlipBlock = ({ value, label }: { value: number, label: string }) => {
+const FlipBlock = ({ value, label }: { value: number; label: string }) => {
   const [prev, setPrev] = useState(value);
   const [isFlipping, setIsFlipping] = useState(false);
 
@@ -20,10 +21,10 @@ const FlipBlock = ({ value, label }: { value: number, label: string }) => {
 
   return (
     <div className="flex flex-col items-center gap-4">
-      <div className="relative w-24 h-32 lg:w-32 lg:h-40 perspective-1000">
+      <div className="relative w-24 h-32 lg:w-32 lg:h-40 [perspective:1000px]">
         <div className={cn(
           "relative w-full h-full flex items-center justify-center bg-white/10 backdrop-blur-md rounded-xl border border-white/20 transition-transform duration-500",
-          isFlipping && "rotate-x-180"
+          isFlipping && "[transform:rotateX(180deg)]"
         )}>
           <span className="stat-lg text-white text-6xl lg:text-8xl">
             {value.toString().padStart(2, '0')}
@@ -54,17 +55,13 @@ export const CountdownTimer = () => {
 
   return (
     <div className="flex flex-wrap justify-center gap-6 lg:gap-12 py-12">
-      <FlipBlock value={duration.days || 0} label="Días" />
+      <FlipBlock value={duration.days ?? 0} label="Días" />
       <span className="text-white text-4xl hidden lg:block self-center mb-10">:</span>
-      <FlipBlock value={duration.hours || 0} label="Horas" />
+      <FlipBlock value={duration.hours ?? 0} label="Horas" />
       <span className="text-white text-4xl hidden lg:block self-center mb-10">:</span>
-      <FlipBlock value={duration.minutes || 0} label="Minutos" />
+      <FlipBlock value={duration.minutes ?? 0} label="Minutos" />
       <span className="text-white text-4xl hidden lg:block self-center mb-10">:</span>
-      <FlipBlock value={duration.seconds || 0} label="Segundos" />
+      <FlipBlock value={duration.seconds ?? 0} label="Segundos" />
     </div>
   );
 };
-
-// Extensión para tailwind CSS en el index.css o tailwind.config
-// .perspective-1000 { perspective: 1000px; }
-// .rotate-x-180 { transform: rotateX(180deg); }

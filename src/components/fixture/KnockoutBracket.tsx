@@ -1,3 +1,12 @@
+import { cn } from '../../lib/utils';
+
+interface MatchNodeProps {
+  teams: string[];
+  scores: (number | null)[];
+  active?: boolean;
+  isLive?: boolean;
+}
+
 export const KnockoutBracket = () => {
   return (
     <div className="relative min-w-[1200px] py-20 px-10">
@@ -17,9 +26,8 @@ export const KnockoutBracket = () => {
         {/* Cuartos */}
         <div className="space-y-24 relative">
           <MatchNode teams={['México', 'Argentina']} scores={[null, null]} isLive />
-          {/* SVG Connector Octavos -> Cuartos */}
           <svg className="absolute -left-20 top-1/2 -translate-y-1/2 w-20 h-full pointer-events-none opacity-20">
-             <path d="M 0 50 L 40 50 L 40 150 L 80 150" fill="none" stroke="currentColor" strokeWidth="2" className="text-fifa-blue" />
+            <path d="M 0 50 L 40 50 L 40 150 L 80 150" fill="none" stroke="currentColor" strokeWidth="2" className="text-fifa-blue" />
           </svg>
         </div>
 
@@ -42,17 +50,17 @@ export const KnockoutBracket = () => {
   );
 };
 
-const MatchNode = ({ teams, scores, active, isLive }: any) => (
+const MatchNode = ({ teams, scores, active, isLive }: MatchNodeProps) => (
   <div className={cn(
-    "stadium-card p-4 w-64 border-l-4 transition-all",
+    "stadium-card p-4 w-64 border-l-4 transition-all relative",
     active ? "border-fifa-blue" : "border-slate-200 dark:border-slate-700 opacity-60",
     isLive && "border-fifa-red ring-2 ring-fifa-red/20 scale-105"
   )}>
-    {teams.map((team: string, i: number) => (
+    {teams.map((team, i) => (
       <div key={team} className="flex justify-between items-center py-2 first:border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3">
-           <div className="w-4 h-3 bg-slate-200 rounded-sm" />
-           <span className="font-bold text-xs uppercase">{team}</span>
+          <div className="w-4 h-3 bg-slate-200 rounded-sm" />
+          <span className="font-bold text-xs uppercase">{team}</span>
         </div>
         <span className="font-mono font-bold text-sm">{scores[i] ?? '-'}</span>
       </div>

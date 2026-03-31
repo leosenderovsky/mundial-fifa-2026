@@ -1,11 +1,78 @@
-@tailwind base; @tailwind components; @tailwind utilities;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @layer base {
-  :root { --canvas: #f6f3f2; --card: #ffffff; }
-  .dark { --canvas: #0f172a; --card: #1e293b; }
-  body { @apply bg-surface-canvas text-slate-900 dark:text-slate-100 font-body transition-colors duration-300; }
+  :root {
+    --canvas: #f6f3f2;
+    --card: #ffffff;
+  }
+  .dark {
+    --canvas: #0f172a;
+    --card: #1e293b;
+  }
+  body {
+    @apply bg-surface-canvas text-slate-900 dark:text-slate-100 font-body transition-colors duration-300;
+  }
 }
+
 @layer components {
-  .display-lg { @apply font-headline font-black text-6xl lg:text-8xl tracking-tighter uppercase leading-none; }
-  .label-caps { @apply font-headline font-bold text-xs uppercase tracking-[0.2em] text-fifa-blue dark:text-fifa-gold; }
-  .stadium-card { @apply bg-surface-card rounded-2xl shadow-stadium dark:shadow-stadium-dark overflow-hidden transition-transform; }
+  /* ── Typography ───────────────────────────── */
+  .display-lg {
+    @apply font-headline font-black text-6xl lg:text-8xl tracking-tighter uppercase leading-none;
+  }
+  .display-md {
+    @apply font-headline font-black text-4xl lg:text-6xl tracking-tighter uppercase leading-none;
+  }
+  .headline-lg {
+    @apply font-headline font-black text-3xl lg:text-4xl tracking-tight uppercase;
+  }
+  .headline-md {
+    @apply font-headline font-bold text-xl lg:text-2xl tracking-tight;
+  }
+  .label-caps {
+    @apply font-headline font-bold text-xs uppercase tracking-[0.2em] text-fifa-blue dark:text-fifa-gold;
+  }
+  .stat-lg {
+    @apply font-mono font-bold tracking-tighter;
+  }
+  .body-lg {
+    @apply text-base lg:text-lg leading-relaxed;
+  }
+
+  /* ── Cards & Surfaces ─────────────────────── */
+  .stadium-card {
+    @apply bg-surface-card rounded-2xl shadow-stadium dark:shadow-stadium-dark overflow-hidden transition-transform;
+  }
+
+  /* ── Navigation ───────────────────────────── */
+  .glass-nav {
+    @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-slate-200/50 dark:border-slate-800/50;
+  }
+
+  /* ── Scrollbar ────────────────────────────── */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+@layer utilities {
+  /* ── 3D / Perspective (used by CountdownTimer) */
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .rotate-x-180 {
+    transform: rotateX(180deg);
+  }
+
+  /* ── Noise texture overlay ────────────────── */
+  .bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 128px 128px;
+  }
 }

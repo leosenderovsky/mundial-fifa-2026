@@ -1,3 +1,5 @@
+import { cn } from '../../lib/utils';
+
 export const GroupCard = ({ groupName }: { groupName: string }) => {
   return (
     <div className="stadium-card flex flex-col h-full border border-transparent hover:border-fifa-blue/20 transition-all">
@@ -5,7 +7,7 @@ export const GroupCard = ({ groupName }: { groupName: string }) => {
         <h3 className="font-headline font-bold text-white uppercase tracking-tight">{groupName}</h3>
         <span className="text-[10px] font-mono text-white/60 bg-white/10 px-2 py-1 rounded">ESTADIO AZTECA</span>
       </div>
-      
+
       <div className="p-5 flex-1">
         <table className="w-full text-sm mb-6">
           <thead>
@@ -28,7 +30,7 @@ export const GroupCard = ({ groupName }: { groupName: string }) => {
                   </span>
                 </td>
                 <td className="py-3 flex items-center gap-3">
-                  <div className="w-6 h-4 bg-slate-200 rounded-sm" /> {/* Flag Placeholder */}
+                  <div className="w-6 h-4 bg-slate-200 rounded-sm" />
                   <span className="font-bold uppercase tracking-tight text-xs">México</span>
                 </td>
                 <td className="py-3 text-center font-mono text-xs">3</td>

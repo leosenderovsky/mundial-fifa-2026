@@ -1,25 +1,25 @@
+import { SEO } from '../components/shared/SEO';
 import { HeroSection } from '../components/home/HeroSection';
 import { LiveMatchSection } from '../components/home/LiveMatchSection';
 import { ResultsStrip } from '../components/home/ResultsStrip';
 import { GroupsSummary } from '../components/home/GroupsSummary';
 import { VenuesPreview } from '../components/home/VenuesPreview';
 import { TopScorers } from '../components/home/TopScorers';
-import { BottomNav } from '../components/layout/BottomNav';
-
-<SEO 
-  title="Inicio" 
-  description="El portal oficial del Mundial FIFA 2026. Seguí a tus selecciones favoritas y viví la pasión del fútbol mundial."
-  keywords="mundial, fifa 2026, futbol en vivo, copa del mundo, world cup results"
-/>
 
 export default function Home() {
   return (
     <main className="relative min-h-screen pb-20 md:pb-0">
+      <SEO
+        title="Inicio"
+        description="El portal oficial del Mundial FIFA 2026. Seguí a tus selecciones favoritas y viví la pasión del fútbol mundial."
+        keywords="mundial, fifa 2026, futbol en vivo, copa del mundo, world cup results"
+      />
+
       <HeroSection />
-      
+
       <div className="container mx-auto px-4 -mt-24 relative z-10 space-y-20 pb-20">
         <LiveMatchSection />
-        
+
         <section>
           <div className="flex justify-between items-end mb-8">
             <div>
@@ -48,8 +48,6 @@ export default function Home() {
           <TopScorers />
         </section>
       </div>
-
-      <BottomNav />
     </main>
   );
 }

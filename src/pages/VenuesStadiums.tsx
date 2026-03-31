@@ -1,25 +1,20 @@
 import React, { useState } from 'react';
 import { STADIUMS, Stadium } from '../data/stadiums';
 import { StadiumDrawer } from '../components/venues/StadiumDrawer';
-import { MapPin, Users, Maximize2 } from 'lucide-react';
+import { MapPin, Maximize2 } from 'lucide-react';
 import { cn } from '../lib/utils';
-
-<SEO 
-  title="Sedes y Estadios" 
-  description="Explorá las 16 sedes de EE.UU., México y Canadá. Conocé el Estadio Azteca, MetLife y más estadios del Mundial."
-  keywords="sedes mundial 2026, estadios mundial, estadio azteca mundial, sedes mexico, sedes usa"
-/>
 
 export default function VenuesStadiums() {
   const [filter, setFilter] = useState<'All' | 'USA' | 'Mexico' | 'Canada'>('All');
   const [selectedStadium, setSelectedStadium] = useState<Stadium | null>(null);
 
-  const filteredStadiums = STADIUMS.filter(s => filter === 'All' || s.country === filter);
+  const filteredStadiums = STADIUMS.filter((s: Stadium) =>
+    filter === 'All' || s.country === filter
+  );
 
   return (
     <div className="min-h-screen bg-surface-canvas pt-16 pb-24">
       <div className="container mx-auto px-4 md:px-8">
-        
         <header className="mb-16">
           <span className="label-caps mb-4 block">16 Ciudades Anfitrionas</span>
           <h1 className="display-lg text-fifa-blue dark:text-white leading-[0.85] -ml-1">
@@ -28,17 +23,16 @@ export default function VenuesStadiums() {
           </h1>
         </header>
 
-        {/* Filtros */}
         <div className="flex flex-wrap items-center justify-between gap-6 mb-12 border-b border-slate-200 dark:border-slate-800 pb-8">
           <div className="flex bg-white dark:bg-slate-800 p-1.5 rounded-full shadow-sm">
-            {['All', 'USA', 'Mexico', 'Canada'].map((country) => (
+            {(['All', 'USA', 'Mexico', 'Canada'] as const).map((country) => (
               <button
                 key={country}
-                onClick={() => setFilter(country as any)}
+                onClick={() => setFilter(country)}
                 className={cn(
                   "px-8 py-2.5 rounded-full text-xs font-black uppercase tracking-widest transition-all",
-                  filter === country 
-                    ? "bg-fifa-blue text-white shadow-lg" 
+                  filter === country
+                    ? "bg-fifa-blue text-white shadow-lg"
                     : "text-slate-400 hover:text-slate-900 dark:hover:text-white"
                 )}
               >
@@ -46,15 +40,10 @@ export default function VenuesStadiums() {
               </button>
             ))}
           </div>
-          <select className="bg-transparent font-bold text-sm uppercase tracking-widest border-none focus:ring-0 cursor-pointer">
-            <option>Ordenar por Capacidad</option>
-            <option>Ordenar por Nombre</option>
-          </select>
         </div>
 
-        {/* Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredStadiums.map((stadium) => (
+          {filteredStadiums.map((stadium: Stadium) => (
             <div
               key={stadium.id}
               onClick={() => setSelectedStadium(stadium)}
@@ -64,9 +53,9 @@ export default function VenuesStadiums() {
               )}
             >
               <div className="aspect-[16/9] overflow-hidden relative">
-                <img 
-                  src={stadium.imageUrl} 
-                  alt={stadium.name} 
+                <img
+                  src={stadium.imageUrl}
+                  alt={stadium.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 />
                 <div className="absolute top-4 left-4 flex gap-2">
@@ -78,7 +67,6 @@ export default function VenuesStadiums() {
                   </span>
                 </div>
               </div>
-
               <div className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div>
@@ -93,13 +81,10 @@ export default function VenuesStadiums() {
                     <p className="stat-lg text-2xl">{stadium.capacity.toLocaleString()}</p>
                   </div>
                 </div>
-
                 <div className="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-800">
-                  <div className="flex gap-4">
-                    <div className="flex flex-col">
-                      <span className="text-[8px] font-black uppercase text-slate-400">Superficie</span>
-                      <span className="text-[10px] font-bold">Híbrida</span>
-                    </div>
+                  <div className="flex flex-col">
+                    <span className="text-[8px] font-black uppercase text-slate-400">Superficie</span>
+                    <span className="text-[10px] font-bold">Híbrida</span>
                   </div>
                   <button className="flex items-center gap-2 text-fifa-blue dark:text-fifa-gold font-black text-[10px] uppercase tracking-widest hover:translate-x-1 transition-transform">
                     Ver Detalles <Maximize2 size={12} />
@@ -111,9 +96,9 @@ export default function VenuesStadiums() {
         </div>
       </div>
 
-      <StadiumDrawer 
-        stadium={selectedStadium} 
-        onClose={() => setSelectedStadium(null)} 
+      <StadiumDrawer
+        stadium={selectedStadium}
+        onClose={() => setSelectedStadium(null)}
       />
     </div>
   );
