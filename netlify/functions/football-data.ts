@@ -30,7 +30,7 @@ export const handler = async (event: {
     return { statusCode: 400, body: JSON.stringify({ error: 'endpoint requerido' }) };
   }
 
-  if (!endpoint.startsWith('/competitions/WC/')) {
+  if (!endpoint.startsWith('/competitions/WC/') && !endpoint.startsWith('/teams/')) {
     return { statusCode: 400, body: JSON.stringify({ error: 'endpoint no permitido' }) };
   }
 
