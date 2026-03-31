@@ -27,7 +27,9 @@ export default function Home() {
     const matchDate = new Date(match.utcDate);
     return matchDate >= tournamentWindowStart && matchDate <= tournamentWindowEnd;
   });
-  const hasTournamentData = tournamentMatches.some((match) => match.matchday && match.matchday >= 1);
+  const hasTournamentData = tournamentMatches.some((match) =>
+    ['LIVE', 'IN_PLAY', 'PAUSED', 'FINISHED'].includes(match.status)
+  );
 
   return (
     <main className="relative min-h-screen pb-20 md:pb-0">
