@@ -45,7 +45,7 @@ export default function GlobalStats() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                  {scorers?.map((s, i) => (
+                  {scorers?.map((s: any, i: number) => ( // Agregar tipos explícitos para evitar TS7006
                     <tr key={i} className="group hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
                       <td className="py-4 flex items-center gap-4">
                         <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden">

@@ -6,6 +6,12 @@ import { VenuesPreview } from '../components/home/VenuesPreview';
 import { TopScorers } from '../components/home/TopScorers';
 import { BottomNav } from '../components/layout/BottomNav';
 
+<SEO 
+  title="Inicio" 
+  description="El portal oficial del Mundial FIFA 2026. Seguí a tus selecciones favoritas y viví la pasión del fútbol mundial."
+  keywords="mundial, fifa 2026, futbol en vivo, copa del mundo, world cup results"
+/>
+
 export default function Home() {
   return (
     <main className="relative min-h-screen pb-20 md:pb-0">

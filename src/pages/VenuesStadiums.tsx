@@ -4,6 +4,12 @@ import { StadiumDrawer } from '../components/venues/StadiumDrawer';
 import { MapPin, Users, Maximize2 } from 'lucide-react';
 import { cn } from '../lib/utils';
 
+<SEO 
+  title="Sedes y Estadios" 
+  description="Explorá las 16 sedes de EE.UU., México y Canadá. Conocé el Estadio Azteca, MetLife y más estadios del Mundial."
+  keywords="sedes mundial 2026, estadios mundial, estadio azteca mundial, sedes mexico, sedes usa"
+/>
+
 export default function VenuesStadiums() {
   const [filter, setFilter] = useState<'All' | 'USA' | 'Mexico' | 'Canada'>('All');
   const [selectedStadium, setSelectedStadium] = useState<Stadium | null>(null);

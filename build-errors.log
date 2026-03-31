@@ -1,0 +1,28 @@
+Build error log for mundial-fifa-2026
+Command: npm run build
+
+src/components/fixture/GroupCard.tsx:23:36 - error TS2304: Cannot find name 'cn'.
+
+src/components/fixture/KnockoutBracket.tsx:46:19 - error TS2304: Cannot find name 'cn'.
+
+src/components/shared/CountdownTimer.tsx:24:25 - error TS2304: Cannot find name 'cn'.
+
+src/components/shared/CountdownTimer.tsx:39:44 - error TS2304: Cannot find name 'Duration'.
+
+src/components/venues/VenuesStadiums.tsx:2:35 - error TS2307: Cannot find module '../data/stadiums' or its corresponding type declarations.
+
+src/components/venues/VenuesStadiums.tsx:3:31 - error TS2307: Cannot find module '../components/venues/StadiumDrawer' or its corresponding type declarations.
+
+src/components/venues/VenuesStadiums.tsx:5:20 - error TS2307: Cannot find module '../lib/utils' or its corresponding type declarations.
+
+src/components/venues/VenuesStadiums.tsx:11:44 - error TS7006: Parameter 's' implicitly has an 'any' type.
+
+src/components/venues/VenuesStadiums.tsx:51:34 - error TS7006: Parameter 'stadium' implicitly has an 'any' type.
+
+src/pages/FixtureGroups.tsx:6:30 - error TS2307: Cannot find module '../components/fixture/CalendarView' or its corresponding type declarations.
+
+src/pages/GlobalStats.tsx:164:19 - error TS2304: Cannot find name 'cn'.
+
+src/pages/VenuesStadiums.tsx:7:2 - error TS2304: Cannot find name 'SEO'.
+
+src/pages/WorldMap.tsx:10:2 - error TS2304: Cannot find name 'SEO'.

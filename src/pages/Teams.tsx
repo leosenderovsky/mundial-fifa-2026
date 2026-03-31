@@ -1,3 +1,4 @@
+import { motion, AnimatePresence } from 'framer-motion'; // Asegurá esta línea arriba
 import React, { useState } from 'react';
 import { Search, Trophy, TrendingUp, Zap } from 'lucide-react';
 import { TacticalPitch } from '../components/teams/TacticalPitch';

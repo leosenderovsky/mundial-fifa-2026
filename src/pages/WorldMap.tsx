@@ -7,6 +7,12 @@ import { useTheme } from '../hooks/useTheme';
 import { cn } from '../lib/utils';
 import 'leaflet/dist/leaflet.css';
 
+<SEO 
+  title="Mapa Interactivo" 
+  description="Mapa en tiempo real de las sedes del Mundial 2026. Rutas de viaje y calor de goles por ciudad."
+  keywords="mapa mundial 2026, sedes interactivas, ciudades anfitrionas fifa"
+/>
+
 // Custom Marker Icons por país
 const createDivIcon = (color: string) => L.divIcon({
   className: 'custom-pin',

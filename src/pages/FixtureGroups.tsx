@@ -8,6 +8,12 @@ import { KnockoutBracket } from '../components/fixture/KnockoutBracket';
 
 type ViewType = 'groups' | 'calendar' | 'knockout';
 
+<SEO 
+  title="Fixture y Grupos" 
+  description="Consultá el calendario completo y las tablas de posiciones de los 12 grupos del Mundial FIFA 2026."
+  keywords="fixture mundial, grupos mundial 2026, tabla de posiciones fifa, partidos mundial"
+/>
+
 export default function FixtureGroups() {
   const [activeView, setActiveView] = useState<ViewType>('groups');
 
