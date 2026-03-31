@@ -7,6 +7,20 @@ interface MatchNodeProps {
   isLive?: boolean;
 }
 
+const flagByTeamName: Record<string, string> = {
+  'MÃ©xico': 'mx',
+  'Mexico': 'mx',
+  'Argentina': 'ar',
+  'Francia': 'fr',
+  'P. Bajos': 'nl',
+  'PaÃ­ses Bajos': 'nl',
+  'USA': 'us',
+  'CanadÃ¡': 'ca',
+  'Canada': 'ca',
+};
+
+const getFlagCode = (teamName: string) => flagByTeamName[teamName] ?? null;
+
 export const KnockoutBracket = () => {
   return (
     <div className="relative min-w-[1200px] py-20 px-10">
@@ -59,7 +73,11 @@ const MatchNode = ({ teams, scores, active, isLive }: MatchNodeProps) => (
     {teams.map((team, i) => (
       <div key={team} className="flex justify-between items-center py-2 first:border-b border-slate-100 dark:border-slate-800">
         <div className="flex items-center gap-3">
-          <div className="w-4 h-3 bg-slate-200 rounded-sm" />
+          {getFlagCode(team) ? (
+            <span className={`fi fi-${getFlagCode(team)} w-4 h-3 rounded-sm`} />
+          ) : (
+            <div className="w-4 h-3 bg-slate-200 rounded-sm" />
+          )}
           <span className="font-bold text-xs uppercase">{team}</span>
         </div>
         <span className="font-mono font-bold text-sm">{scores[i] ?? '-'}</span>

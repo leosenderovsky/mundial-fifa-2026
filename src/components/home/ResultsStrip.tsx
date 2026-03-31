@@ -8,6 +8,24 @@ export const ResultsStrip = () => {
     { home: 'FRA', away: 'MAR', score: '2 - 0', group: 'D' },
   ];
 
+  const flagByFifaCode: Record<string, string> = {
+    USA: 'us',
+    CAN: 'ca',
+    BRA: 'br',
+    ESP: 'es',
+    ARG: 'ar',
+    JPN: 'jp',
+    FRA: 'fr',
+    MAR: 'ma',
+    MEX: 'mx',
+    ITA: 'it',
+    GER: 'de',
+    NED: 'nl',
+    ENG: 'gb-eng',
+  };
+
+  const getFlagCode = (fifaCode: string) => flagByFifaCode[fifaCode] ?? null;
+
   return (
     <div className="flex gap-4 overflow-x-auto pb-4 snap-x no-scrollbar">
       {mockResults.map((res, i) => (
@@ -19,11 +37,19 @@ export const ResultsStrip = () => {
           <div className="flex flex-col gap-2">
             <span className="text-[10px] font-bold text-slate-400 uppercase">Grupo {res.group}</span>
             <div className="flex items-center gap-3">
-               <div className="w-6 h-4 bg-slate-200 rounded-sm" /> 
+               {getFlagCode(res.home) ? (
+                 <span className={`fi fi-${getFlagCode(res.home)} w-6 h-4 rounded-sm`} />
+               ) : (
+                 <div className="w-6 h-4 bg-slate-200 rounded-sm" />
+               )}
                <span className="font-bold text-sm uppercase">{res.home}</span>
             </div>
             <div className="flex items-center gap-3">
-               <div className="w-6 h-4 bg-slate-200 rounded-sm" /> 
+               {getFlagCode(res.away) ? (
+                 <span className={`fi fi-${getFlagCode(res.away)} w-6 h-4 rounded-sm`} />
+               ) : (
+                 <div className="w-6 h-4 bg-slate-200 rounded-sm" />
+               )}
                <span className="font-bold text-sm uppercase">{res.away}</span>
             </div>
           </div>
