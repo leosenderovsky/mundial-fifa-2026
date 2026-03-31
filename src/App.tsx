@@ -27,6 +27,7 @@ export default function App() {
               <Route path="/sedes"                   element={<Sedes />} />
               <Route path="/selecciones"             element={<Selecciones />} />
               <Route path="/selecciones/:teamId"     element={<TeamDetail />} />
+              <Route path="/selecciones/:teamSlug"   element={<TeamDetail />} />
               <Route path="/stats"                   element={<Stats />} />
               <Route path="/mapa"                    element={<Mapa />} />
             </Routes>

@@ -1,5 +1,7 @@
 import type { Match } from '../../types/api';
 import { getFlagCode } from '../../lib/flags';
+import { Link } from 'react-router-dom';
+import { getTeamLink } from '../../lib/teamLinks';
 
 interface KnockoutBracketProps {
   matches: Match[];
@@ -63,17 +65,19 @@ export const KnockoutBracket = ({ matches, isLoading, errorMessage }: KnockoutBr
             {grouped[stage].map((match) => (
               <div key={match.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900/60 rounded-xl">
                 <div className="flex items-center gap-3">
-                  {getFlagCode(match.homeTeam) ? (
-                    <span
-                      className={`fi fi-${getFlagCode(match.homeTeam)} w-6 h-4 rounded-sm`}
-                      title={match.homeTeam.name}
-                      aria-label={match.homeTeam.name}
-                    />
-                  ) : match.homeTeam.crest ? (
-                    <img src={match.homeTeam.crest} alt={match.homeTeam.name} className="w-6 h-6 object-contain" />
-                  ) : (
-                    <div className="w-6 h-6 bg-slate-200 rounded" />
-                  )}
+                  <Link to={getTeamLink(match.homeTeam)} className="hover:scale-110 transition-transform">
+                    {getFlagCode(match.homeTeam) ? (
+                      <span
+                        className={`fi fi-${getFlagCode(match.homeTeam)} w-6 h-4 rounded-sm`}
+                        title={match.homeTeam.name}
+                        aria-label={match.homeTeam.name}
+                      />
+                    ) : match.homeTeam.crest ? (
+                      <img src={match.homeTeam.crest} alt={match.homeTeam.name} className="w-6 h-6 object-contain" />
+                    ) : (
+                      <div className="w-6 h-6 bg-slate-200 rounded" />
+                    )}
+                  </Link>
                   <span className="sr-only">{match.homeTeam.name}</span>
                 </div>
                 <div className="text-center">
@@ -82,17 +86,19 @@ export const KnockoutBracket = ({ matches, isLoading, errorMessage }: KnockoutBr
                 </div>
                 <div className="flex items-center gap-3">
                   <span className="sr-only">{match.awayTeam.name}</span>
-                  {getFlagCode(match.awayTeam) ? (
-                    <span
-                      className={`fi fi-${getFlagCode(match.awayTeam)} w-6 h-4 rounded-sm`}
-                      title={match.awayTeam.name}
-                      aria-label={match.awayTeam.name}
-                    />
-                  ) : match.awayTeam.crest ? (
-                    <img src={match.awayTeam.crest} alt={match.awayTeam.name} className="w-6 h-6 object-contain" />
-                  ) : (
-                    <div className="w-6 h-6 bg-slate-200 rounded" />
-                  )}
+                  <Link to={getTeamLink(match.awayTeam)} className="hover:scale-110 transition-transform">
+                    {getFlagCode(match.awayTeam) ? (
+                      <span
+                        className={`fi fi-${getFlagCode(match.awayTeam)} w-6 h-4 rounded-sm`}
+                        title={match.awayTeam.name}
+                        aria-label={match.awayTeam.name}
+                      />
+                    ) : match.awayTeam.crest ? (
+                      <img src={match.awayTeam.crest} alt={match.awayTeam.name} className="w-6 h-6 object-contain" />
+                    ) : (
+                      <div className="w-6 h-6 bg-slate-200 rounded" />
+                    )}
+                  </Link>
                 </div>
               </div>
             ))}

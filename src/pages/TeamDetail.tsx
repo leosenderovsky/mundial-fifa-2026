@@ -8,6 +8,7 @@ import { SkeletonLoader } from '../components/shared/SkeletonLoader';
 import { cn } from '../lib/utils';
 import { getFlagCode } from '../lib/flags';
 import type { Player, Team } from '../types/api';
+import { SEO } from '../components/shared/SEO';
 
 type TabKey = 'PLANTEL' | 'PARTIDOS' | 'ESTADÍSTICAS' | 'ACERCA DE';
 
@@ -49,16 +50,55 @@ const formatDate = (value?: string) => {
 };
 
 export default function TeamDetail() {
-  const { teamId } = useParams();
+  const { teamId, teamSlug } = useParams();
+  const rawId = teamSlug ?? teamId ?? '';
+  const parsedId = Number(rawId.split('-')[0]);
   const [activeTab, setActiveTab] = useState<TabKey>('PLANTEL');
 
   const { data: team, isLoading, error } = useApiData<Team>(
-    ['team', teamId!],
-    () => api.getTeamById(Number(teamId))
+    ['team', parsedId],
+    () => api.getTeamById(parsedId)
   );
 
   const squad = team?.squad ?? [];
-  const groupedSquad = useMemo(() => groupPlayersByPosition(squad), [squad]);
+  const needsFallback = Boolean(team && (!team.coach || squad.length === 0));
+
+  const { data: fallbackTeamData } = useApiData<any>(
+    ['fallback-team', team?.name],
+    () => api.getFallbackTeamByName(team?.name ?? ''),
+    { enabled: needsFallback && Boolean(team?.name) }
+  );
+  const fallbackTeam = fallbackTeamData?.teams?.[0] ?? null;
+
+  const { data: fallbackPlayersData } = useApiData<any>(
+    ['fallback-players', fallbackTeam?.idTeam],
+    () => api.getFallbackPlayersByTeamId(fallbackTeam?.idTeam ?? ''),
+    { enabled: needsFallback && Boolean(fallbackTeam?.idTeam) }
+  );
+  const fallbackPlayers = fallbackPlayersData?.player ?? [];
+
+  const mergedSquad: Player[] = squad.length > 0
+    ? squad
+    : fallbackPlayers.map((player: any, index: number) => ({
+        id: Number(player.idPlayer ?? index),
+        name: player.strPlayer ?? 'Jugador',
+        position: player.strPosition ?? 'N/D',
+        dateOfBirth: player.dateBorn ?? '',
+        nationality: player.strNationality ?? '',
+        shirtNumber: player.strNumber ? Number(player.strNumber) : undefined,
+      }));
+
+  const coachName = team?.coach?.name ?? fallbackTeam?.strManager ?? 'Por confirmar';
+  const groupedSquad = useMemo(() => groupPlayersByPosition(mergedSquad), [mergedSquad]);
+
+  const { data: matchesData } = useApiData<{ matches: any[] }>(
+    ['team-matches', parsedId],
+    () => api.getMatches({ dateFrom: '2026-06-01', dateTo: '2026-07-31' }),
+    { staleTime: 1000 * 60 * 10 }
+  );
+  const teamMatches = (matchesData?.matches ?? []).filter(
+    (match: any) => match.homeTeam?.id === parsedId || match.awayTeam?.id === parsedId
+  );
 
   if (isLoading) return <SkeletonLoader variant="player" />;
 
@@ -74,6 +114,11 @@ export default function TeamDetail() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
+      <SEO
+        title={`${team.name} | Selecciones`}
+        description={`Información oficial, plantel y datos de ${team.name} en el Mundial 2026.`}
+        keywords={`${team.name}, selección, mundial 2026, fifa`}
+      />
       <section className="relative pt-20 pb-32 overflow-hidden">
         <div className="absolute top-0 right-0 w-1/2 h-full opacity-20 pointer-events-none">
           {team.crest ? (
@@ -107,7 +152,7 @@ export default function TeamDetail() {
               </div>
               <h1 className="display-lg leading-none mb-4">{team.name.toUpperCase()}</h1>
               <p className="font-mono text-fifa-gold uppercase tracking-[0.3em] font-bold">
-                DT: {team.coach?.name ?? 'Por confirmar'}
+                DT: {coachName}
               </p>
             </div>
           </div>
@@ -171,8 +216,54 @@ export default function TeamDetail() {
           )}
 
           {activeTab === 'PARTIDOS' && (
-            <div className="stadium-card p-8 text-sm text-white/60">
-              Los partidos de la selección se mostrarán cuando el fixture esté confirmado por la API.
+            <div className="space-y-4">
+              {teamMatches.length === 0 ? (
+                <div className="stadium-card p-8 text-sm text-white/60">
+                  No hay partidos disponibles para esta selección en el fixture actual.
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {teamMatches.map((match: any) => {
+                    const isHome = match.homeTeam.id === parsedId;
+                    const opponent = isHome ? match.awayTeam : match.homeTeam;
+                    const dateLabel = new Date(match.utcDate).toLocaleDateString('es-AR', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                    });
+
+                    return (
+                      <div key={match.id} className="stadium-card p-6 bg-white/5 border border-white/10">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] uppercase tracking-widest text-white/40">
+                            {match.group ?? match.stage}
+                          </span>
+                          <span className="text-[10px] uppercase tracking-widest text-white/40">{dateLabel}</span>
+                        </div>
+                        <div className="mt-4 flex items-center gap-4">
+                          {getFlagCode(opponent) ? (
+                            <span
+                              className={`fi fi-${getFlagCode(opponent)} w-10 h-7 rounded-sm`}
+                              title={opponent.name}
+                              aria-label={opponent.name}
+                            />
+                          ) : opponent.crest ? (
+                            <img src={opponent.crest} alt={opponent.name} className="w-10 h-10 object-contain" />
+                          ) : (
+                            <div className="w-10 h-7 bg-white/10 rounded-sm" />
+                          )}
+                          <div>
+                            <p className="text-xs text-white/40 uppercase tracking-widest">
+                              {isHome ? 'Local' : 'Visitante'}
+                            </p>
+                            <h4 className="font-bold">{opponent.name}</h4>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
@@ -213,7 +304,7 @@ export default function TeamDetail() {
                   <Zap className="absolute -right-4 -bottom-4 w-24 h-24 text-fifa-gold opacity-10 group-hover:scale-110 transition-transform" />
                   <h4 className="label-caps text-fifa-gold mb-2 flex items-center gap-2">Selección</h4>
                   <p className="text-sm text-white/80 leading-relaxed font-medium">
-                    Información oficial proporcionada por la API de FIFA.
+                    Información oficial proporcionada por la API y fuentes complementarias.
                   </p>
                 </div>
               </div>

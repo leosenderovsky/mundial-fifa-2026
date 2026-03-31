@@ -1,6 +1,7 @@
 const API_KEY = import.meta.env.VITE_FOOTBALL_DATA_API_KEY || '';
 const BASE_URL = 'https://api.football-data.org/v4';
 const PROXY_URL = '/.netlify/functions/football-data';
+const THESPORTSDB_PROXY_URL = '/.netlify/functions/thesportsdb';
 
 export const api = {
   async fetch(endpoint: string, params: Record<string, string> = {}) {
@@ -31,6 +32,18 @@ export const api = {
   },
   async getCompetitionTeams() {
     return this.fetch('/competitions/WC/teams');
+  },
+  async getFallbackTeamByName(name: string) {
+    const query = new URLSearchParams({ endpoint: '/searchteams.php', t: name }).toString();
+    const res = await fetch(`${THESPORTSDB_PROXY_URL}?${query}`);
+    if (!res.ok) throw new Error('Fallback API Error');
+    return res.json();
+  },
+  async getFallbackPlayersByTeamId(teamId: string) {
+    const query = new URLSearchParams({ endpoint: '/lookup_all_players.php', id: teamId }).toString();
+    const res = await fetch(`${THESPORTSDB_PROXY_URL}?${query}`);
+    if (!res.ok) throw new Error('Fallback API Error');
+    return res.json();
   },
   async getTopScorers(limit: number = 10) { 
     return this.fetch('/competitions/WC/scorers', { limit: String(limit) }); 

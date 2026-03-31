@@ -5,6 +5,7 @@ import { SEO } from '../components/shared/SEO';
 import { useApiData } from '../hooks/useApiData';
 import { api } from '../lib/api';
 import { getFlagCode } from '../lib/flags';
+import { getTeamLink } from '../lib/teamLinks';
 import type { Team } from '../types/api';
 import { SkeletonLoader } from '../components/shared/SkeletonLoader';
 
@@ -74,7 +75,7 @@ export default function Teams() {
               {filteredTeams.map((team) => (
                 <Link
                   key={team.id}
-                  to={`/selecciones/${team.id}`}
+                  to={getTeamLink(team)}
                   className="stadium-card group bg-slate-900/70 border-white/5 hover:border-fifa-blue/50 transition-all overflow-hidden"
                 >
                   <div className="h-40 overflow-hidden relative flex items-center justify-center bg-white/5">

@@ -1,6 +1,8 @@
 import { cn } from '../../lib/utils';
 import type { Match, StandingEntry } from '../../types/api';
 import { getFlagCode } from '../../lib/flags';
+import { Link } from 'react-router-dom';
+import { getTeamLink } from '../../lib/teamLinks';
 
 interface GroupCardProps {
   groupName: string;
@@ -95,32 +97,36 @@ export const GroupCard = ({ groupName, entries, nextMatch, hasStandingsError, ha
             </div>
           ) : nextMatch ? (
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 group cursor-pointer hover:bg-slate-100 transition-colors">
-              {getFlagCode(nextMatch.homeTeam) ? (
-                <span
-                  className={`fi fi-${getFlagCode(nextMatch.homeTeam)} w-6 h-4 rounded-sm`}
-                  title={nextMatch.homeTeam.name}
-                  aria-label={nextMatch.homeTeam.name}
-                />
-              ) : nextMatch.homeTeam.crest ? (
-                <img src={nextMatch.homeTeam.crest} alt={nextMatch.homeTeam.name} className="w-6 h-4 object-contain" />
-              ) : (
-                <div className="w-6 h-4 bg-slate-200 rounded-sm" />
-              )}
+              <Link to={getTeamLink(nextMatch.homeTeam)} className="hover:scale-110 transition-transform">
+                {getFlagCode(nextMatch.homeTeam) ? (
+                  <span
+                    className={`fi fi-${getFlagCode(nextMatch.homeTeam)} w-6 h-4 rounded-sm`}
+                    title={nextMatch.homeTeam.name}
+                    aria-label={nextMatch.homeTeam.name}
+                  />
+                ) : nextMatch.homeTeam.crest ? (
+                  <img src={nextMatch.homeTeam.crest} alt={nextMatch.homeTeam.name} className="w-6 h-4 object-contain" />
+                ) : (
+                  <div className="w-6 h-4 bg-slate-200 rounded-sm" />
+                )}
+              </Link>
               <div className="flex flex-col items-center">
                 <span className="font-mono font-bold text-xs">{kickoff.time}</span>
                 <span className="text-[8px] text-slate-400">{kickoff.date}</span>
               </div>
-              {getFlagCode(nextMatch.awayTeam) ? (
-                <span
-                  className={`fi fi-${getFlagCode(nextMatch.awayTeam)} w-6 h-4 rounded-sm`}
-                  title={nextMatch.awayTeam.name}
-                  aria-label={nextMatch.awayTeam.name}
-                />
-              ) : nextMatch.awayTeam.crest ? (
-                <img src={nextMatch.awayTeam.crest} alt={nextMatch.awayTeam.name} className="w-6 h-4 object-contain" />
-              ) : (
-                <div className="w-6 h-4 bg-slate-200 rounded-sm" />
-              )}
+              <Link to={getTeamLink(nextMatch.awayTeam)} className="hover:scale-110 transition-transform">
+                {getFlagCode(nextMatch.awayTeam) ? (
+                  <span
+                    className={`fi fi-${getFlagCode(nextMatch.awayTeam)} w-6 h-4 rounded-sm`}
+                    title={nextMatch.awayTeam.name}
+                    aria-label={nextMatch.awayTeam.name}
+                  />
+                ) : nextMatch.awayTeam.crest ? (
+                  <img src={nextMatch.awayTeam.crest} alt={nextMatch.awayTeam.name} className="w-6 h-4 object-contain" />
+                ) : (
+                  <div className="w-6 h-4 bg-slate-200 rounded-sm" />
+                )}
+              </Link>
             </div>
           ) : (
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-500 text-center">
