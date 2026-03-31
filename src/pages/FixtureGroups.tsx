@@ -6,11 +6,39 @@ import { SEO } from '../components/shared/SEO';
 import { GroupCard } from '../components/fixture/GroupCard';
 import { CalendarView } from '../components/fixture/CalendarView';
 import { KnockoutBracket } from '../components/fixture/KnockoutBracket';
+import { useApiData } from '../hooks/useApiData';
+import { api } from '../lib/api';
+import type { Match, Standing } from '../types/api';
 
 type ViewType = 'groups' | 'calendar' | 'knockout';
 
 export default function FixtureGroups() {
   const [activeView, setActiveView] = useState<ViewType>('groups');
+  const { data: standingsData } = useApiData<{ standings: Standing[] }>(
+    ['standings'],
+    () => api.getStandings()
+  );
+  const { data: matchesData, isLoading: matchesLoading } = useApiData<{ matches: Match[] }>(
+    ['matches'],
+    () => api.getMatches()
+  );
+
+  const standings = standingsData?.standings ?? [];
+  const matches = matchesData?.matches ?? [];
+
+  const groupOrder = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+  const groups = groupOrder.map((letter) => {
+    const key = `GROUP_${letter}`;
+    const groupStanding = standings.find((s) => s.group === key);
+    const groupMatches = matches
+      .filter((m) => m.group === key && (m.status === 'SCHEDULED' || m.status === 'TIMED'))
+      .sort((a, b) => a.utcDate.localeCompare(b.utcDate));
+    return {
+      key,
+      entries: groupStanding?.table ?? [],
+      nextMatch: groupMatches[0] ?? null,
+    };
+  });
 
   const views = [
     { id: 'groups', label: 'Por Grupos', icon: LayoutGrid },
@@ -62,17 +90,24 @@ export default function FixtureGroups() {
           >
             {activeView === 'groups' && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'].map(letter => (
-                  <GroupCard key={letter} groupName={`Grupo ${letter}`} />
+                {groups.map((group) => (
+                  <GroupCard
+                    key={group.key}
+                    groupName={group.key}
+                    entries={group.entries}
+                    nextMatch={group.nextMatch}
+                  />
                 ))}
               </div>
             )}
 
-            {activeView === 'calendar' && <CalendarView />}
+            {activeView === 'calendar' && (
+              <CalendarView matches={matches} isLoading={matchesLoading} />
+            )}
 
             {activeView === 'knockout' && (
               <div className="overflow-x-auto pb-12">
-                <KnockoutBracket />
+                <KnockoutBracket matches={matches} isLoading={matchesLoading} />
               </div>
             )}
           </motion.div>
