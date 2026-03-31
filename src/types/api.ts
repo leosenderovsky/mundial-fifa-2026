@@ -16,6 +16,8 @@ export interface Team {
   founded?: number;
   clubColors?: string;
   venue?: string;
+  coach?: Coach;
+  squad?: Player[];
 }
 
 export interface Player {
@@ -24,6 +26,14 @@ export interface Player {
   position: string;
   dateOfBirth: string;
   nationality: string;
+  shirtNumber?: number;
+}
+
+export interface Coach {
+  id?: number;
+  name: string;
+  dateOfBirth?: string;
+  nationality?: string;
 }
 
 export interface Scorer {
