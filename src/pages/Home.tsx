@@ -21,7 +21,13 @@ export default function Home() {
     { staleTime: 1000 * 60 * 10 }
   );
   const matches = matchesData?.matches ?? [];
-  const hasTournamentData = matches.some((match) => match.matchday && match.matchday >= 1);
+  const tournamentWindowStart = new Date('2026-06-01T00:00:00Z');
+  const tournamentWindowEnd = new Date('2026-07-31T23:59:59Z');
+  const hasTournamentData = matches.some((match) => {
+    if (!match.matchday || match.matchday < 1) return false;
+    const matchDate = new Date(match.utcDate);
+    return matchDate >= tournamentWindowStart && matchDate <= tournamentWindowEnd;
+  });
 
   return (
     <main className="relative min-h-screen pb-20 md:pb-0">
