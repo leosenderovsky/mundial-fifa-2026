@@ -40,7 +40,7 @@ Portal de datos en tiempo real del Mundial de Fútbol 2026 (EE.UU., México y Ca
 ### 1. Clonar el repo
 
 ```bash
-git clone https://github.com/tu-usuario/mundial-fifa-2026.git
+git clone https://github.com/leosenderovsky/mundial-fifa-2026.git
 cd mundial-fifa-2026
 ```
 
@@ -60,7 +60,7 @@ Editá `.env` con tus claves:
 
 ```env
 VITE_FOOTBALL_DATA_API_KEY=tu_clave_de_football_data
-VITE_GEMINI_API_KEY=tu_clave_de_gemini
+GEMINI_API_KEY=tu_clave_de_gemini
 ```
 
 > - Clave de football-data.org: [registrate gratis](https://www.football-data.org/client/register)

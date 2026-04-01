@@ -1,4 +1,6 @@
 import { SEO } from '../components/shared/SEO';
+import { ErrorBoundary } from '../components/shared/ErrorBoundary';
+import { CountdownTimer } from '../components/shared/CountdownTimer';
 import { HeroSection } from '../components/home/HeroSection';
 import { LiveMatchSection } from '../components/home/LiveMatchSection';
 import { ResultsStrip } from '../components/home/ResultsStrip';
@@ -49,6 +51,10 @@ export default function Home() {
                 No pudimos cargar los datos del Mundial. Revisá la API y volvé a intentar.
               </div>
             )}
+            <div className="text-center p-8 stadium-card border border-fifa-blue/20 bg-fifa-blue/10 mb-8 mt-8">
+              <h3 className="headline-md uppercase text-fifa-blue dark:text-fifa-gold mb-6">El torneo comienza el 11 de junio de 2026. ¡Quedan:</h3>
+              <CountdownTimer />
+            </div>
             <TournamentGuideSection />
             <KeyDatesSection />
             <FanRouteSection />
@@ -59,7 +65,9 @@ export default function Home() {
 
         {hasTournamentData && !matchesError && (
           <>
-            <LiveMatchSection />
+            <ErrorBoundary>
+              <LiveMatchSection />
+            </ErrorBoundary>
 
             <section>
               <div className="flex justify-between items-end mb-8">

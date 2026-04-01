@@ -9,6 +9,8 @@ import { cn } from '../lib/utils';
 import { getFlagCode } from '../lib/flags';
 import type { Player, Team } from '../types/api';
 import { SEO } from '../components/shared/SEO';
+import { ErrorBoundary } from '../components/shared/ErrorBoundary';
+import { GeminiPlayerBio } from '../components/teams/GeminiPlayerBio';
 
 type TabKey = 'PLANTEL' | 'PARTIDOS' | 'ESTADÍSTICAS' | 'ACERCA DE';
 
@@ -54,6 +56,7 @@ export default function TeamDetail() {
   const rawId = teamSlug ?? teamId ?? '';
   const parsedId = Number(rawId.split('-')[0]);
   const [activeTab, setActiveTab] = useState<TabKey>('PLANTEL');
+  const [openPlayerBio, setOpenPlayerBio] = useState<number | null>(null);
 
   const { data: team, isLoading, error } = useApiData<Team>(
     ['team', parsedId],
@@ -183,7 +186,14 @@ export default function TeamDetail() {
                     <h3 className="label-caps text-white mb-6">{label}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {players.map((player) => (
-                        <div key={player.id} className="stadium-card p-5 bg-white/5 border border-white/10">
+                        <div 
+                          key={player.id} 
+                          className="stadium-card p-5 bg-white/5 border border-white/10 relative cursor-pointer"
+                          onClick={() => setOpenPlayerBio(openPlayerBio === player.id ? null : player.id)}
+                        >
+                          <ErrorBoundary>
+                            <GeminiPlayerBio playerName={player.name} isOpen={openPlayerBio === player.id} />
+                          </ErrorBoundary>
                           <div className="flex items-center gap-4 mb-4">
                             <div className="w-12 h-12 rounded-xl bg-fifa-gold/10 flex items-center justify-center text-fifa-gold">
                               <User size={18} />

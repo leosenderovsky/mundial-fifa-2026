@@ -2,6 +2,8 @@ import { useApiData } from '../hooks/useApiData';
 import { api } from '../lib/api';
 import { SEO } from '../components/shared/SEO';
 import { Goal, Activity } from 'lucide-react';
+import { ErrorBoundary } from '../components/shared/ErrorBoundary';
+import { GeminiTournamentSummary } from '../components/stats/GeminiTournamentSummary';
 
 export default function GlobalStats() {
   const { data: scorers, error: scorersError, isLoading } = useApiData(
@@ -27,6 +29,10 @@ export default function GlobalStats() {
             <h1 className="display-md text-fifa-blue dark:text-white leading-none">Estadísticas <br /> Globales</h1>
           </div>
         </header>
+
+        <ErrorBoundary>
+          <GeminiTournamentSummary />
+        </ErrorBoundary>
 
         {(isLoading || scorersError || !hasScorers) && (
           <div className="stadium-card p-10 text-center text-sm text-slate-500">
