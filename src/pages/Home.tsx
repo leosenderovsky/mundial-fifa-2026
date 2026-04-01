@@ -15,14 +15,13 @@ import { api } from '../lib/api';
 import type { Match } from '../types/api';
 
 export default function Home() {
-  const tournamentStart = new Date(Date.UTC(2026, 5, 11, 20, 0, 0));
-  const hasTournamentStarted = new Date() >= tournamentStart;
-
   const { data: matchesData, error: matchesError } = useApiData<{ matches: Match[] }>(
     ['home-matches', '2026-06-01', '2026-07-31'],
     () => api.getMatches({ dateFrom: '2026-06-01', dateTo: '2026-07-31' }),
-    { staleTime: 1000 * 60 * 10, enabled: hasTournamentStarted }
+    { staleTime: 1000 * 60 * 10 }
   );
+  const matches = matchesData?.matches ?? [];
+  const hasTournamentData = matches.some((match) => match.matchday && match.matchday >= 1);
 
   return (
     <main className="relative min-h-screen pb-20 md:pb-0">
@@ -37,8 +36,13 @@ export default function Home() {
       <div className="container mx-auto px-4 -mt-24 relative z-10 space-y-20 pb-20">
         <VenuesPreview />
 
-        {!hasTournamentStarted && (
+        {!hasTournamentData && (
           <>
+            {matchesError && (
+              <div className="stadium-card border border-red-200 dark:border-red-900/40 bg-red-50/80 dark:bg-red-950/30 p-4 text-sm text-red-700 dark:text-red-300">
+                No pudimos cargar los datos del Mundial. Revisá la API y volvé a intentar.
+              </div>
+            )}
             <TournamentGuideSection />
             <KeyDatesSection />
             <FanRouteSection />
@@ -47,7 +51,7 @@ export default function Home() {
           </>
         )}
 
-        {hasTournamentStarted && !matchesError && (
+        {hasTournamentData && !matchesError && (
           <>
             <LiveMatchSection />
 
