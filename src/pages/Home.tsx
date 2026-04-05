@@ -17,7 +17,7 @@ import { api } from '../lib/api';
 import type { Match } from '../types/api';
 
 export default function Home() {
-  const { data: matchesData, error: matchesError } = useApiData<{ matches: Match[] }>(
+  const { data: matchesData, error: matchesError, isLoading: matchesLoading } = useApiData<{ matches: Match[] }>(
     ['home-matches', '2026-06-01', '2026-07-31'],
     () => api.getMatches({ dateFrom: '2026-06-01', dateTo: '2026-07-31' }),
     { staleTime: 1000 * 60 * 10 }
@@ -30,6 +30,10 @@ export default function Home() {
     const matchDate = new Date(match.utcDate);
     return matchDate >= tournamentWindowStart && matchDate <= tournamentWindowEnd;
   });
+
+  const tournamentStart = new Date('2026-06-11T00:00:00Z');
+  const now = new Date();
+  const isPreTournament = now < tournamentStart;
 
   return (
     <main className="relative min-h-screen pb-20 md:pb-0">
@@ -44,7 +48,7 @@ export default function Home() {
       <div className="container mx-auto px-4 -mt-24 relative z-10 space-y-20 pb-20">
         <VenuesPreview />
 
-        {!hasTournamentData && (
+        {(isPreTournament || (!hasTournamentData && !matchesLoading)) && (
           <>
             {matchesError && (
               <div className="stadium-card border border-red-200 dark:border-red-900/40 bg-red-50/80 dark:bg-red-950/30 p-4 text-sm text-red-700 dark:text-red-300">
@@ -52,7 +56,9 @@ export default function Home() {
               </div>
             )}
             <div className="text-center p-8 stadium-card border border-fifa-blue/20 bg-fifa-blue/10 mb-8 mt-8">
-              <h3 className="headline-md uppercase text-fifa-blue dark:text-fifa-gold mb-6">El torneo comienza el 11 de junio de 2026. ¡Quedan:</h3>
+              <h3 className="headline-md uppercase text-fifa-blue dark:text-fifa-gold mb-6">
+                El torneo comienza el 11 de junio de 2026. ¡Quedan:
+              </h3>
               <CountdownTimer />
             </div>
             <TournamentGuideSection />
@@ -63,7 +69,7 @@ export default function Home() {
           </>
         )}
 
-        {hasTournamentData && !matchesError && (
+        {!isPreTournament && hasTournamentData && !matchesError && (
           <>
             <ErrorBoundary>
               <LiveMatchSection />

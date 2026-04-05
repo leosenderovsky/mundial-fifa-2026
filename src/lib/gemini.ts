@@ -6,7 +6,7 @@
  * (Netlify) como en desarrollo local con `netlify dev`.
  */
 
-const FUNCTION_URL = '/.netlify/functions/gemini';
+const FUNCTION_URL = '/.netlify/functions/gemini-proxy';
 
 export async function getGeminiContent(prompt: string, cacheKey: string): Promise<string> {
   // Verificar caché primero (evita llamadas repetidas en la misma sesión)

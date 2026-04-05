@@ -88,7 +88,7 @@ El proyecto incluye `netlify.toml` configurado. Para deployar:
 2. Conectá el repo en [app.netlify.com](https://app.netlify.com)
 3. Configurá las variables de entorno en **Site settings → Environment variables**:
    - `VITE_FOOTBALL_DATA_API_KEY`
-   - `VITE_GEMINI_API_KEY`
+   - `GEMINI_API_KEY`
 4. El build se dispara automáticamente
 
 ## 📁 Estructura del proyecto

@@ -59,7 +59,7 @@ export default function TeamDetail() {
   const [openPlayerBio, setOpenPlayerBio] = useState<number | null>(null);
 
   const { data: team, isLoading, error } = useApiData<Team>(
-    ['team', parsedId],
+    ['team', String(parsedId)],
     () => api.getTeamById(parsedId)
   );
 
@@ -67,14 +67,14 @@ export default function TeamDetail() {
   const needsFallback = Boolean(team && (!team.coach || squad.length === 0));
 
   const { data: fallbackTeamData } = useApiData<any>(
-    ['fallback-team', team?.name],
+    ['fallback-team', team?.name ?? ''],
     () => api.getFallbackTeamByName(team?.name ?? ''),
     { enabled: needsFallback && Boolean(team?.name) }
   );
   const fallbackTeam = fallbackTeamData?.teams?.[0] ?? null;
 
   const { data: fallbackPlayersData } = useApiData<any>(
-    ['fallback-players', fallbackTeam?.idTeam],
+    ['fallback-players', String(fallbackTeam?.idTeam)],
     () => api.getFallbackPlayersByTeamId(fallbackTeam?.idTeam ?? ''),
     { enabled: needsFallback && Boolean(fallbackTeam?.idTeam) }
   );
@@ -95,7 +95,7 @@ export default function TeamDetail() {
   const groupedSquad = useMemo(() => groupPlayersByPosition(mergedSquad), [mergedSquad]);
 
   const { data: matchesData } = useApiData<{ matches: any[] }>(
-    ['team-matches', parsedId],
+    ['team-matches', String(parsedId)],
     () => api.getMatches({ dateFrom: '2026-06-01', dateTo: '2026-07-31' }),
     { staleTime: 1000 * 60 * 10 }
   );
