@@ -31,9 +31,11 @@ export default function Home() {
     return matchDate >= tournamentWindowStart && matchDate <= tournamentWindowEnd;
   });
 
-  const tournamentStart = new Date('2026-06-11T00:00:00Z');
+  const tournamentStart = new Date(2026, 5, 11);
   const now = new Date();
   const isPreTournament = now < tournamentStart;
+  const diffTime = tournamentStart.getTime() - now.getTime();
+  const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
   return (
     <main className="relative min-h-screen pb-20 md:pb-0">
@@ -57,8 +59,11 @@ export default function Home() {
             )}
             <div className="text-center p-8 stadium-card border border-fifa-blue/20 bg-fifa-blue/10 mb-8 mt-8">
               <h3 className="headline-md uppercase text-fifa-blue dark:text-fifa-gold mb-6">
-                El torneo comienza el 11 de junio de 2026. ¡Quedan:
+                El torneo comienza el 11 de junio de 2026
               </h3>
+              <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
+                Faltan {daysLeft} días para el inicio
+              </p>
               <CountdownTimer />
             </div>
             <TournamentGuideSection />
