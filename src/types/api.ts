@@ -10,7 +10,7 @@ export interface Team {
   name: string;
   shortName: string;
   tla: string;
-  crest: string;
+  crest?: string;
   address?: string;
   website?: string;
   founded?: number;
