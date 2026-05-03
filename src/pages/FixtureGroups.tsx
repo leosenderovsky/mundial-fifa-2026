@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LayoutGrid, Calendar, GitMerge, Zap } from 'lucide-react';
+import { LayoutGrid, Calendar, GitMerge, Zap, Info } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { SEO } from '../components/shared/SEO';
 import { GroupCard } from '../components/fixture/GroupCard';
@@ -8,6 +8,7 @@ import { CalendarView } from '../components/fixture/CalendarView';
 import { KnockoutBracket } from '../components/fixture/KnockoutBracket';
 import { useApiData } from '../hooks/useApiData';
 import { api } from '../lib/api';
+import { STATIC_GROUPS, STATIC_MATCHES } from '../data/fixtureData';
 import type { Match, Standing } from '../types/api';
 
 type ViewType = 'groups' | 'calendar' | 'knockout';
@@ -24,7 +25,8 @@ export default function FixtureGroups() {
   );
 
   const standings = standingsData?.standings ?? [];
-  const matches = matchesData?.matches ?? [];
+  const apiMatches = matchesData?.matches ?? [];
+  const matches = apiMatches.length > 0 ? apiMatches : (matchesError ? (STATIC_MATCHES as Match[]) : []);
 
   const groupOrder = ['A','B','C','D','E','F','G','H','I','J','K','L'];
   const groups = groupOrder.map((letter) => {
@@ -33,12 +35,17 @@ export default function FixtureGroups() {
     const groupMatches = matches
       .filter((m) => m.group === key && (m.status === 'SCHEDULED' || m.status === 'TIMED'))
       .sort((a, b) => a.utcDate.localeCompare(b.utcDate));
+    const staticGroup = STATIC_GROUPS.find(sg => sg.key === key);
+    
     return {
       key,
       entries: groupStanding?.table ?? [],
+      staticTeams: staticGroup?.teams ?? [],
       nextMatch: groupMatches[0] ?? null,
     };
   });
+
+  const isUsingStaticData = groups.every(g => g.entries.length === 0);
 
   const views = [
     { id: 'groups', label: 'Por Grupos', icon: LayoutGrid },
@@ -60,13 +67,13 @@ export default function FixtureGroups() {
             <h1 className="display-md text-fifa-blue dark:text-white">Fixture <br />Mundial 2026</h1>
           </div>
 
-          <div className="flex bg-white dark:bg-slate-800 p-1.5 rounded-xl shadow-stadium">
+          <div className="flex bg-white dark:bg-slate-800 p-1.5 rounded-xl shadow-stadium overflow-x-auto">
             {views.map((view) => (
               <button
                 key={view.id}
                 onClick={() => setActiveView(view.id as ViewType)}
                 className={cn(
-                  "flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all",
+                  "flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-bold transition-all whitespace-nowrap",
                   activeView === view.id
                     ? "bg-fifa-blue text-white shadow-lg"
                     : "text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700"
@@ -80,9 +87,21 @@ export default function FixtureGroups() {
           </div>
         </header>
 
+        {isUsingStaticData && activeView === 'groups' && (
+          <div className="mb-12 flex items-center gap-4 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-3xl text-blue-800 dark:text-blue-300 shadow-sm">
+            <div className="bg-blue-100 dark:bg-blue-800 p-3 rounded-2xl">
+              <Info className="text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p className="font-bold uppercase tracking-tight text-xs mb-1">Datos del sorteo oficial</p>
+              <p className="text-sm opacity-80">Las posiciones se actualizarán cuando comience el torneo (11 jun 2026).</p>
+            </div>
+          </div>
+        )}
+
         {(standingsError || matchesError) && (
           <div className="mb-8 stadium-card border border-red-200 dark:border-red-900/40 bg-red-50/80 dark:bg-red-950/30 p-4 text-sm text-red-700 dark:text-red-300">
-            No pudimos cargar datos del fixture desde la API. Revisá la clave y los límites de la API, y volvé a intentar.
+            No pudimos cargar algunos datos desde la API. Mostrando información de respaldo.
           </div>
         )}
 
@@ -101,6 +120,7 @@ export default function FixtureGroups() {
                     key={group.key}
                     groupName={group.key}
                     entries={group.entries}
+                    staticTeams={group.staticTeams}
                     nextMatch={group.nextMatch}
                     hasStandingsError={Boolean(standingsError)}
                     hasMatchesError={Boolean(matchesError)}
@@ -110,12 +130,12 @@ export default function FixtureGroups() {
             )}
 
             {activeView === 'calendar' && (
-              <CalendarView matches={matches} isLoading={matchesLoading} errorMessage={matchesError ? String(matchesError) : null} />
+              <CalendarView matches={matches} isLoading={matchesLoading} errorMessage={matches.length > 0 ? null : (matchesError ? String(matchesError) : null)} />
             )}
 
             {activeView === 'knockout' && (
               <div className="overflow-x-auto pb-12">
-                <KnockoutBracket matches={matches} isLoading={matchesLoading} errorMessage={matchesError ? String(matchesError) : null} />
+                <KnockoutBracket matches={matches} isLoading={matchesLoading} errorMessage={matches.length > 0 ? null : (matchesError ? String(matchesError) : null)} />
               </div>
             )}
           </motion.div>
@@ -124,3 +144,4 @@ export default function FixtureGroups() {
     </div>
   );
 }
+

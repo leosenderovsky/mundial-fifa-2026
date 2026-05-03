@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Moon, Sun, Menu, X } from 'lucide-react';
+import { Moon, Sun, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../hooks/useTheme';
@@ -29,7 +29,7 @@ const NavLink = ({ to, children, onClick }: NavLinkProps) => {
   );
 };
 
-export const Navbar = ({ showLive = true }: { showLive?: boolean }) => {
+export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
 
@@ -62,20 +62,10 @@ export const Navbar = ({ showLive = true }: { showLive?: boolean }) => {
 
         {/* ACTIONS */}
         <div className="flex items-center space-x-4 lg:space-x-6">
-          {showLive && (
-            <div className="hidden md:flex items-center bg-fifa-red text-white px-4 py-1.5 rounded-sm gap-2 animate-pulse">
-              <span className="w-2 h-2 bg-white rounded-full" />
-              <span className="text-xs font-bold uppercase tracking-widest">En Vivo</span>
-            </div>
-          )}
-
-          <button className="p-2 text-slate-600 dark:text-slate-400 hover:text-fifa-blue dark:hover:text-fifa-gold transition-colors">
-            <Search size={20} />
-          </button>
-
           <button 
             onClick={toggleTheme}
             className="p-2 text-slate-600 dark:text-slate-400 hover:text-fifa-blue dark:hover:text-fifa-gold transition-colors"
+            title="Cambiar tema"
           >
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
           </button>

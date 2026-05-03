@@ -11,6 +11,7 @@ import type { Player, Team } from '../types/api';
 import { SEO } from '../components/shared/SEO';
 import { ErrorBoundary } from '../components/shared/ErrorBoundary';
 import { GeminiPlayerBio } from '../components/teams/GeminiPlayerBio';
+import { COACHES } from '../data/coachData';
 
 type TabKey = 'PLANTEL' | 'PARTIDOS' | 'ESTADÍSTICAS' | 'ACERCA DE';
 
@@ -91,7 +92,7 @@ export default function TeamDetail() {
         shirtNumber: player.strNumber ? Number(player.strNumber) : undefined,
       }));
 
-  const coachName = team?.coach?.name ?? fallbackTeam?.strManager ?? 'Por confirmar';
+  const coachName = team?.coach?.name ?? fallbackTeam?.strManager ?? COACHES[team?.name ?? ''] ?? 'Por confirmar';
   const groupedSquad = useMemo(() => groupPlayersByPosition(mergedSquad), [mergedSquad]);
 
   const { data: matchesData } = useApiData<{ matches: any[] }>(

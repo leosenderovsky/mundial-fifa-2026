@@ -1,6 +1,6 @@
 import { SEO } from '../components/shared/SEO';
 import { ErrorBoundary } from '../components/shared/ErrorBoundary';
-import { CountdownTimer } from '../components/shared/CountdownTimer';
+import { CountdownTimer, getDaysToTournament } from '../components/shared/CountdownTimer';
 import { HeroSection } from '../components/home/HeroSection';
 import { LiveMatchSection } from '../components/home/LiveMatchSection';
 import { ResultsStrip } from '../components/home/ResultsStrip';
@@ -9,6 +9,7 @@ import { VenuesPreview } from '../components/home/VenuesPreview';
 import { TopScorers } from '../components/home/TopScorers';
 import { TournamentGuideSection } from '../components/home/TournamentGuideSection';
 import { KeyDatesSection } from '../components/home/KeyDatesSection';
+import { NewsSection } from '../components/home/NewsSection';
 import { FanRouteSection } from '../components/home/FanRouteSection';
 import { VenueStoriesSection } from '../components/home/VenueStoriesSection';
 import { FollowWorldCupSection } from '../components/home/FollowWorldCupSection';
@@ -34,15 +35,14 @@ export default function Home() {
   const tournamentStart = new Date(2026, 5, 11);
   const now = new Date();
   const isPreTournament = now < tournamentStart;
-  const diffTime = tournamentStart.getTime() - now.getTime();
-  const daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  const daysLeft = getDaysToTournament();
 
   return (
     <main className="relative min-h-screen pb-20 md:pb-0">
       <SEO
         title="Inicio"
-        description="El portal oficial del Mundial FIFA 2026. Seguí a tus selecciones favoritas y viví la pasión del fútbol mundial."
-        keywords="mundial, fifa 2026, futbol en vivo, copa del mundo, world cup results"
+        description="El portal oficial del Mundial FIFA 2026. Seguí a tus selecciones favoritas y viví la pasión del fútbol."
+        keywords="mundial, fifa 2026, copa del mundo, world cup results, sedes 2026"
       />
 
       <HeroSection />
@@ -57,17 +57,40 @@ export default function Home() {
                 No pudimos cargar los datos del Mundial. Revisá la API y volvé a intentar.
               </div>
             )}
-            <div className="text-center p-8 stadium-card border border-fifa-blue/20 bg-fifa-blue/10 mb-8 mt-8">
-              <h3 className="headline-md uppercase text-fifa-blue dark:text-fifa-gold mb-6">
-                El torneo comienza el 11 de junio de 2026
-              </h3>
-              <p className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4">
-                Faltan {daysLeft} días para el inicio
-              </p>
-              <CountdownTimer />
-            </div>
+            
+            <section className="stadium-card overflow-hidden shadow-2xl border-none">
+              <div className="bg-gradient-to-r from-fifa-blue to-blue-900 p-8 text-white flex flex-col md:flex-row justify-between items-center gap-8">
+                <div className="text-center md:text-left">
+                  <h3 className="headline-md uppercase mb-3 leading-tight">El torneo comienza el <br /> 11 de junio de 2026</h3>
+                  <div className="flex justify-center md:justify-start items-center gap-2">
+                    <span className="bg-fifa-gold text-fifa-blue text-[10px] font-black px-3 py-1 rounded-sm uppercase tracking-widest shadow-lg">
+                      Faltan {daysLeft} días
+                    </span>
+                  </div>
+                </div>
+                <CountdownTimer variant="site" />
+              </div>
+              <div className="bg-white dark:bg-slate-800/50 p-6 flex flex-wrap justify-center gap-x-12 gap-y-4 border-t border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                <div className="flex items-center gap-3">
+                  <span className="text-fifa-blue dark:text-fifa-gold text-lg">⚽</span> 104 Partidos
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-fifa-blue dark:text-fifa-gold text-lg">🏟️</span> 16 Estadios
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-fifa-blue dark:text-fifa-gold text-lg">🌍</span> 48 Selecciones
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-fifa-blue dark:text-fifa-gold text-lg">🏆</span> Final 19 Julio
+                </div>
+              </div>
+            </section>
+
             <TournamentGuideSection />
             <KeyDatesSection />
+            <ErrorBoundary>
+              <NewsSection />
+            </ErrorBoundary>
             <FanRouteSection />
             <VenueStoriesSection />
             <FollowWorldCupSection />
@@ -105,9 +128,14 @@ export default function Home() {
               </div>
               <TopScorers />
             </section>
+
+            <ErrorBoundary>
+              <NewsSection />
+            </ErrorBoundary>
           </>
         )}
       </div>
     </main>
   );
 }
+

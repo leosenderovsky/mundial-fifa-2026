@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, MapPin } from 'lucide-react';
+import { Search, MapPin, AlertCircle } from 'lucide-react';
 import { SEO } from '../components/shared/SEO';
 import { useApiData } from '../hooks/useApiData';
 import { api } from '../lib/api';
@@ -8,6 +8,7 @@ import { getFlagCode } from '../lib/flags';
 import { getTeamLink } from '../lib/teamLinks';
 import type { Team } from '../types/api';
 import { SkeletonLoader } from '../components/shared/SkeletonLoader';
+import { STATIC_TEAMS } from '../data/fixtureData';
 
 export default function Teams() {
   const [query, setQuery] = useState('');
@@ -16,7 +17,8 @@ export default function Teams() {
     () => api.getCompetitionTeams()
   );
 
-  const teams = data?.teams ?? [];
+  const teams = (data?.teams && data.teams.length > 0) ? data.teams : (error ? STATIC_TEAMS : []);
+  const isFallback = error && teams.length > 0;
 
   const filteredTeams = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -56,7 +58,14 @@ export default function Teams() {
             </div>
           </div>
 
-          {isLoading && (
+          {isFallback && (
+            <div className="mb-8 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl flex items-center gap-3 text-amber-200 text-xs font-bold uppercase tracking-wider">
+              <AlertCircle size={18} />
+              Modo Offline: Mostrando selecciones del sorteo oficial (API no disponible).
+            </div>
+          )}
+
+          {isLoading && teams.length === 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {Array.from({ length: 8 }).map((_, index) => (
                 <SkeletonLoader key={index} variant="card" />
@@ -64,45 +73,48 @@ export default function Teams() {
             </div>
           )}
 
-          {error && (
+          {error && teams.length === 0 && (
             <div className="stadium-card p-6 text-center text-sm text-slate-400">
               No pudimos cargar las selecciones desde la API.
             </div>
           )}
 
-          {!isLoading && !error && (
+          {teams.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {filteredTeams.map((team) => (
-                <Link
-                  key={team.id}
-                  to={getTeamLink(team)}
-                  className="stadium-card group bg-slate-900/70 border-white/5 hover:border-fifa-blue/50 transition-all overflow-hidden"
-                >
-                  <div className="h-40 overflow-hidden relative flex items-center justify-center bg-white/5">
-                    {team.crest ? (
-                      <img src={team.crest} alt={team.name} className="w-24 h-24 object-contain" />
-                    ) : getFlagCode(team) ? (
-                      <span
-                        className={`fi fi-${getFlagCode(team)} w-16 h-10 rounded-sm`}
-                        title={team.name}
-                        aria-label={team.name}
-                      />
-                    ) : (
-                      <div className="w-20 h-12 bg-slate-700 rounded-sm" />
-                    )}
-                  </div>
-                  <div className="p-6 space-y-2">
-                    <h3 className="headline-md uppercase tracking-tight">{team.name}</h3>
-                    <div className="flex items-center gap-2 text-xs text-white/60">
-                      <MapPin size={14} />
-                      <span>{team.tla ?? 'Selección nacional'}</span>
+              {filteredTeams.map((team) => {
+                const flagCode = getFlagCode(team) || (team as any).flag;
+                return (
+                  <Link
+                    key={`${team.id}-${team.name}`}
+                    to={getTeamLink(team)}
+                    className="stadium-card group bg-slate-900/70 border-white/5 hover:border-fifa-blue/50 transition-all overflow-hidden"
+                  >
+                    <div className="h-40 overflow-hidden relative flex items-center justify-center bg-white/5">
+                      {team.crest ? (
+                        <img src={team.crest} alt={team.name} className="w-24 h-24 object-contain" />
+                      ) : flagCode ? (
+                        <span
+                          className={`fi fi-${flagCode} w-24 h-16 rounded-sm shadow-2xl`}
+                          title={team.name}
+                          aria-label={team.name}
+                        />
+                      ) : (
+                        <div className="w-20 h-12 bg-slate-700 rounded-sm" />
+                      )}
                     </div>
-                    <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest">
-                      Ver perfil
-                    </span>
-                  </div>
-                </Link>
-              ))}
+                    <div className="p-6 space-y-2">
+                      <h3 className="headline-md uppercase tracking-tight">{team.name}</h3>
+                      <div className="flex items-center gap-2 text-xs text-white/60">
+                        <MapPin size={14} />
+                        <span>{team.tla ?? 'Selección nacional'}</span>
+                      </div>
+                      <span className="text-[10px] text-white/40 font-bold uppercase tracking-widest group-hover:text-fifa-blue transition-colors">
+                        Ver perfil
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>

@@ -1,5 +1,6 @@
 import { cn } from '../../lib/utils';
 import type { Match, StandingEntry } from '../../types/api';
+import type { StaticTeam } from '../../data/fixtureData';
 import { getFlagCode } from '../../lib/flags';
 import { Link } from 'react-router-dom';
 import { getTeamLink } from '../../lib/teamLinks';
@@ -7,6 +8,7 @@ import { getTeamLink } from '../../lib/teamLinks';
 interface GroupCardProps {
   groupName: string;
   entries: StandingEntry[];
+  staticTeams?: StaticTeam[];
   nextMatch?: Match | null;
   hasStandingsError?: boolean;
   hasMatchesError?: boolean;
@@ -16,15 +18,23 @@ const formatGroupLabel = (group: string) =>
   group.replace('GROUP_', 'Grupo ');
 
 const formatKickoff = (utcDate?: string) => {
-  if (!utcDate) return { time: '--:--', date: '-- ---' };
+  if (!utcDate) return { time: '--:--', date: 'JUN 2026' };
   const date = new Date(utcDate);
   const time = date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
   const day = date.toLocaleDateString('es-AR', { day: '2-digit', month: 'short' }).toUpperCase();
   return { time, date: day };
 };
 
-export const GroupCard = ({ groupName, entries, nextMatch, hasStandingsError, hasMatchesError }: GroupCardProps) => {
+export const GroupCard = ({ 
+  groupName, 
+  entries, 
+  staticTeams = [], 
+  nextMatch, 
+  hasStandingsError, 
+  hasMatchesError 
+}: GroupCardProps) => {
   const kickoff = formatKickoff(nextMatch?.utcDate);
+  const showStatic = entries.length === 0 && staticTeams.length > 0;
 
   return (
     <div className="stadium-card flex flex-col h-full border border-transparent hover:border-fifa-blue/20 transition-all">
@@ -48,54 +58,60 @@ export const GroupCard = ({ groupName, entries, nextMatch, hasStandingsError, ha
             </tr>
           </thead>
           <tbody className="font-medium">
-            {hasStandingsError && (
+            {showStatic ? (
+              staticTeams.map((team, idx) => (
+                <tr key={team.name} className="border-b border-slate-50 dark:border-slate-800/50 group">
+                  <td className="py-3">
+                    <span className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold bg-slate-100 text-slate-500">
+                      {idx + 1}
+                    </span>
+                  </td>
+                  <td className="py-3 flex items-center gap-3">
+                    <span className={`fi fi-${team.flag} w-6 h-4 rounded-sm`} title={team.nameEs} />
+                    <span className="font-bold uppercase tracking-tight text-xs">{team.nameEs}</span>
+                  </td>
+                  <td className="py-3 text-center font-mono text-xs">0</td>
+                  <td className="py-3 text-center font-mono font-bold text-fifa-blue dark:text-fifa-gold">0</td>
+                </tr>
+              ))
+            ) : entries.length > 0 ? (
+              entries.map((entry) => (
+                <tr key={entry.team.id} className="border-b border-slate-50 dark:border-slate-800/50 group">
+                  <td className="py-3">
+                    <span className={cn(
+                      "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold",
+                      entry.position <= 2 ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"
+                    )}>
+                      {entry.position}
+                    </span>
+                  </td>
+                  <td className="py-3 flex items-center gap-3">
+                    {getFlagCode(entry.team) ? (
+                      <span className={`fi fi-${getFlagCode(entry.team)} w-6 h-4 rounded-sm`} title={entry.team.name} />
+                    ) : entry.team.crest ? (
+                      <img src={entry.team.crest} alt={entry.team.name} className="w-6 h-4 object-contain" />
+                    ) : (
+                      <div className="w-6 h-4 bg-slate-200 rounded-sm" />
+                    )}
+                    <span className="font-bold uppercase tracking-tight text-xs">{entry.team.name}</span>
+                  </td>
+                  <td className="py-3 text-center font-mono text-xs">{entry.playedGames}</td>
+                  <td className="py-3 text-center font-mono font-bold text-fifa-blue dark:text-fifa-gold">{entry.points}</td>
+                </tr>
+              ))
+            ) : (
               <tr>
                 <td colSpan={4} className="py-6 text-center text-xs text-slate-500">
-                  No se pudieron cargar las posiciones.
+                  {hasStandingsError ? "No se pudieron cargar las posiciones." : "Posiciones aún no disponibles."}
                 </td>
               </tr>
             )}
-            {!hasStandingsError && entries.length === 0 && (
-              <tr>
-                <td colSpan={4} className="py-6 text-center text-xs text-slate-500">
-                  Posiciones aún no disponibles.
-                </td>
-              </tr>
-            )}
-            {entries.map((entry) => (
-              <tr key={entry.team.id} className="border-b border-slate-50 dark:border-slate-800/50 group">
-                <td className="py-3">
-                  <span className={cn(
-                    "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold",
-                    entry.position <= 2 ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"
-                  )}>
-                    {entry.position}
-                  </span>
-                </td>
-                <td className="py-3 flex items-center gap-3">
-                  {getFlagCode(entry.team) ? (
-                    <span className={`fi fi-${getFlagCode(entry.team)} w-6 h-4 rounded-sm`} title={entry.team.name} />
-                  ) : entry.team.crest ? (
-                    <img src={entry.team.crest} alt={entry.team.name} className="w-6 h-4 object-contain" />
-                  ) : (
-                    <div className="w-6 h-4 bg-slate-200 rounded-sm" />
-                  )}
-                  <span className="font-bold uppercase tracking-tight text-xs">{entry.team.name}</span>
-                </td>
-                <td className="py-3 text-center font-mono text-xs">{entry.playedGames}</td>
-                <td className="py-3 text-center font-mono font-bold text-fifa-blue dark:text-fifa-gold">{entry.points}</td>
-              </tr>
-            ))}
           </tbody>
         </table>
 
         <div className="space-y-3">
           <p className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Próximo Partido</p>
-          {hasMatchesError ? (
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-500 text-center">
-              No se pudo cargar el fixture desde la API.
-            </div>
-          ) : nextMatch ? (
+          {nextMatch ? (
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 group cursor-pointer hover:bg-slate-100 transition-colors">
               <Link to={getTeamLink(nextMatch.homeTeam)} className="hover:scale-110 transition-transform">
                 {getFlagCode(nextMatch.homeTeam) ? (
@@ -129,8 +145,8 @@ export const GroupCard = ({ groupName, entries, nextMatch, hasStandingsError, ha
               </Link>
             </div>
           ) : (
-            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-500 text-center">
-              El fixture aún no fue publicado por la API.
+            <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-500 text-center font-bold">
+              {kickoff.date}
             </div>
           )}
         </div>
@@ -138,3 +154,4 @@ export const GroupCard = ({ groupName, entries, nextMatch, hasStandingsError, ha
     </div>
   );
 };
+
