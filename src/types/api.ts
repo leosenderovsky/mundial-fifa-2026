@@ -8,9 +8,10 @@ export interface Competition {
 export interface Team {
   id: number;
   name: string;
-  shortName: string;
-  tla: string;
+  shortName?: string;
+  tla?: string;
   crest?: string;
+  flag?: string;
   address?: string;
   website?: string;
   founded?: number;

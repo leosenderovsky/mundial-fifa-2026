@@ -1,3 +1,5 @@
+import type { Team, Match } from '../types/api';
+
 export interface StaticTeam {
   name: string;
   nameEs: string;
@@ -134,7 +136,7 @@ export const STATIC_GROUPS: StaticGroup[] = [
   },
 ];
 
-export const STATIC_TEAMS = STATIC_GROUPS.flatMap((group) => 
+export const STATIC_TEAMS: Team[] = STATIC_GROUPS.flatMap((group) => 
   group.teams.map((team) => ({
     id: Math.floor(Math.random() * 1000000), // Random ID for keying
     name: team.nameEs,
@@ -144,7 +146,7 @@ export const STATIC_TEAMS = STATIC_GROUPS.flatMap((group) =>
     flag: team.flag
   }))
 );
-export const STATIC_MATCHES = [
+export const STATIC_MATCHES: Partial<Match>[] = [
   {
     id: 1,
     utcDate: '2026-06-11T19:00:00Z',
