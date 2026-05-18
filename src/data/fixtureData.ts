@@ -3,13 +3,13 @@ import type { Team, Match } from '../types/api';
 export interface StaticTeam {
   name: string;
   nameEs: string;
-  flag: string; // código ISO 2 letras para flag-icons (ej: 'ar', 'gb-eng', 'gb-sct')
-  crestUrl?: string; // https://crests.football-data.org/XXX.svg
+  flag: string;
+  crestUrl?: string;
 }
 
 export interface StaticGroup {
-  key: string; // 'GROUP_A', etc.
-  label: string; // 'Grupo A'
+  key: string;
+  label: string;
   teams: StaticTeam[];
 }
 
@@ -136,55 +136,105 @@ export const STATIC_GROUPS: StaticGroup[] = [
   },
 ];
 
-export const STATIC_TEAMS: Team[] = STATIC_GROUPS.flatMap((group) => 
-  group.teams.map((team) => ({
-    id: Math.floor(Math.random() * 1000000), // Random ID for keying
-    name: team.nameEs,
-    shortName: team.name,
-    tla: team.flag.toUpperCase(),
-    crest: undefined,
-    flag: team.flag
-  }))
+const stableTeamId = (groupIndex: number, teamIndex: number) =>
+  2026000 + groupIndex * 10 + teamIndex;
+
+const toApiTeam = (teamData: StaticTeam, groupIndex: number, teamIndex: number): Team => ({
+  id: stableTeamId(groupIndex, teamIndex),
+  name: teamData.nameEs,
+  shortName: teamData.name,
+  tla: teamData.flag.toUpperCase(),
+  crest: teamData.crestUrl,
+  flag: teamData.flag,
+});
+
+export const STATIC_TEAMS: Team[] = STATIC_GROUPS.flatMap((group, groupIndex) =>
+  group.teams.map((team, teamIndex) => toApiTeam(team, groupIndex, teamIndex))
 );
-export const STATIC_MATCHES: Partial<Match>[] = [
-  {
-    id: 1,
-    utcDate: '2026-06-11T19:00:00Z',
-    status: 'SCHEDULED',
+
+const emptyScore = {
+  winner: null,
+  duration: 'REGULAR',
+  fullTime: { home: null, away: null },
+  halfTime: { home: null, away: null },
+};
+
+const ROUND_ROBIN = [[0, 1], [2, 3], [0, 2], [1, 3], [0, 3], [1, 2]] as const;
+
+const GROUP_KICKOFF_HOURS = [15, 18, 21];
+
+function generateGroupStageMatches(): Match[] {
+  const matches: Match[] = [];
+  let matchId = 1;
+  const tournamentStart = new Date('2026-06-11T00:00:00Z');
+
+  STATIC_GROUPS.forEach((group, groupIndex) => {
+    ROUND_ROBIN.forEach((pair, matchIndex) => {
+      const home = group.teams[pair[0]];
+      const away = group.teams[pair[1]];
+      const dayOffset = Math.floor(matchIndex / 2) + groupIndex;
+      const hour = GROUP_KICKOFF_HOURS[matchIndex % GROUP_KICKOFF_HOURS.length];
+      const date = new Date(tournamentStart);
+      date.setUTCDate(date.getUTCDate() + dayOffset);
+      date.setUTCHours(hour, 0, 0, 0);
+
+      matches.push({
+        id: matchId++,
+        utcDate: date.toISOString(),
+        status: 'SCHEDULED',
+        matchday: Math.floor(matchIndex / 2) + 1,
+        stage: 'GROUP_STAGE',
+        group: group.key,
+        lastUpdated: date.toISOString(),
+        homeTeam: toApiTeam(home, groupIndex, pair[0]),
+        awayTeam: toApiTeam(away, groupIndex, pair[1]),
+        score: emptyScore,
+      });
+    });
+  });
+
+  return matches;
+}
+
+const tbdTeam = (label: string, id: number): Team => ({
+  id,
+  name: label,
+  shortName: label,
+  crest: undefined,
+});
+
+function generateKnockoutMatches(): Match[] {
+  const slots = [
+  { stage: 'LAST_32', date: '2026-06-28T17:00:00Z', home: '1º Grupo A', away: '3º Grupo B/C/D' },
+  { stage: 'LAST_32', date: '2026-06-29T20:00:00Z', home: '1º Grupo B', away: '3º Grupo A/C/D' },
+  { stage: 'LAST_32', date: '2026-06-30T17:00:00Z', home: '1º Grupo C', away: '3º Grupo A/B/D' },
+  { stage: 'LAST_32', date: '2026-07-01T20:00:00Z', home: '1º Grupo D', away: '3º Grupo A/B/C' },
+  { stage: 'LAST_16', date: '2026-07-04T17:00:00Z', home: 'Ganador R32-1', away: 'Ganador R32-2' },
+  { stage: 'LAST_16', date: '2026-07-05T20:00:00Z', home: 'Ganador R32-3', away: 'Ganador R32-4' },
+  { stage: 'LAST_16', date: '2026-07-06T17:00:00Z', home: 'Ganador R32-5', away: 'Ganador R32-6' },
+  { stage: 'LAST_16', date: '2026-07-07T20:00:00Z', home: 'Ganador R32-7', away: 'Ganador R32-8' },
+  { stage: 'QUARTER_FINALS', date: '2026-07-09T20:00:00Z', home: 'Ganador R16-1', away: 'Ganador R16-2' },
+  { stage: 'QUARTER_FINALS', date: '2026-07-10T17:00:00Z', home: 'Ganador R16-3', away: 'Ganador R16-4' },
+  { stage: 'SEMI_FINALS', date: '2026-07-14T20:00:00Z', home: 'Ganador CF-1', away: 'Ganador CF-2' },
+  { stage: 'SEMI_FINALS', date: '2026-07-15T20:00:00Z', home: 'Ganador CF-3', away: 'Ganador CF-4' },
+  { stage: 'THIRD_PLACE', date: '2026-07-18T17:00:00Z', home: 'Perdedor SF-1', away: 'Perdedor SF-2' },
+  { stage: 'FINAL', date: '2026-07-19T20:00:00Z', home: 'Ganador SF-1', away: 'Ganador SF-2' },
+  ];
+
+  return slots.map((slot, index) => ({
+    id: 9000 + index,
+    utcDate: slot.date,
+    status: 'SCHEDULED' as const,
     matchday: 1,
-    stage: 'GROUP_STAGE',
-    group: 'GROUP_A',
-    homeTeam: { id: 1, name: 'México', crest: 'https://crests.football-data.org/MEX.svg' },
-    awayTeam: { id: 2, name: 'Sudáfrica', crest: 'https://crests.football-data.org/ZAF.svg' },
-  },
-  {
-    id: 2,
-    utcDate: '2026-06-12T15:00:00Z',
-    status: 'SCHEDULED',
-    matchday: 1,
-    stage: 'GROUP_STAGE',
-    group: 'GROUP_D',
-    homeTeam: { id: 3, name: 'Estados Unidos', crest: 'https://crests.football-data.org/USA.svg' },
-    awayTeam: { id: 4, name: 'Australia', crest: 'https://crests.football-data.org/AUS.svg' },
-  },
-  {
-    id: 3,
-    utcDate: '2026-06-12T18:00:00Z',
-    status: 'SCHEDULED',
-    matchday: 1,
-    stage: 'GROUP_STAGE',
-    group: 'GROUP_B',
-    homeTeam: { id: 5, name: 'Canadá', crest: 'https://crests.football-data.org/CAN.svg' },
-    awayTeam: { id: 6, name: 'Suiza', crest: 'https://crests.football-data.org/CHE.svg' },
-  },
-  {
-    id: 4,
-    utcDate: '2026-06-13T21:00:00Z',
-    status: 'SCHEDULED',
-    matchday: 1,
-    stage: 'GROUP_STAGE',
-    group: 'GROUP_J',
-    homeTeam: { id: 7, name: 'Argentina', crest: 'https://crests.football-data.org/ARG.svg' },
-    awayTeam: { id: 8, name: 'Argelia', crest: 'https://crests.football-data.org/DZA.svg' },
-  }
-];
+    stage: slot.stage,
+    group: null,
+    lastUpdated: slot.date,
+    homeTeam: tbdTeam(slot.home, 9100 + index * 2),
+    awayTeam: tbdTeam(slot.away, 9100 + index * 2 + 1),
+    score: emptyScore,
+  }));
+}
+
+export const STATIC_GROUP_MATCHES = generateGroupStageMatches();
+export const STATIC_KNOCKOUT_MATCHES = generateKnockoutMatches();
+export const STATIC_MATCHES: Match[] = [...STATIC_GROUP_MATCHES, ...STATIC_KNOCKOUT_MATCHES];

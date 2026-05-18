@@ -50,5 +50,19 @@ export const api = {
   },
   async getTeamById(id: number) { 
     return this.fetch(`/teams/${id}`); 
-  }
+  },
+  async getWorldCupNews() {
+    const res = await fetch('/.netlify/functions/news-rss');
+    if (!res.ok) throw new Error('No se pudieron cargar las noticias');
+    return res.json() as Promise<{ items: Array<{
+      title: string;
+      summary: string;
+      category: string;
+      source: string;
+      date: string;
+      emoji: string;
+      tags: string[];
+      url: string;
+    }> }>;
+  },
 };

@@ -28,6 +28,7 @@ export interface Player {
   dateOfBirth: string;
   nationality: string;
   shirtNumber?: number;
+  photo?: string;
 }
 
 export interface Coach {
@@ -35,6 +36,7 @@ export interface Coach {
   name: string;
   dateOfBirth?: string;
   nationality?: string;
+  photo?: string;
 }
 
 export interface Scorer {

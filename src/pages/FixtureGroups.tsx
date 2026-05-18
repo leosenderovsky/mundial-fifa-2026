@@ -8,7 +8,7 @@ import { CalendarView } from '../components/fixture/CalendarView';
 import { KnockoutBracket } from '../components/fixture/KnockoutBracket';
 import { useApiData } from '../hooks/useApiData';
 import { api } from '../lib/api';
-import { STATIC_GROUPS, STATIC_MATCHES } from '../data/fixtureData';
+import { STATIC_GROUPS, STATIC_GROUP_MATCHES, STATIC_KNOCKOUT_MATCHES } from '../data/fixtureData';
 import type { Match, Standing } from '../types/api';
 
 type ViewType = 'groups' | 'calendar' | 'knockout';
@@ -26,7 +26,18 @@ export default function FixtureGroups() {
 
   const standings = standingsData?.standings ?? [];
   const apiMatches = matchesData?.matches ?? [];
-  const matches = apiMatches.length > 0 ? apiMatches : (matchesError ? (STATIC_MATCHES as Match[]) : []);
+  const hasApiMatches = apiMatches.length > 0;
+
+  const calendarMatches = hasApiMatches
+    ? apiMatches.filter((m) => m.stage === 'GROUP_STAGE')
+    : (!matchesLoading ? STATIC_GROUP_MATCHES : []);
+
+  const knockoutMatches = hasApiMatches
+    ? apiMatches.filter((m) => m.stage !== 'GROUP_STAGE')
+    : (!matchesLoading ? STATIC_KNOCKOUT_MATCHES : []);
+
+  const matches = hasApiMatches ? apiMatches : [...calendarMatches, ...knockoutMatches];
+  const isUsingStaticMatches = !hasApiMatches && !matchesLoading && matches.length > 0;
 
   const groupOrder = ['A','B','C','D','E','F','G','H','I','J','K','L'];
   const groups = groupOrder.map((letter) => {
@@ -99,9 +110,21 @@ export default function FixtureGroups() {
           </div>
         )}
 
-        {(standingsError || matchesError) && (
-          <div className="mb-8 stadium-card border border-red-200 dark:border-red-900/40 bg-red-50/80 dark:bg-red-950/30 p-4 text-sm text-red-700 dark:text-red-300">
-            No pudimos cargar algunos datos desde la API. Mostrando información de respaldo.
+        {(isUsingStaticMatches || standingsError || matchesError) && activeView !== 'groups' && (
+          <div className="mb-8 flex items-center gap-4 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-3xl text-blue-800 dark:text-blue-300 shadow-sm">
+            <motion.div className="bg-blue-100 dark:bg-blue-800 p-3 rounded-2xl">
+              <Info className="text-blue-600 dark:text-blue-400" />
+            </motion.div>
+            <div>
+              <p className="font-bold uppercase tracking-tight text-xs mb-1">
+                {isUsingStaticMatches ? 'Calendario del sorteo oficial' : 'Datos parciales'}
+              </p>
+              <p className="text-sm opacity-80">
+                {isUsingStaticMatches
+                  ? 'Mostrando el fixture basado en el sorteo oficial. Se actualizará automáticamente cuando la API publique los partidos.'
+                  : 'No pudimos cargar algunos datos desde la API. Mostrando información de respaldo.'}
+              </p>
+            </div>
           </div>
         )}
 
@@ -130,12 +153,22 @@ export default function FixtureGroups() {
             )}
 
             {activeView === 'calendar' && (
-              <CalendarView matches={matches} isLoading={matchesLoading} errorMessage={matches.length > 0 ? null : (matchesError ? String(matchesError) : null)} />
+              <CalendarView
+                matches={calendarMatches}
+                isLoading={matchesLoading}
+                errorMessage={matchesError && calendarMatches.length === 0 ? String(matchesError) : null}
+                isStaticData={isUsingStaticMatches}
+              />
             )}
 
             {activeView === 'knockout' && (
               <div className="overflow-x-auto pb-12">
-                <KnockoutBracket matches={matches} isLoading={matchesLoading} errorMessage={matches.length > 0 ? null : (matchesError ? String(matchesError) : null)} />
+                <KnockoutBracket
+                  matches={knockoutMatches}
+                  isLoading={matchesLoading}
+                  errorMessage={matchesError && knockoutMatches.length === 0 ? String(matchesError) : null}
+                  isStaticData={isUsingStaticMatches}
+                />
               </div>
             )}
           </motion.div>

@@ -7,6 +7,7 @@ interface KnockoutBracketProps {
   matches: Match[];
   isLoading?: boolean;
   errorMessage?: string | null;
+  isStaticData?: boolean;
 }
 
 const STAGE_LABELS: Record<string, string> = {
@@ -23,7 +24,7 @@ const stageOrder = Object.keys(STAGE_LABELS);
 const formatKickoff = (utcDate: string) =>
   new Date(utcDate).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' }).toUpperCase();
 
-export const KnockoutBracket = ({ matches, isLoading, errorMessage }: KnockoutBracketProps) => {
+export const KnockoutBracket = ({ matches, isLoading, errorMessage, isStaticData }: KnockoutBracketProps) => {
   if (isLoading) {
     return (
       <div className="stadium-card p-10 text-center text-sm text-slate-500">
@@ -40,7 +41,7 @@ export const KnockoutBracket = ({ matches, isLoading, errorMessage }: KnockoutBr
     );
   }
 
-  const knockoutMatches = matches.filter((match) => match.stage !== 'GROUP_STAGE');
+  const knockoutMatches = matches;
   if (!knockoutMatches.length) {
     return (
       <div className="stadium-card p-10 text-center text-sm text-slate-500">
@@ -56,6 +57,11 @@ export const KnockoutBracket = ({ matches, isLoading, errorMessage }: KnockoutBr
 
   return (
     <div className="space-y-10 min-w-[900px]">
+      {isStaticData && (
+        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold mb-4">
+          Cuadro eliminatorio según formato oficial — equipos por definir al cierre de grupos
+        </p>
+      )}
       {stageOrder.filter((stage) => grouped[stage]?.length).map((stage) => (
         <div key={stage} className="stadium-card p-6">
           <h3 className="font-headline font-bold uppercase text-fifa-blue dark:text-white mb-6">
@@ -78,14 +84,14 @@ export const KnockoutBracket = ({ matches, isLoading, errorMessage }: KnockoutBr
                       <div className="w-6 h-6 bg-slate-200 rounded" />
                     )}
                   </Link>
-                  <span className="sr-only">{match.homeTeam.name}</span>
+                  <span className="font-bold text-sm truncate max-w-[120px]">{match.homeTeam.name}</span>
                 </div>
                 <div className="text-center">
                   <span className="text-xs font-mono">{formatKickoff(match.utcDate)}</span>
                   <span className="block text-[10px] text-slate-400 uppercase">{match.status}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="sr-only">{match.awayTeam.name}</span>
+                  <span className="font-bold text-sm truncate max-w-[120px]">{match.awayTeam.name}</span>
                   <Link to={getTeamLink(match.awayTeam)} className="hover:scale-110 transition-transform">
                     {getFlagCode(match.awayTeam) ? (
                       <span

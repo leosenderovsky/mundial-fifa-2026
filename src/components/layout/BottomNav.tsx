@@ -1,13 +1,16 @@
 import { NavLink } from 'react-router-dom';
 import { Home, MapPin, Calendar, BarChart3, Map } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useStatsVisibility } from '../../hooks/useStatsVisibility';
 
 export const BottomNav = () => {
+  const { isVisible: showStats } = useStatsVisibility();
+
   const items = [
     { icon: Home, label: 'Inicio', path: '/' },
     { icon: MapPin, label: 'Sedes', path: '/sedes' },
     { icon: Calendar, label: 'Fixture', path: '/fixture' },
-    { icon: BarChart3, label: 'Stats', path: '/stats' },
+    ...(showStats ? [{ icon: BarChart3, label: 'Stats', path: '/stats' }] : []),
     { icon: Map, label: 'Mapa', path: '/mapa' },
   ];
 

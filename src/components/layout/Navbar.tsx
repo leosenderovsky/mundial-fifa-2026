@@ -4,6 +4,7 @@ import { Moon, Sun, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../hooks/useTheme';
+import { useStatsVisibility } from '../../hooks/useStatsVisibility';
 
 interface NavLinkProps {
   to: string;
@@ -32,13 +33,14 @@ const NavLink = ({ to, children, onClick }: NavLinkProps) => {
 export const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const { isVisible: showStats } = useStatsVisibility();
 
   const navItems = [
     { label: 'Inicio', path: '/' },
     { label: 'Sedes & Estadios', path: '/sedes' },
     { label: 'Fixture & Grupos', path: '/fixture' },
     { label: 'Selecciones', path: '/selecciones' },
-    { label: 'Estadísticas', path: '/stats' },
+    ...(showStats ? [{ label: 'Estadísticas', path: '/stats' }] : []),
     { label: 'Mapa', path: '/mapa' },
   ];
 

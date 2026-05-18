@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Newspaper, RefreshCw, Clock } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Newspaper, RefreshCw, Clock, ExternalLink } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getGeminiContent } from '../../lib/gemini';
+import { api } from '../../lib/api';
 import { cn } from '../../lib/utils';
 
 interface NewsItem {
@@ -12,6 +12,7 @@ interface NewsItem {
   date: string;
   emoji: string;
   tags: string[];
+  url?: string;
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -23,94 +24,51 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Figuras': 'bg-fifa-gold/20 text-fifa-gold dark:bg-fifa-gold/10 dark:text-fifa-gold',
 };
 
-const STATIC_NEWS: NewsItem[] = [
-  {
-    title: "México se prepara para la gran inauguración en el Azteca",
-    summary: "El legendario Estadio Azteca ultima detalles para recibir el partido inaugural. Se espera una ceremonia sin precedentes que unirá a los tres países anfitriones.",
-    category: "Estadios",
-    source: "Olé",
-    date: "3 May 2026",
-    emoji: "🏟️",
-    tags: ["México", "Inauguración"]
-  },
-  {
-    title: "Messi confirma su presencia: 'Llego en mi mejor momento mental'",
-    summary: "El astro argentino declaró que el Mundial 2026 será un desafío único y que su objetivo es defender la corona con la Albiceleste en tierras norteamericanas.",
-    category: "Figuras",
-    source: "ESPN",
-    date: "2 May 2026",
-    emoji: "🐐",
-    tags: ["Messi", "Argentina"]
-  },
-  {
-    title: "Análisis del Grupo de la Muerte: El Grupo C bajo la lupa",
-    summary: "Brasil, Marruecos, Haití y Escocia prometen una batalla táctica fascinante. Los expertos señalan a Marruecos como el gran contendiente tras su éxito en Qatar.",
-    category: "Análisis",
-    source: "Marca",
-    date: "1 May 2026",
-    emoji: "📊",
-    tags: ["Brasil", "Marruecos"]
-  },
-  {
-    title: "Nuevas tecnologías de refrigeración en sedes de EE.UU.",
-    summary: "La FIFA aprobó los sistemas de control climático para los estadios en zonas de alta temperatura, garantizando el bienestar de jugadores y aficionados.",
-    category: "Estadios",
-    source: "Fox Sports",
-    date: "30 Abr 2026",
-    emoji: "❄️",
-    tags: ["Tecnología", "Sedes"]
-  },
-  {
-    title: "Canadá busca hacer historia en casa con Alphonso Davies",
-    summary: "La selección canadiense intensifica su preparación en Vancouver. Davies liderará un grupo joven que sueña con superar la fase de grupos por primera vez.",
-    category: "Selecciones",
-    source: "TSN",
-    date: "29 Abr 2026",
-    emoji: "🇨🇦",
-    tags: ["Canadá", "Davies"]
-  },
-  {
-    title: "El trofeo del Mundial inicia su gira por las 16 sedes",
-    summary: "La Copa inició su recorrido oficial en Nueva York y pasará por Ciudad de México y Toronto antes del pitazo inicial el 11 de junio.",
-    category: "Historia",
-    source: "FIFA",
-    date: "28 Abr 2026",
-    emoji: "🏆",
-    tags: ["Trofeo", "Tour"]
-  }
-];
+const CACHE_KEY = 'mundial2026_rss_news';
+const CACHE_TTL = 1000 * 60 * 30;
 
 export const NewsSection = () => {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchNews = async (force = false) => {
+  const fetchNews = useCallback(async (force = false) => {
     setIsLoading(true);
     setError(null);
-    
-    const prompt = `Eres un periodista deportivo latinoamericano. Genera 6 noticias verosímiles sobre el Mundial FIFA 2026 (EE.UU., México y Canadá, 11 jun - 19 jul 2026). Las noticias deben cubrir temas variados: preparación de selecciones, análisis de grupos, jugadores estrella (Messi, Mbappé, Vinicius, Bellingham, Pulisic, Yamal, etc.), sedes, expectativas, curiosidades históricas. Usa español latinoamericano natural.
-Devuelve SOLO un JSON array válido, sin markdown, sin texto extra:
-[{ "title": "...", "summary": "...", "category": "Selecciones | Fixture | Estadios | Historia | Análisis | Figuras", "source": "...", "date": "...", "emoji": "...", "tags": ["...", "..."] }]`;
 
     try {
-      if (force) sessionStorage.removeItem('mundial2026_news_v1');
-      const res = await getGeminiContent(prompt, 'mundial2026_news_v1');
-      const cleaned = res.replace(/```json/g, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleaned);
-      setNews(parsed);
+      if (!force) {
+        const cached = sessionStorage.getItem(CACHE_KEY);
+        if (cached) {
+          const { items, ts } = JSON.parse(cached);
+          if (Date.now() - ts < CACHE_TTL && items?.length) {
+            setNews(items);
+            setIsLoading(false);
+            return;
+          }
+        }
+      } else {
+        sessionStorage.removeItem(CACHE_KEY);
+      }
+
+      const { items } = await api.getWorldCupNews();
+      if (!items?.length) {
+        throw new Error('No hay noticias disponibles en este momento');
+      }
+      setNews(items);
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({ items, ts: Date.now() }));
     } catch (err) {
       console.error('Error fetching news:', err);
-      // Use static news on error
-      setNews(STATIC_NEWS);
+      setError('No pudimos cargar noticias en este momento. Reintentá en unos minutos.');
+      setNews([]);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchNews();
-  }, []);
+  }, [fetchNews]);
 
   return (
     <section className="py-12">
@@ -119,7 +77,12 @@ Devuelve SOLO un JSON array válido, sin markdown, sin texto extra:
           <div className="bg-fifa-blue/10 dark:bg-fifa-blue/20 p-2 rounded-lg text-fifa-blue dark:text-fifa-gold">
             <Newspaper size={24} />
           </div>
-          <h2 className="headline-lg text-fifa-blue dark:text-white uppercase tracking-tight">Noticias del Mundial</h2>
+          <div>
+            <h2 className="headline-lg text-fifa-blue dark:text-white uppercase tracking-tight">Noticias del Mundial</h2>
+            <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold mt-1">
+              Feeds en vivo · medios latinoamericanos
+            </p>
+          </div>
         </div>
         <button 
           onClick={() => fetchNews(true)}
@@ -132,13 +95,13 @@ Devuelve SOLO un JSON array válido, sin markdown, sin texto extra:
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1,2,3,4,5,6].map(i => (
-            <div key={i} className="stadium-card h-64 animate-pulse bg-slate-100 dark:bg-slate-800/50" />
+        <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <motion.div key={i} className="stadium-card h-64 animate-pulse bg-slate-100 dark:bg-slate-800/50" />
           ))}
-        </div>
+        </motion.div>
       ) : error ? (
-        <div className="stadium-card p-12 text-center bg-slate-50 dark:bg-slate-900/50">
+        <motion.div className="stadium-card p-12 text-center bg-slate-50 dark:bg-slate-900/50">
           <p className="text-slate-500 mb-6 font-medium">{error}</p>
           <button 
             onClick={() => fetchNews(true)} 
@@ -146,18 +109,18 @@ Devuelve SOLO un JSON array válido, sin markdown, sin texto extra:
           >
             Reintentar
           </button>
-        </div>
+        </motion.div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {news.map((item, idx) => (
             <motion.article
-              key={idx}
+              key={`${item.url ?? item.title}-${idx}`}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: idx * 0.07 }}
               className="stadium-card p-6 flex flex-col h-full hover:border-fifa-blue/20 dark:hover:border-fifa-gold/20 hover:shadow-2xl transition-all group"
             >
-              <div className="flex justify-between items-start mb-4">
+              <motion.div className="flex justify-between items-start mb-4">
                 <span className={cn(
                   "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider",
                   CATEGORY_COLORS[item.category] || CATEGORY_COLORS['Análisis']
@@ -165,34 +128,51 @@ Devuelve SOLO un JSON array válido, sin markdown, sin texto extra:
                   {item.category}
                 </span>
                 <span className="text-2xl transform group-hover:scale-125 transition-transform">{item.emoji}</span>
-              </div>
+              </motion.div>
               
               <h3 className="font-headline font-bold text-lg uppercase leading-tight mb-3 line-clamp-2 group-hover:text-fifa-blue dark:group-hover:text-fifa-gold transition-colors">
-                {item.title}
+                {item.url ? (
+                  <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                    {item.title}
+                  </a>
+                ) : item.title}
               </h3>
               
               <p className="text-sm text-slate-500 dark:text-slate-400 line-clamp-3 mb-6 flex-1 leading-relaxed">
                 {item.summary}
               </p>
               
-              <div className="flex flex-wrap gap-2 mb-6">
-                {item.tags.map(tag => (
+              <motion.div className="flex flex-wrap gap-2 mb-6">
+                {item.tags.map((tag) => (
                   <span key={tag} className="px-2 py-0.5 rounded bg-slate-50 dark:bg-slate-800/50 text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
                     #{tag}
                   </span>
                 ))}
-              </div>
+              </motion.div>
               
-              <div className="flex justify-between items-center pt-4 border-t border-slate-50 dark:border-slate-800/50">
+              <motion.div className="flex justify-between items-center pt-4 border-t border-slate-50 dark:border-slate-800/50">
                 <span className="text-[10px] font-black uppercase text-fifa-blue dark:text-fifa-gold">{item.source}</span>
-                <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold">
-                  <Clock size={12} />
-                  {item.date}
-                </div>
-              </div>
+                <motion.div className="flex items-center gap-3">
+                  <motion.div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold">
+                    <Clock size={12} />
+                    {item.date}
+                  </motion.div>
+                  {item.url && (
+                    <a
+                      href={item.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-slate-400 hover:text-fifa-blue transition-colors"
+                      aria-label="Leer noticia original"
+                    >
+                      <ExternalLink size={14} />
+                    </a>
+                  )}
+                </motion.div>
+              </motion.div>
             </motion.article>
           ))}
-        </div>
+        </motion.div>
       )}
     </section>
   );

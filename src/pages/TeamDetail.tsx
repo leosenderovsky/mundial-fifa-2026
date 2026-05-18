@@ -12,6 +12,7 @@ import { SEO } from '../components/shared/SEO';
 import { ErrorBoundary } from '../components/shared/ErrorBoundary';
 import { GeminiPlayerBio } from '../components/teams/GeminiPlayerBio';
 import { COACHES } from '../data/coachData';
+import { normalizePosition } from '../lib/playerUtils';
 
 type TabKey = 'PLANTEL' | 'PARTIDOS' | 'ESTADÍSTICAS' | 'ACERCA DE';
 
@@ -25,7 +26,8 @@ const groupPlayersByPosition = (squad: Player[]) => {
   };
 
   squad.forEach((player) => {
-    switch (player.position) {
+    const pos = normalizePosition(player.position);
+    switch (pos) {
       case 'Goalkeeper':
         groups.Arqueros.push(player);
         break;
@@ -86,13 +88,17 @@ export default function TeamDetail() {
     : fallbackPlayers.map((player: any, index: number) => ({
         id: Number(player.idPlayer ?? index),
         name: player.strPlayer ?? 'Jugador',
-        position: player.strPosition ?? 'N/D',
+        position: normalizePosition(player.strPosition ?? 'N/D'),
         dateOfBirth: player.dateBorn ?? '',
         nationality: player.strNationality ?? '',
         shirtNumber: player.strNumber ? Number(player.strNumber) : undefined,
+        photo: player.strThumb || player.strCutout || undefined,
       }));
 
   const coachName = team?.coach?.name ?? fallbackTeam?.strManager ?? COACHES[team?.name ?? ''] ?? 'Por confirmar';
+  const coachPhoto = team?.coach?.photo ?? fallbackTeam?.strTeamManagerThumb ?? fallbackTeam?.strCoachThumb ?? undefined;
+  const coachBirth = team?.coach?.dateOfBirth;
+  const coachNationality = team?.coach?.nationality;
   const groupedSquad = useMemo(() => groupPlayersByPosition(mergedSquad), [mergedSquad]);
 
   const { data: matchesData } = useApiData<{ matches: any[] }>(
@@ -124,14 +130,6 @@ export default function TeamDetail() {
         keywords={`${team.name}, selección, mundial 2026, fifa`}
       />
       <section className="relative pt-20 pb-32 overflow-hidden">
-        <div className="absolute top-0 right-0 w-1/2 h-full opacity-20 pointer-events-none">
-          {team.crest ? (
-            <img src={team.crest} className="w-full h-full object-contain scale-125" alt={team.name} />
-          ) : getFlagCode(team) ? (
-            <span className={`fi fi-${getFlagCode(team)} w-full h-full block scale-[2] opacity-40`} />
-          ) : null}
-        </div>
-        
         <div className="container mx-auto px-4 md:px-8 relative z-10">
           <div className="flex flex-col md:flex-row items-end gap-8 mb-12">
             <div className="w-32 h-32 lg:w-48 lg:h-48 bg-white/10 backdrop-blur-xl p-4 rounded-2xl border border-white/20 flex items-center justify-center">
@@ -181,6 +179,27 @@ export default function TeamDetail() {
 
           {activeTab === 'PLANTEL' && (
             <div className="space-y-10">
+              <motion.div className="stadium-card p-6 bg-white/5 border border-white/10 mb-8">
+                <h3 className="label-caps text-white mb-4">Cuerpo técnico</h3>
+                <motion.div className="flex items-center gap-5">
+                  <motion.div className="w-16 h-16 rounded-xl bg-fifa-gold/10 overflow-hidden flex items-center justify-center shrink-0">
+                    {coachPhoto ? (
+                      <img src={coachPhoto} alt={coachName} className="w-full h-full object-cover" />
+                    ) : (
+                      <User size={24} className="text-fifa-gold" />
+                    )}
+                  </motion.div>
+                  <motion.div>
+                    <p className="text-[10px] text-white/40 font-bold uppercase">Director técnico</p>
+                    <h4 className="font-bold text-lg">{coachName}</h4>
+                    <motion.div className="flex flex-wrap gap-4 mt-2 text-xs text-white/60">
+                      {coachBirth && <span>Nac. {formatDate(coachBirth)}</span>}
+                      {coachNationality && <span>{coachNationality}</span>}
+                    </motion.div>
+                  </motion.div>
+                </motion.div>
+              </motion.div>
+
               {Object.entries(groupedSquad).map(([label, players]) => (
                 players.length > 0 && (
                   <div key={label}>
@@ -196,9 +215,13 @@ export default function TeamDetail() {
                             <GeminiPlayerBio playerName={player.name} isOpen={openPlayerBio === player.id} />
                           </ErrorBoundary>
                           <div className="flex items-center gap-4 mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-fifa-gold/10 flex items-center justify-center text-fifa-gold">
-                              <User size={18} />
-                            </div>
+                            <motion.div className="w-12 h-12 rounded-xl bg-fifa-gold/10 overflow-hidden flex items-center justify-center text-fifa-gold shrink-0">
+                              {player.photo ? (
+                                <img src={player.photo} alt={player.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <User size={18} />
+                              )}
+                            </motion.div>
                             <div>
                               <p className="text-[10px] text-white/40 font-bold uppercase">{player.position}</p>
                               <h4 className="font-bold">{player.name}</h4>

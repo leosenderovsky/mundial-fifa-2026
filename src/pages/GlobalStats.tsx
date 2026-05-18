@@ -1,16 +1,26 @@
+import { Navigate } from 'react-router-dom';
 import { useApiData } from '../hooks/useApiData';
 import { api } from '../lib/api';
 import { SEO } from '../components/shared/SEO';
 import { Goal, Activity } from 'lucide-react';
 import { ErrorBoundary } from '../components/shared/ErrorBoundary';
 import { GeminiTournamentSummary } from '../components/stats/GeminiTournamentSummary';
+import { useStatsVisibility } from '../hooks/useStatsVisibility';
+import type { Scorer } from '../types/api';
 
 export default function GlobalStats() {
-  const { data: scorers, error: scorersError, isLoading } = useApiData(
+  const { isVisible, isTournamentStarted, isLoading: visibilityLoading } = useStatsVisibility();
+  const { data, error: scorersError, isLoading } = useApiData<{ scorers: Scorer[] }>(
     ['top-scorers'],
-    () => api.getTopScorers(5)
+    () => api.getTopScorers(5),
+    { enabled: isTournamentStarted }
   );
-  const hasScorers = Boolean(scorers && scorers.length > 0);
+  const scorers = data?.scorers ?? [];
+  const hasScorers = scorers.length > 0;
+
+  if (!visibilityLoading && !isVisible) {
+    return <Navigate to="/" replace />;
+  }
 
   return (
     <div className="min-h-screen bg-surface-canvas pt-12 pb-24 px-4 md:px-8">
@@ -56,16 +66,11 @@ export default function GlobalStats() {
                       <th className="text-left pb-4">Jugador</th>
                       <th className="text-center pb-4">Goles</th>
                       <th className="text-center pb-4">Asist.</th>
-                      <th className="text-center pb-4">Minutos</th>
+                      <th className="text-center pb-4">Partidos</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
-                    {scorers?.map((s: {
-                      player: { name: string };
-                      team: { name: string; crest: string };
-                      goals: number;
-                      assists: number | null;
-                    }, i: number) => (
+                    {scorers.map((s, i) => (
                       <tr key={i} className="group hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
                         <td className="py-4 flex items-center gap-4">
                           <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden">
@@ -78,7 +83,7 @@ export default function GlobalStats() {
                         </td>
                         <td className="py-4 text-center font-mono font-bold text-xl">{s.goals}</td>
                         <td className="py-4 text-center font-mono text-slate-500">{s.assists ?? 0}</td>
-                        <td className="py-4 text-center font-mono text-xs text-slate-400">-</td>
+                        <td className="py-4 text-center font-mono text-xs text-slate-400">{s.playedMatches ?? '-'}</td>
                       </tr>
                     ))}
                   </tbody>

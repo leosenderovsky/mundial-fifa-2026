@@ -7,6 +7,7 @@ interface CalendarViewProps {
   matches: Match[];
   isLoading?: boolean;
   errorMessage?: string | null;
+  isStaticData?: boolean;
 }
 
 const formatDateHeader = (utcDate: string) =>
@@ -19,7 +20,7 @@ const formatDateHeader = (utcDate: string) =>
 const formatKickoff = (utcDate: string) =>
   new Date(utcDate).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
 
-export const CalendarView = ({ matches, isLoading, errorMessage }: CalendarViewProps) => {
+export const CalendarView = ({ matches, isLoading, errorMessage, isStaticData }: CalendarViewProps) => {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center py-24 gap-6 text-center">
@@ -75,6 +76,11 @@ export const CalendarView = ({ matches, isLoading, errorMessage }: CalendarViewP
 
   return (
     <div className="space-y-10">
+      {isStaticData && (
+        <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-widest font-bold">
+          Calendario basado en el sorteo oficial — 72 partidos de fase de grupos
+        </p>
+      )}
       {orderedDates.map((date) => (
         <div key={date} className="stadium-card p-6">
           <h3 className="font-headline font-bold uppercase text-fifa-blue dark:text-white mb-4">
