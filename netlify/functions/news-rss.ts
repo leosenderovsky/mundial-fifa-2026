@@ -4,13 +4,31 @@
  */
 
 const FEEDS = [
-  { source: 'Olé', url: 'https://www.ole.com.ar/rss/ultimas-noticias/' },
-  { source: 'ESPN Argentina', url: 'https://www.espn.com.ar/espn/rss/futbol/news' },
-  { source: 'Marca', url: 'https://e00-marca.uecdn.es/rss/futbol.xml' },
+  { source: 'Infobae', url: 'https://www.infobae.com/america/rss/ultimas-noticias/' },
+  { source: 'Clarín Deportes', url: 'https://www.clarin.com/rss/deportes/' },
+  { source: 'La Nación Deportes', url: 'https://www.lanacion.com.ar/rss/deportes/' },
   { source: 'TyC Sports', url: 'https://www.tycsports.com/api/rss/home' },
-  { source: 'Globo Esporte', url: 'https://ge.globo.com/rss/futebol/' },
-  { source: 'Record México', url: 'https://www.record.com.mx/rss/futbol.xml' },
-  { source: 'Clarín', url: 'https://www.clarin.com/rss/deportes/' },
+  { source: 'O Globo Esporte', url: 'https://ge.globo.com/rss/futebol/' },
+  { source: 'UOL Esporte', url: 'https://www.uol.com.br/esporte/rss.xml' },
+  { source: 'LANCE!', url: 'https://www.lance.com.br/rss/' },
+  { source: 'El Tiempo Deportes', url: 'https://www.eltiempo.com/rss/deportes.xml' },
+  { source: 'El Espectador Deportes', url: 'https://www.elespectador.com/rss/deportes/' },
+  { source: 'La Tercera Deportes', url: 'https://www.latercera.com/rss/deportes/' },
+  { source: 'BioBioChile Deportes', url: 'https://www.biobiochile.cl/rss.xml' },
+  { source: 'El Mercurio Deportes', url: 'https://www.elmercurio.com/rss/deportes/' },
+  { source: 'El Comercio Deportes', url: 'https://elcomercio.pe/rss/deporte/' },
+  { source: 'Depor', url: 'https://depor.com/rss/' },
+  { source: 'RPP Deportes', url: 'https://rpp.pe/rss/deportes.xml' },
+  { source: 'El Universal Deportes', url: 'https://www.eluniversal.com.mx/rss/deportes.xml' },
+  { source: 'Récord', url: 'https://www.record.com.mx/rss/futbol.xml' },
+  { source: 'Mediotiempo', url: 'https://www.mediotiempo.com/rss/feed/' },
+  { source: 'El País Deportes', url: 'https://www.elpais.com.uy/rss/deportes/' },
+  { source: 'ABC Color Deportes', url: 'https://www.abc.com.py/rss/servicios-deportes/' },
+  { source: 'ESPN Latinoamérica', url: 'https://www.espn.com.ar/espn/rss/futbol/news' },
+  { source: 'TUDN', url: 'https://www.tudn.com/rss' },
+  { source: 'Bolavip', url: 'https://www.bolavip.com/rss2/all.xml' },
+  { source: 'AS América', url: 'https://as.com/rss/tags/america.xml' },
+  { source: 'FIFA', url: 'https://www.fifa.com/rss-feeds/news?lang=es' },
 ];
 
 const KEYWORDS = [

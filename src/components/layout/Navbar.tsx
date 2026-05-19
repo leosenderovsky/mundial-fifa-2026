@@ -42,6 +42,7 @@ export const Navbar = () => {
     { label: 'Selecciones', path: '/selecciones' },
     ...(showStats ? [{ label: 'Estadísticas', path: '/stats' }] : []),
     { label: 'Mapa', path: '/mapa' },
+    { label: 'Noticias', path: '/noticias' },
   ];
 
   return (

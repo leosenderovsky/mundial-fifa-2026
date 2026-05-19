@@ -12,6 +12,7 @@ const Selecciones  = React.lazy(() => import('./pages/Teams'));
 const TeamDetail   = React.lazy(() => import('./pages/TeamDetail'));
 const Stats        = React.lazy(() => import('./pages/GlobalStats'));
 const Mapa         = React.lazy(() => import('./pages/WorldMap'));
+const NewsPage     = React.lazy(() => import('./pages/News'));
 
 export default function App() {
   const { theme } = useTheme();
@@ -30,6 +31,7 @@ export default function App() {
               <Route path="/selecciones/:teamSlug"   element={<TeamDetail />} />
               <Route path="/stats"                   element={<Stats />} />
               <Route path="/mapa"                    element={<Mapa />} />
+              <Route path="/noticias"                element={<NewsPage />} />
             </Routes>
           </Suspense>
         </main>
