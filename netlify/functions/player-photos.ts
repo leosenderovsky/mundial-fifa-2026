@@ -13,6 +13,21 @@ interface SportsDbPlayer {
   strNationality?: string;
 }
 
+async function findWikiImage(name: string): Promise<string | null> {
+  const url = `https://es.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&prop=pageimages&piprop=original|thumbnail&pithumbsize=600&titles=${encodeURIComponent(name)}`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+  if (!res.ok) return null;
+
+  const data = await res.json() as any;
+  const pages = data?.query?.pages ?? [];
+  if (!Array.isArray(pages) || pages.length === 0) return null;
+
+  const page = pages[0];
+  if (!page || page.missing) return null;
+
+  return page.original?.source || page.thumbnail?.source || null;
+}
+
 async function findPhotoByName(name: string): Promise<string | null> {
   const url = `${BASE_URL}/searchplayers.php?p=${encodeURIComponent(name)}`;
   const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
@@ -20,7 +35,7 @@ async function findPhotoByName(name: string): Promise<string | null> {
 
   const data = (await res.json()) as { player?: SportsDbPlayer[] };
   const players = data.player ?? [];
-  if (!players.length) return null;
+  if (!players.length) return findWikiImage(name);
 
   const normalized = name.trim().toLowerCase();
   const match =
@@ -28,7 +43,8 @@ async function findPhotoByName(name: string): Promise<string | null> {
     players.find((p) => p.strPlayer?.toLowerCase().includes(normalized.split(' ')[0] ?? '')) ??
     players[0];
 
-  return match?.strThumb || match?.strCutout || match?.strRender || null;
+  const photo = match?.strThumb || match?.strCutout || match?.strRender || null;
+  return photo ?? findWikiImage(name);
 }
 
 export const handler = async (event: { httpMethod: string; body?: string }) => {

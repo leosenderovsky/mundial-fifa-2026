@@ -199,33 +199,43 @@ export default function TeamDetail() {
 
           {activeTab === 'PLANTEL' && (
             <div className="space-y-10">
-              <div className="stadium-card p-6 bg-white/5 border border-white/10 mb-8">
-                <h3 className="label-caps text-white mb-4">Cuerpo técnico</h3>
-                <motion.div className="flex items-center gap-5">
-                  <motion.div className="w-16 h-16 rounded-xl bg-fifa-gold/10 overflow-hidden flex items-center justify-center shrink-0">
-                    {coachPhoto ? (
-                      <img
-                        src={coachPhoto}
-                        alt={coachName}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        referrerPolicy="no-referrer"
-                      />
-                    ) : isLoadingPhotos ? (
-                      <motion.div className="w-full h-full bg-white/10 animate-pulse" />
-                    ) : (
-                      <User size={24} className="text-fifa-gold" />
+              <div className="stadium-card overflow-hidden bg-white/5 border border-white/10 mb-8">
+                <h3 className="label-caps text-white mb-4 px-5 pt-5">Cuerpo técnico</h3>
+                <div className="w-full aspect-[4/5] overflow-hidden rounded-b-none bg-slate-950">
+                  {coachPhoto ? (
+                    <img
+                      src={coachPhoto}
+                      alt={coachName}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : isLoadingPhotos ? (
+                    <div className="w-full h-full bg-white/10 animate-pulse" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-white/5">
+                      <User size={40} className="text-fifa-gold" />
+                    </div>
+                  )}
+                </div>
+                <div className="px-5 py-6">
+                  <p className="text-[10px] text-white/40 font-bold uppercase tracking-[0.25em] mb-2">Director técnico</p>
+                  <h4 className="font-bold text-2xl mb-3">{coachName}</h4>
+                  <div className="space-y-3 text-sm text-white/60">
+                    {coachBirth && (
+                      <div className="flex justify-between">
+                        <span>Nac.</span>
+                        <span>{formatDate(coachBirth)}</span>
+                      </div>
                     )}
-                  </motion.div>
-                  <motion.div>
-                    <p className="text-[10px] text-white/40 font-bold uppercase">Director técnico</p>
-                    <h4 className="font-bold text-lg">{coachName}</h4>
-                    <motion.div className="flex flex-wrap gap-4 mt-2 text-xs text-white/60">
-                      {coachBirth && <span>Nac. {formatDate(coachBirth)}</span>}
-                      {coachNationality && <span>{coachNationality}</span>}
-                    </motion.div>
-                  </motion.div>
-                </motion.div>
+                    {coachNationality && (
+                      <div className="flex justify-between">
+                        <span>Nacionalidad</span>
+                        <span>{coachNationality}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
 
               {Object.entries(groupedSquad).map(([label, players]) => (
@@ -234,48 +244,52 @@ export default function TeamDetail() {
                     <h3 className="label-caps text-white mb-6">{label}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {players.map((player) => (
-                        <div 
-                          key={player.id} 
-                          className="stadium-card p-5 bg-white/5 border border-white/10 relative cursor-pointer"
+                        <div
+                          key={player.id}
+                          className="stadium-card overflow-hidden bg-white/5 border border-white/10 relative cursor-pointer group"
                           onClick={() => setOpenPlayerBio(openPlayerBio === player.id ? null : player.id)}
                         >
                           <ErrorBoundary>
                             <GeminiPlayerBio playerName={player.name} isOpen={openPlayerBio === player.id} />
                           </ErrorBoundary>
-                          <div className="flex items-center gap-4 mb-4">
-                            <div className="w-12 h-12 rounded-xl bg-fifa-gold/10 overflow-hidden flex items-center justify-center text-fifa-gold shrink-0">
-                              {player.photo ? (
-                                <img
-                                  src={player.photo}
-                                  alt={player.name}
-                                  className="w-full h-full object-cover"
-                                  loading="lazy"
-                                  referrerPolicy="no-referrer"
-                                />
-                              ) : isLoadingPhotos ? (
-                                <div className="w-full h-full bg-white/10 animate-pulse" />
-                              ) : (
-                                <User size={18} />
+
+                          <div className="w-full aspect-[4/5] overflow-hidden bg-slate-950">
+                            {player.photo ? (
+                              <img
+                                src={player.photo}
+                                alt={player.name}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                                referrerPolicy="no-referrer"
+                              />
+                            ) : isLoadingPhotos ? (
+                              <div className="w-full h-full bg-white/10 animate-pulse" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-white/5">
+                                <User size={48} className="text-fifa-gold" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="px-5 py-5">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">{player.position}</span>
+                              {player.shirtNumber && (
+                                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/80">#{player.shirtNumber}</span>
                               )}
                             </div>
-                            <div>
-                              <p className="text-[10px] text-white/40 font-bold uppercase">{player.position}</p>
-                              <h4 className="font-bold">{player.name}</h4>
+                            <h4 className="font-bold text-lg text-white mb-3">{player.name}</h4>
+                            <div className="space-y-3 text-sm text-white/60">
+                              <div className="flex justify-between">
+                                <span>Nac.</span>
+                                <span>{formatDate(player.dateOfBirth) ?? 'N/D'}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Nacionalidad</span>
+                                <span>{player.nationality ?? 'N/D'}</span>
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center justify-between text-xs text-white/60">
-                            <span>Nacimiento</span>
-                            <span>{formatDate(player.dateOfBirth) ?? 'N/D'}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-xs text-white/60 mt-2">
-                            <span>Nacionalidad</span>
-                            <span>{player.nationality ?? 'N/D'}</span>
-                          </div>
-                          {player.shirtNumber && (
-                            <div className="mt-4 inline-flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full text-[10px] font-black uppercase">
-                              #{player.shirtNumber}
-                            </div>
-                          )}
                         </div>
                       ))}
                     </div>
