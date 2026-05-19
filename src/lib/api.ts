@@ -51,6 +51,15 @@ export const api = {
   async getTeamById(id: number) { 
     return this.fetch(`/teams/${id}`); 
   },
+  async getPlayerPhotos(names: string[]) {
+    const res = await fetch('/.netlify/functions/player-photos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ names }),
+    });
+    if (!res.ok) throw new Error('No se pudieron cargar las fotos');
+    return res.json() as Promise<{ photos: Record<string, string | null> }>;
+  },
   async getWorldCupNews() {
     const res = await fetch('/.netlify/functions/news-rss');
     if (!res.ok) throw new Error('No se pudieron cargar las noticias');

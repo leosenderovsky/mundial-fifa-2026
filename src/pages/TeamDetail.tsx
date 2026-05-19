@@ -13,6 +13,7 @@ import { ErrorBoundary } from '../components/shared/ErrorBoundary';
 import { GeminiPlayerBio } from '../components/teams/GeminiPlayerBio';
 import { COACHES } from '../data/coachData';
 import { normalizePosition } from '../lib/playerUtils';
+import { useSquadPhotos } from '../hooks/useSquadPhotos';
 
 type TabKey = 'PLANTEL' | 'PARTIDOS' | 'ESTADÍSTICAS' | 'ACERCA DE';
 
@@ -96,10 +97,29 @@ export default function TeamDetail() {
       }));
 
   const coachName = team?.coach?.name ?? fallbackTeam?.strManager ?? COACHES[team?.name ?? ''] ?? 'Por confirmar';
-  const coachPhoto = team?.coach?.photo ?? fallbackTeam?.strTeamManagerThumb ?? fallbackTeam?.strCoachThumb ?? undefined;
   const coachBirth = team?.coach?.dateOfBirth;
   const coachNationality = team?.coach?.nationality;
-  const groupedSquad = useMemo(() => groupPlayersByPosition(mergedSquad), [mergedSquad]);
+
+  const playerNames = useMemo(() => mergedSquad.map((p) => p.name), [mergedSquad]);
+  const { photos: photoMap, isLoadingPhotos } = useSquadPhotos(playerNames, coachName);
+
+  const squadWithPhotos = useMemo(
+    () =>
+      mergedSquad.map((player) => ({
+        ...player,
+        photo: player.photo ?? photoMap[player.name] ?? undefined,
+      })),
+    [mergedSquad, photoMap]
+  );
+
+  const coachPhoto =
+    team?.coach?.photo ??
+    fallbackTeam?.strTeamManagerThumb ??
+    fallbackTeam?.strCoachThumb ??
+    photoMap[coachName] ??
+    undefined;
+
+  const groupedSquad = useMemo(() => groupPlayersByPosition(squadWithPhotos), [squadWithPhotos]);
 
   const { data: matchesData } = useApiData<{ matches: any[] }>(
     ['team-matches', String(parsedId)],
@@ -179,12 +199,20 @@ export default function TeamDetail() {
 
           {activeTab === 'PLANTEL' && (
             <div className="space-y-10">
-              <motion.div className="stadium-card p-6 bg-white/5 border border-white/10 mb-8">
+              <div className="stadium-card p-6 bg-white/5 border border-white/10 mb-8">
                 <h3 className="label-caps text-white mb-4">Cuerpo técnico</h3>
                 <motion.div className="flex items-center gap-5">
                   <motion.div className="w-16 h-16 rounded-xl bg-fifa-gold/10 overflow-hidden flex items-center justify-center shrink-0">
                     {coachPhoto ? (
-                      <img src={coachPhoto} alt={coachName} className="w-full h-full object-cover" />
+                      <img
+                        src={coachPhoto}
+                        alt={coachName}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : isLoadingPhotos ? (
+                      <motion.div className="w-full h-full bg-white/10 animate-pulse" />
                     ) : (
                       <User size={24} className="text-fifa-gold" />
                     )}
@@ -198,7 +226,7 @@ export default function TeamDetail() {
                     </motion.div>
                   </motion.div>
                 </motion.div>
-              </motion.div>
+              </div>
 
               {Object.entries(groupedSquad).map(([label, players]) => (
                 players.length > 0 && (
@@ -215,13 +243,21 @@ export default function TeamDetail() {
                             <GeminiPlayerBio playerName={player.name} isOpen={openPlayerBio === player.id} />
                           </ErrorBoundary>
                           <div className="flex items-center gap-4 mb-4">
-                            <motion.div className="w-12 h-12 rounded-xl bg-fifa-gold/10 overflow-hidden flex items-center justify-center text-fifa-gold shrink-0">
+                            <div className="w-12 h-12 rounded-xl bg-fifa-gold/10 overflow-hidden flex items-center justify-center text-fifa-gold shrink-0">
                               {player.photo ? (
-                                <img src={player.photo} alt={player.name} className="w-full h-full object-cover" />
+                                <img
+                                  src={player.photo}
+                                  alt={player.name}
+                                  className="w-full h-full object-cover"
+                                  loading="lazy"
+                                  referrerPolicy="no-referrer"
+                                />
+                              ) : isLoadingPhotos ? (
+                                <div className="w-full h-full bg-white/10 animate-pulse" />
                               ) : (
                                 <User size={18} />
                               )}
-                            </motion.div>
+                            </div>
                             <div>
                               <p className="text-[10px] text-white/40 font-bold uppercase">{player.position}</p>
                               <h4 className="font-bold">{player.name}</h4>
