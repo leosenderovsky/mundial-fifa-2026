@@ -11,6 +11,7 @@ import type { Player, Team } from '../types/api';
 import { SEO } from '../components/shared/SEO';
 import { ErrorBoundary } from '../components/shared/ErrorBoundary';
 import { GeminiPlayerBio } from '../components/teams/GeminiPlayerBio';
+import { AdBanner } from '../components/shared/AdBanner';
 import { COACHES } from '../data/coachData';
 import { normalizePosition } from '../lib/playerUtils';
 import { useSquadPhotos } from '../hooks/useSquadPhotos';
@@ -199,6 +200,10 @@ export default function TeamDetail() {
 
           {activeTab === 'PLANTEL' && (
             <div className="space-y-10">
+              {/* AdSense Banner — before GeminiPlayerBio components */}
+              <div className="w-full">
+                <AdBanner slot="2222222222" format="horizontal" className="w-full" />
+              </div>
               <div className="mb-8">
                 <h3 className="label-caps text-white mb-6">Cuerpo técnico</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">

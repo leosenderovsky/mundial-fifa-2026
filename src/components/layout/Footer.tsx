@@ -1,4 +1,5 @@
 import { Globe, Share2, Mail } from 'lucide-react';
+import { AdBanner } from '../shared/AdBanner';
 
 export const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -6,6 +7,10 @@ export const Footer = () => {
   return (
     <footer className="bg-slate-100 dark:bg-slate-950 pt-16 pb-8 px-4 md:px-8">
       <div className="container mx-auto">
+        {/* AdSense Banner — above footer content (desktop only) */}
+        <div className="hidden md:block mb-6">
+          <AdBanner slot="3333333333" format="horizontal" className="w-full" />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           
           {/* Brand Col */}

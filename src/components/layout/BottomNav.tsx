@@ -2,6 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { Home, MapPin, Calendar, BarChart3, Map } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useStatsVisibility } from '../../hooks/useStatsVisibility';
+import { AdBanner } from '../shared/AdBanner';
 
 export const BottomNav = () => {
   const { isVisible: showStats } = useStatsVisibility();
@@ -15,7 +16,12 @@ export const BottomNav = () => {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex md:hidden items-center justify-around px-4 z-50">
+    <>
+      {/* AdSense Banner — above bottom nav (mobile only) */}
+      <div className="md:hidden fixed left-0 right-0 bottom-20 z-40">
+        <AdBanner slot="4444444444" format="horizontal" className="w-full" />
+      </div>
+      <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex md:hidden items-center justify-around px-4 z-50">
       {items.map((item) => (
         <NavLink
           key={item.path}

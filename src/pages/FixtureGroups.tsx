@@ -10,6 +10,7 @@ import { useApiData } from '../hooks/useApiData';
 import { api } from '../lib/api';
 import { STATIC_GROUPS, STATIC_GROUP_MATCHES, STATIC_KNOCKOUT_MATCHES } from '../data/fixtureData';
 import type { Match, Standing } from '../types/api';
+import { AdBanner } from '../components/shared/AdBanner';
 
 type ViewType = 'groups' | 'calendar' | 'knockout';
 
@@ -138,17 +139,40 @@ export default function FixtureGroups() {
           >
             {activeView === 'groups' && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {groups.map((group) => (
-                  <GroupCard
-                    key={group.key}
-                    groupName={group.key}
-                    entries={group.entries}
-                    staticTeams={group.staticTeams}
-                    nextMatch={group.nextMatch}
-                    hasStandingsError={Boolean(standingsError)}
-                    hasMatchesError={Boolean(matchesError)}
-                  />
-                ))}
+                {groups.map((group, idx) => {
+                  // Insert AdSense banner in the middle of the groups array
+                  if (idx === Math.floor(groups.length / 2)) {
+                    return (
+                      <React.Fragment key={group.key}>
+                        <div className="col-span-full">
+                          {/* AdSense Banner — middle of groups */}
+                          <AdBanner slot="2222222222" format="horizontal" className="w-full" />
+                        </div>
+                        <GroupCard
+                          key={group.key + '-card'}
+                          groupName={group.key}
+                          entries={group.entries}
+                          staticTeams={group.staticTeams}
+                          nextMatch={group.nextMatch}
+                          hasStandingsError={Boolean(standingsError)}
+                          hasMatchesError={Boolean(matchesError)}
+                        />
+                      </React.Fragment>
+                    );
+                  }
+
+                  return (
+                    <GroupCard
+                      key={group.key}
+                      groupName={group.key}
+                      entries={group.entries}
+                      staticTeams={group.staticTeams}
+                      nextMatch={group.nextMatch}
+                      hasStandingsError={Boolean(standingsError)}
+                      hasMatchesError={Boolean(matchesError)}
+                    />
+                  );
+                })}
               </div>
             )}
 

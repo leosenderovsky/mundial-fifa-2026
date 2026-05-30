@@ -16,6 +16,7 @@ import { FollowWorldCupSection } from '../components/home/FollowWorldCupSection'
 import { useApiData } from '../hooks/useApiData';
 import { api } from '../lib/api';
 import type { Match } from '../types/api';
+import { AdBanner } from '../components/shared/AdBanner';
 
 export default function Home() {
   const { data: matchesData, error: matchesError, isLoading: matchesLoading } = useApiData<{ matches: Match[] }>(
@@ -47,7 +48,11 @@ export default function Home() {
 
       <HeroSection />
 
+      {/* AdSense Banner — between hero and live matches */}
       <div className="container mx-auto px-4 -mt-24 relative z-10 space-y-20 pb-20">
+        <div className="w-full flex justify-center">
+          <AdBanner slot="1111111111" format="horizontal" className="w-full max-w-4xl" />
+        </div>
         <VenuesPreview />
 
         {(isPreTournament || (!hasTournamentData && !matchesLoading)) && (

@@ -5,6 +5,7 @@ import { SEO } from '../components/shared/SEO';
 import { Goal, Activity } from 'lucide-react';
 import { ErrorBoundary } from '../components/shared/ErrorBoundary';
 import { GeminiTournamentSummary } from '../components/stats/GeminiTournamentSummary';
+import { AdBanner } from '../components/shared/AdBanner';
 import { useStatsVisibility } from '../hooks/useStatsVisibility';
 import type { Scorer } from '../types/api';
 
@@ -40,6 +41,10 @@ export default function GlobalStats() {
           </div>
         </header>
 
+        {/* AdSense Banner — before GeminiTournamentSummary */}
+        <div className="w-full">
+          <AdBanner slot="3333333333" format="horizontal" className="w-full" />
+        </div>
         <ErrorBoundary>
           <GeminiTournamentSummary />
         </ErrorBoundary>
