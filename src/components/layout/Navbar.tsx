@@ -74,8 +74,9 @@ export const Navbar = () => {
           </button>
 
           <button 
-            className="lg:hidden p-2 text-slate-900 dark:text-white"
+            className="lg:hidden p-2 text-slate-900 dark:text-white bg-white dark:bg-slate-800 rounded-full shadow-sm"
             onClick={() => setIsMobileMenuOpen(true)}
+            aria-label="Abrir menú"
           >
             <Menu size={24} />
           </button>
@@ -94,7 +95,7 @@ export const Navbar = () => {
           >
             <div className="flex justify-between items-center mb-12">
               <span className="font-headline font-black italic text-2xl text-fifa-blue dark:text-white uppercase">FIFA 2026</span>
-              <button onClick={() => setIsMobileMenuOpen(false)}>
+              <button onClick={() => setIsMobileMenuOpen(false)} aria-label="Cerrar menú" className="p-2 rounded-full bg-white dark:bg-slate-800 shadow-sm">
                 <X size={32} className="text-slate-900 dark:text-white" />
               </button>
             </div>
