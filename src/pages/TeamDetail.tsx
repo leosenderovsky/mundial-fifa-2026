@@ -12,6 +12,7 @@ import { SEO } from '../components/shared/SEO';
 import { ErrorBoundary } from '../components/shared/ErrorBoundary';
 import { GeminiPlayerBio } from '../components/teams/GeminiPlayerBio';
 import { AdBanner } from '../components/shared/AdBanner';
+import { proxiedImage } from '../lib/imageProxy';
 import { COACHES } from '../data/coachData';
 import { normalizePosition } from '../lib/playerUtils';
 import { useSquadPhotos } from '../hooks/useSquadPhotos';
@@ -155,7 +156,7 @@ export default function TeamDetail() {
           <div className="flex flex-col md:flex-row items-end gap-8 mb-12">
             <div className="w-32 h-32 lg:w-48 lg:h-48 bg-white/10 backdrop-blur-xl p-4 rounded-2xl border border-white/20 flex items-center justify-center">
               {team.crest ? (
-                <img src={team.crest} className="w-full h-full object-contain" alt={team.name} />
+                <img src={proxiedImage(team.crest)} className="w-full h-full object-contain" alt={team.name} />
               ) : getFlagCode(team) ? (
                 <span className={`fi fi-${getFlagCode(team)} w-full h-16 rounded-sm`} />
               ) : (
@@ -212,7 +213,7 @@ export default function TeamDetail() {
                     <div className="w-full aspect-[4/5] overflow-hidden rounded-t-none bg-slate-950">
                       {coachPhoto ? (
                         <img
-                          src={coachPhoto}
+                          src={proxiedImage(coachPhoto)}
                           alt={coachName}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
@@ -342,7 +343,7 @@ export default function TeamDetail() {
                               aria-label={opponent.name}
                             />
                           ) : opponent.crest ? (
-                            <img src={opponent.crest} alt={opponent.name} className="w-10 h-10 object-contain" />
+                            <img src={proxiedImage(opponent.crest)} alt={opponent.name} className="w-10 h-10 object-contain" />
                           ) : (
                             <div className="w-10 h-7 bg-white/10 rounded-sm" />
                           )}

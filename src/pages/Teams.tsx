@@ -9,6 +9,7 @@ import { getTeamLink } from '../lib/teamLinks';
 import type { Team } from '../types/api';
 import { SkeletonLoader } from '../components/shared/SkeletonLoader';
 import { STATIC_TEAMS } from '../data/fixtureData';
+import { proxiedImage } from '../lib/imageProxy';
 
 export default function Teams() {
   const [query, setQuery] = useState('');
@@ -91,7 +92,7 @@ export default function Teams() {
                   >
                     <div className="h-40 overflow-hidden relative flex items-center justify-center bg-white/5">
                       {team.crest ? (
-                        <img src={team.crest} alt={team.name} className="w-24 h-24 object-contain" />
+                        <img src={proxiedImage(team.crest)} alt={team.name} className="w-24 h-24 object-contain" />
                       ) : flagCode ? (
                         <span
                           className={`fi fi-${flagCode} w-24 h-16 rounded-sm shadow-2xl`}

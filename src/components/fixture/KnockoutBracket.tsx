@@ -2,6 +2,7 @@ import type { Match } from '../../types/api';
 import { getFlagCode } from '../../lib/flags';
 import { Link } from 'react-router-dom';
 import { getTeamLink } from '../../lib/teamLinks';
+import { proxiedImage } from '../../lib/imageProxy';
 
 interface KnockoutBracketProps {
   matches: Match[];
@@ -79,7 +80,7 @@ export const KnockoutBracket = ({ matches, isLoading, errorMessage, isStaticData
                         aria-label={match.homeTeam.name}
                       />
                     ) : match.homeTeam.crest ? (
-                      <img src={match.homeTeam.crest} alt={match.homeTeam.name} className="w-6 h-6 object-contain" />
+                      <img src={proxiedImage(match.homeTeam.crest)} alt={match.homeTeam.name} className="w-6 h-6 object-contain" />
                     ) : (
                       <div className="w-6 h-6 bg-slate-200 rounded" />
                     )}
@@ -100,7 +101,7 @@ export const KnockoutBracket = ({ matches, isLoading, errorMessage, isStaticData
                         aria-label={match.awayTeam.name}
                       />
                     ) : match.awayTeam.crest ? (
-                      <img src={match.awayTeam.crest} alt={match.awayTeam.name} className="w-6 h-6 object-contain" />
+                      <img src={proxiedImage(match.awayTeam.crest)} alt={match.awayTeam.name} className="w-6 h-6 object-contain" />
                     ) : (
                       <div className="w-6 h-6 bg-slate-200 rounded" />
                     )}

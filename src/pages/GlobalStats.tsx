@@ -8,6 +8,7 @@ import { GeminiTournamentSummary } from '../components/stats/GeminiTournamentSum
 import { AdBanner } from '../components/shared/AdBanner';
 import { useStatsVisibility } from '../hooks/useStatsVisibility';
 import type { Scorer } from '../types/api';
+import { proxiedImage } from '../lib/imageProxy';
 
 export default function GlobalStats() {
   const { isVisible, isTournamentStarted, isLoading: visibilityLoading } = useStatsVisibility();
@@ -79,7 +80,7 @@ export default function GlobalStats() {
                       <tr key={i} className="group hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
                         <td className="py-4 flex items-center gap-4">
                           <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden">
-                            <img src={s.team.crest} className="w-full h-full object-cover" alt={s.team.name} />
+                            <img src={proxiedImage(s.team.crest)} className="w-full h-full object-cover" alt={s.team.name} />
                           </div>
                           <div>
                             <p className="font-bold text-sm">{s.player.name}</p>

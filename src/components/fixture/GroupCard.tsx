@@ -4,6 +4,7 @@ import type { StaticTeam } from '../../data/fixtureData';
 import { getFlagCode } from '../../lib/flags';
 import { Link } from 'react-router-dom';
 import { getTeamLink } from '../../lib/teamLinks';
+import { proxiedImage } from '../../lib/imageProxy';
 
 interface GroupCardProps {
   groupName: string;
@@ -89,7 +90,7 @@ export const GroupCard = ({
                     {getFlagCode(entry.team) ? (
                       <span className={`fi fi-${getFlagCode(entry.team)} w-6 h-4 rounded-sm`} title={entry.team.name} />
                     ) : entry.team.crest ? (
-                      <img src={entry.team.crest} alt={entry.team.name} className="w-6 h-4 object-contain" />
+                      <img src={proxiedImage(entry.team.crest)} alt={entry.team.name} className="w-6 h-4 object-contain" />
                     ) : (
                       <div className="w-6 h-4 bg-slate-200 rounded-sm" />
                     )}
@@ -121,7 +122,7 @@ export const GroupCard = ({
                     aria-label={nextMatch.homeTeam.name}
                   />
                 ) : nextMatch.homeTeam.crest ? (
-                  <img src={nextMatch.homeTeam.crest} alt={nextMatch.homeTeam.name} className="w-6 h-4 object-contain" />
+                  <img src={proxiedImage(nextMatch.homeTeam.crest)} alt={nextMatch.homeTeam.name} className="w-6 h-4 object-contain" />
                 ) : (
                   <div className="w-6 h-4 bg-slate-200 rounded-sm" />
                 )}
@@ -138,7 +139,7 @@ export const GroupCard = ({
                     aria-label={nextMatch.awayTeam.name}
                   />
                 ) : nextMatch.awayTeam.crest ? (
-                  <img src={nextMatch.awayTeam.crest} alt={nextMatch.awayTeam.name} className="w-6 h-4 object-contain" />
+                  <img src={proxiedImage(nextMatch.awayTeam.crest)} alt={nextMatch.awayTeam.name} className="w-6 h-4 object-contain" />
                 ) : (
                   <div className="w-6 h-4 bg-slate-200 rounded-sm" />
                 )}

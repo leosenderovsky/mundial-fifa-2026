@@ -1,6 +1,7 @@
 import { useApiData } from '../../hooks/useApiData';
 import { api } from '../../lib/api';
 import { SkeletonLoader } from '../shared/SkeletonLoader';
+import { proxiedImage } from '../../lib/imageProxy';
 
 export const LiveMatchSection = () => {
   const { data: matches, isLoading } = useApiData(['live-matches'], () => api.getLiveMatches(), {
@@ -23,7 +24,7 @@ export const LiveMatchSection = () => {
       
       <div className="p-8 md:p-12 flex items-center justify-around gap-4">
         <div className="flex flex-col items-center gap-4 group cursor-pointer">
-          <img src="https://crests.football-data.org/MEX.svg" className="w-20 h-20 md:w-32 md:h-32 drop-shadow-xl group-hover:scale-110 transition-transform" alt="Mexico" />
+          <img src={proxiedImage('https://crests.football-data.org/MEX.svg')} className="w-20 h-20 md:w-32 md:h-32 drop-shadow-xl group-hover:scale-110 transition-transform" alt="Mexico" />
           <span className="headline-md uppercase">México</span>
         </div>
 
@@ -40,7 +41,7 @@ export const LiveMatchSection = () => {
         </div>
 
         <div className="flex flex-col items-center gap-4 group cursor-pointer">
-          <img src="https://crests.football-data.org/ITA.svg" className="w-20 h-20 md:w-32 md:h-32 drop-shadow-xl group-hover:scale-110 transition-transform" alt="Italy" />
+          <img src={proxiedImage('https://crests.football-data.org/ITA.svg')} className="w-20 h-20 md:w-32 md:h-32 drop-shadow-xl group-hover:scale-110 transition-transform" alt="Italy" />
           <span className="headline-md uppercase">Italia</span>
         </div>
       </div>

@@ -2,6 +2,7 @@ import type { Match } from '../../types/api';
 import { getFlagCode } from '../../lib/flags';
 import { Link } from 'react-router-dom';
 import { getTeamLink } from '../../lib/teamLinks';
+import { proxiedImage } from '../../lib/imageProxy';
 
 interface CalendarViewProps {
   matches: Match[];
@@ -98,7 +99,7 @@ export const CalendarView = ({ matches, isLoading, errorMessage, isStaticData }:
                         aria-label={match.homeTeam.name}
                       />
                     ) : match.homeTeam.crest ? (
-                      <img src={match.homeTeam.crest} alt={match.homeTeam.name} className="w-8 h-8 object-contain" />
+                      <img src={proxiedImage(match.homeTeam.crest)} alt={match.homeTeam.name} className="w-8 h-8 object-contain" />
                     ) : (
                       <div className="w-8 h-8 bg-slate-200 rounded" />
                     )}
@@ -119,7 +120,7 @@ export const CalendarView = ({ matches, isLoading, errorMessage, isStaticData }:
                         aria-label={match.awayTeam.name}
                       />
                     ) : match.awayTeam.crest ? (
-                      <img src={match.awayTeam.crest} alt={match.awayTeam.name} className="w-8 h-8 object-contain" />
+                      <img src={proxiedImage(match.awayTeam.crest)} alt={match.awayTeam.name} className="w-8 h-8 object-contain" />
                     ) : (
                       <div className="w-8 h-8 bg-slate-200 rounded" />
                     )}
