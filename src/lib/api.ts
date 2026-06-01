@@ -60,6 +60,9 @@ export const api = {
     if (!res.ok) throw new Error('No se pudieron cargar las fotos');
     return res.json() as Promise<{ photos: Record<string, string | null> }>;
   },
+  async getPlayerPhotoFromApiFootball(playerId: number): Promise<string> {
+    return `https://media.api-sports.io/football/players/${playerId}.png`;
+  },
   async getWorldCupNews() {
     const res = await fetch('/.netlify/functions/news-rss');
     if (!res.ok) throw new Error('No se pudieron cargar las noticias');

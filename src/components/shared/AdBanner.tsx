@@ -16,7 +16,7 @@ declare global {
 }
 
 export const AdBanner = ({ slot, format = 'auto', className = '', style }: AdBannerProps) => {
-  const elRef = useRef<HTMLDivElement | HTMLInsElement | null>(null);
+  const elRef = useRef<HTMLDivElement | HTMLModElement | null>(null);
 
   useEffect(() => {
     if (import.meta.env.DEV) return;
@@ -58,10 +58,10 @@ export const AdBanner = ({ slot, format = 'auto', className = '', style }: AdBan
   // TODO: Replace slot placeholders with real AdSense slot IDs once account is approved
   return (
     <ins
-      ref={elRef as React.RefObject<HTMLInsElement>}
+      ref={elRef as React.RefObject<HTMLModElement>}
       className={"adsbygoogle " + className}
       style={{ display: 'block', ...style }}
-      data-ad-client="ca-pub-XXXXXXXXXXXXXXXXX"
+      data-ad-client="ca-pub-1427376493436587"
       data-ad-slot={slot}
       data-ad-format={format}
       data-full-width-responsive="true"

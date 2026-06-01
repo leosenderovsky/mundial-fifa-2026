@@ -23,6 +23,7 @@ Portal de datos en tiempo real del Mundial de Fútbol 2026 (EE.UU., México y Ca
 
 - **[football-data.org v4](https://www.football-data.org/)** — Datos de partidos, standings, goleadores y equipos
 - **[Google Gemini 2.0 Flash](https://ai.google.dev/)** — Análisis de partidos, bios de jugadores y resúmenes del torneo
+ - **[API-Football (api-sports.io)](https://www.api-sports.io/)** — Fotos de jugadores de selecciones nacionales (fuente prioritaria)
 
 ## 🛠️ Stack técnico
 
@@ -61,6 +62,8 @@ Editá `.env` con tus claves:
 ```env
 VITE_FOOTBALL_DATA_API_KEY=tu_clave_de_football_data
 GEMINI_API_KEY=tu_clave_de_gemini
+# API-Football (server-side — configurar en Netlify site settings)
+API_SPORTS_KEY=tu_clave_de_api-sports
 ```
 
 > - Clave de football-data.org: [registrate gratis](https://www.football-data.org/client/register)
@@ -89,6 +92,7 @@ El proyecto incluye `netlify.toml` configurado. Para deployar:
 3. Configurá las variables de entorno en **Site settings → Environment variables**:
    - `VITE_FOOTBALL_DATA_API_KEY`
    - `GEMINI_API_KEY`
+   - `API_SPORTS_KEY` (solo en Netlify — usada por las Netlify Functions para obtener fotos desde api-sports.io)
 4. El build se dispara automáticamente
 
 ## 📁 Estructura del proyecto

@@ -39,7 +39,6 @@ function InnerApp({ theme }: { theme: string }) {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const { theme: t } = useTheme();
   // import hook
-  // @ts-expect-error - dynamic import to satisfy hook placement
   const { useAdRefresh } = require('./hooks/useAdRefresh');
   useAdRefresh();
 
