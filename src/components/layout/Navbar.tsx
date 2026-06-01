@@ -74,7 +74,7 @@ export const Navbar = () => {
           </button>
 
           <button 
-            className="lg:hidden p-2 text-slate-900 dark:text-white bg-white dark:bg-slate-800 rounded-full shadow-sm"
+            className="lg:hidden p-2 text-slate-900 dark:text-white bg-white/90 dark:bg-slate-800/80 rounded-full shadow-sm hover:bg-white/95 dark:hover:bg-slate-700 transition-colors"
             onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Abrir menú"
           >
@@ -91,11 +91,11 @@ export const Navbar = () => {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-[60] bg-surface-card flex flex-col p-8"
+            className="fixed inset-0 z-[60] bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm flex flex-col p-6 sm:p-8"
           >
             <div className="flex justify-between items-center mb-12">
               <span className="font-headline font-black italic text-2xl text-fifa-blue dark:text-white uppercase">FIFA 2026</span>
-              <button onClick={() => setIsMobileMenuOpen(false)} aria-label="Cerrar menú" className="p-2 rounded-full bg-white dark:bg-slate-800 shadow-sm">
+              <button onClick={() => setIsMobileMenuOpen(false)} aria-label="Cerrar menú" className="p-2 rounded-full bg-white/90 dark:bg-slate-800/80 shadow-sm hover:bg-white/95 dark:hover:bg-slate-700 transition-colors">
                 <X size={32} className="text-slate-900 dark:text-white" />
               </button>
             </div>
