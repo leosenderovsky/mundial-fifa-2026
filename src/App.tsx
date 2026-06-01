@@ -4,6 +4,7 @@ import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { BottomNav } from './components/layout/BottomNav';
 import { useTheme } from './hooks/useTheme';
+import { useAdRefresh } from './hooks/useAdRefresh';
 
 const Home         = React.lazy(() => import('./pages/Home'));
 const Fixture      = React.lazy(() => import('./pages/FixtureGroups'));
@@ -18,28 +19,12 @@ export default function App() {
   const { theme } = useTheme();
   return (
     <BrowserRouter>
-      <AppRoutes theme={theme} />
+      <Layout theme={theme} />
     </BrowserRouter>
   );
 }
 
-function AppRoutes({ theme }: { theme: string }) {
-  // Hook that refreshes ads on navigation
-  // note: placed inside Router context
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { default: useAdRefresh } = ({} as any);
-  // import the hook dynamically so TypeScript doesn't try to resolve it before Router exists
-  // then call it normally
-  // We do a static import instead to keep things simple and type-safe
-  return <InnerApp theme={theme} />;
-}
-
-function InnerApp({ theme }: { theme: string }) {
-  // now we can safely import and use the hook
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const { theme: t } = useTheme();
-  // import hook
-  const { useAdRefresh } = require('./hooks/useAdRefresh');
+function Layout({ theme }: { theme: string }) {
   useAdRefresh();
 
   return (
