@@ -6,7 +6,8 @@ const THESPORTSDB_PROXY_URL = '/.netlify/functions/thesportsdb';
 export const api = {
   async fetch(endpoint: string, params: Record<string, string> = {}) {
     const query = new URLSearchParams(params).toString();
-    const isDirect = Boolean(API_KEY);
+    // In development use the serverless proxy to avoid CORS issues.
+    const isDirect = Boolean(API_KEY) && !import.meta.env.DEV;
     const url = isDirect
       ? `${BASE_URL}${endpoint}${query ? `?${query}` : ''}`
       : `${PROXY_URL}?${new URLSearchParams({ endpoint, ...params }).toString()}`;
