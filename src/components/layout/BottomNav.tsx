@@ -22,7 +22,9 @@ export const BottomNav = () => {
         <AdBanner slot="4444444444" format="horizontal" className="w-full" />
       </div>
       <nav className="fixed bottom-0 left-0 right-0 h-20 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 flex md:hidden items-center justify-around px-4 z-50">
-      {items.map((item) => (
+      {items.map((item) => {
+        const Icon = item.icon;
+        return (
         <NavLink
           key={item.path}
           to={item.path}
@@ -31,10 +33,11 @@ export const BottomNav = () => {
             isActive ? "text-fifa-blue dark:text-fifa-gold" : "text-slate-400"
           )}
         >
-          <item.icon size={20} />
+          <Icon size={20} />
           <span className="text-[10px] font-bold uppercase tracking-tighter">{item.label}</span>
         </NavLink>
-      ))}
+        );
+      })}
     </nav>
     </>
   );
