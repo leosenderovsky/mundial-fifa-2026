@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
 import { Moon, Sun, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -83,37 +84,40 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* MOBILE DRAWER */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ x: '100%' }}
-            animate={{ x: 0 }}
-            exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-[60] bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm flex flex-col p-6 sm:p-8"
-          >
-            <div className="flex justify-between items-center mb-12">
-              <span className="font-headline font-black italic text-2xl text-fifa-blue dark:text-white uppercase">FIFA 2026</span>
-              <button onClick={() => setIsMobileMenuOpen(false)} aria-label="Cerrar menú" className="p-2 rounded-full bg-white/90 dark:bg-slate-800/80 shadow-sm hover:bg-white/95 dark:hover:bg-slate-700 transition-colors">
-                <X size={32} className="text-slate-900 dark:text-white" />
-              </button>
-            </div>
-            <div className="flex flex-col space-y-8">
-              {navItems.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="headline-md uppercase tracking-tight"
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* MOBILE DRAWER (rendered in portal so fixed covers viewport) */}
+      {typeof document !== 'undefined' && createPortal(
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed inset-0 z-[60] bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm flex flex-col p-6 sm:p-8"
+            >
+              <div className="flex justify-between items-center mb-12">
+                <span className="font-headline font-black italic text-2xl text-fifa-blue dark:text-white uppercase">FIFA 2026</span>
+                <button onClick={() => setIsMobileMenuOpen(false)} aria-label="Cerrar menú" className="p-2 rounded-full bg-white/90 dark:bg-slate-800/80 shadow-sm hover:bg-white/95 dark:hover:bg-slate-700 transition-colors">
+                  <X size={32} className="text-slate-900 dark:text-white" />
+                </button>
+              </div>
+              <div className="flex flex-col space-y-8">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="headline-md uppercase tracking-tight"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body
+      )}
     </nav>
   );
 };
