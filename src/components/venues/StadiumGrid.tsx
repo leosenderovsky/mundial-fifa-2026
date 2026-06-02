@@ -1,5 +1,6 @@
 import React from 'react';
 import { Stadium } from '../../data/stadiums';
+import { proxiedImage } from '../../lib/imageProxy';
 import { MapPin, Maximize2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -22,7 +23,7 @@ export function StadiumGrid({ stadiums, onSelectStadium }: StadiumGridProps) {
         >
           <div className="aspect-[16/9] overflow-hidden relative">
             <img
-              src={stadium.imageUrl}
+              src={proxiedImage(stadium.imageUrl)}
               alt={stadium.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />

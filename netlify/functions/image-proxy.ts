@@ -2,7 +2,7 @@
 // Proxy external images (crests, player photos) to avoid expanding CSP.
 declare const process: any;
 
-const ALLOWED_HOSTS = ['crests.football-data.org', 'media.api-sports.io', 'upload.wikimedia.org'];
+const ALLOWED_HOSTS = ['crests.football-data.org', 'media.api-sports.io', 'upload.wikimedia.org', 'www.thesportsdb.com', 'thesportsdb.com', 'images.thesportsdb.com'];
 
 export const handler = async (event: { httpMethod: string; queryStringParameters?: Record<string, string> }) => {
   if (event.httpMethod !== 'GET') {

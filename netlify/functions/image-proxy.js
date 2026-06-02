@@ -1,6 +1,6 @@
 // Netlify Function (JS fallback): image-proxy
 // Created to ensure Netlify Dev can load the function when TS build tooling fails.
-const ALLOWED_HOSTS = ['crests.football-data.org', 'media.api-sports.io', 'upload.wikimedia.org'];
+const ALLOWED_HOSTS = ['crests.football-data.org', 'media.api-sports.io', 'upload.wikimedia.org', 'www.thesportsdb.com', 'thesportsdb.com', 'images.thesportsdb.com'];
 
 exports.handler = async function (event) {
   if (event.httpMethod !== 'GET') {

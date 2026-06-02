@@ -1,5 +1,5 @@
 // CommonJS Netlify Function fallback (use .cjs to avoid ESM "type": "module" warnings)
-const ALLOWED_HOSTS = ['crests.football-data.org', 'media.api-sports.io', 'upload.wikimedia.org'];
+const ALLOWED_HOSTS = ['crests.football-data.org', 'media.api-sports.io', 'upload.wikimedia.org', 'www.thesportsdb.com', 'thesportsdb.com', 'images.thesportsdb.com'];
 
 module.exports.handler = async function (event) {
   if (event.httpMethod !== 'GET') {

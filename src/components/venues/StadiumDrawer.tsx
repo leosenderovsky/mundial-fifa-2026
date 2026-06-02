@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, Users, CloudRain, Thermometer, Info, MapPin, Ticket } from 'lucide-react';
 import { Stadium } from '../../data/stadiums';
+import { proxiedImage } from '../../lib/imageProxy';
 import { StadiumMiniMap } from './StadiumMiniMap';
 
 interface Props {
@@ -32,7 +33,7 @@ export const StadiumDrawer = ({ stadium, onClose }: Props) => {
           </button>
 
           <div className="h-80 w-full relative">
-            <img src={stadium.imageUrl} alt={stadium.name} className="w-full h-full object-cover" />
+            <img src={proxiedImage(stadium.imageUrl)} alt={stadium.name} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent" />
             <div className="absolute bottom-8 left-8 right-8">
               <span className="label-caps text-fifa-gold mb-2 block">Sede Histórica</span>

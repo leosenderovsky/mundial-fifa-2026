@@ -267,7 +267,7 @@ export default function TeamDetail() {
                           <div className="w-full aspect-[4/5] overflow-hidden bg-slate-950">
                             {player.photo ? (
                               <img
-                                src={player.photo}
+                                src={proxiedImage(player.photo)}
                                 alt={player.name}
                                 className="w-full h-full object-cover"
                                 loading="lazy"
