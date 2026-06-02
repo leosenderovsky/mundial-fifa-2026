@@ -4,10 +4,11 @@ export function proxiedImage(url?: string | null): string | undefined {
     const parsed = new URL(url);
     // Only proxy absolute http(s) URLs
     if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
-      // Bypass proxy in development to avoid ECONNREFUSED when Netlify Dev isn't running.
-      // You can force bypass by setting VITE_DISABLE_IMAGE_PROXY=true in .env
-      const disableProxy = import.meta.env.DEV || import.meta.env.VITE_DISABLE_IMAGE_PROXY === 'true';
-      if (disableProxy) return url;
+      // Keep direct image URLs as the default path. The production CSP allows
+      // the known media hosts, and this avoids broken images when Netlify
+      // Functions are unavailable or a static preview is being used.
+      const enableProxy = import.meta.env.VITE_ENABLE_IMAGE_PROXY === 'true';
+      if (!enableProxy) return url;
       return `/.netlify/functions/image-proxy?url=${encodeURIComponent(url)}`;
     }
   } catch (err) {
