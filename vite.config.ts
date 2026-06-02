@@ -9,6 +9,7 @@ export default defineConfig({
       '@': resolve(__dirname, './src'),
     },
   },
+  assetsInclude: ['**/*.png', '**/*.jpg', '**/*.jpeg', '**/*.svg', '**/*.gif'],
   build: {
     rollupOptions: {
       output: {
