@@ -97,7 +97,7 @@ export const Navbar = () => {
             >
               <div className="flex justify-between items-center mb-12">
                 <span className="font-headline font-black italic text-2xl text-fifa-blue dark:text-white uppercase">FIFA 2026</span>
-                <button onClick={() => setIsMobileMenuOpen(false)} aria-label="Cerrar menú" className="p-2 rounded-full bg-white dark:bg-slate-800 shadow-sm hover:bg-white dark:hover:bg-slate-700 transition-colors">
+                <button onClick={() => setIsMobileMenuOpen(false)} aria-label="Cerrar menú" className="p-2 rounded-full bg-slate-100 dark:bg-slate-700 shadow-md hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
                   <X size={32} className="text-slate-900 dark:text-white" />
                 </button>
               </div>
