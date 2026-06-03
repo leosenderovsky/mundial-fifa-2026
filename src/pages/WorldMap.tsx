@@ -67,7 +67,15 @@ export default function WorldMap() {
             >
               <Popup className="stadium-popup">
                 <div className="w-48 overflow-hidden rounded-lg">
-                  <img src={proxiedImage(stadium.imageUrl)} alt={stadium.name} className="h-24 w-full object-cover" />
+                  <img
+                    src={proxiedImage(stadium.imageUrl)}
+                    alt={stadium.name}
+                    className="h-24 w-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = '/stadium-placeholder.jpg';
+                      e.currentTarget.onerror = null;
+                    }}
+                  />
                   <div className="p-3">
                     <h4 className="font-bold text-xs uppercase">{stadium.name}</h4>
                     <p className="text-[10px] text-slate-500">{stadium.city}, {stadium.country}</p>
@@ -128,7 +136,15 @@ export default function WorldMap() {
               className="group p-4 flex gap-4 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer transition-colors border-b border-slate-50 dark:border-slate-800/50"
             >
               <div className="w-20 h-20 rounded-lg overflow-hidden flex-shrink-0">
-                <img src={proxiedImage(stadium.imageUrl)} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={stadium.name} />
+                <img
+                  src={proxiedImage(stadium.imageUrl)}
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  alt={stadium.name}
+                  onError={(e) => {
+                    e.currentTarget.src = '/stadium-placeholder.jpg';
+                    e.currentTarget.onerror = null;
+                  }}
+                />
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex justify-between items-start">

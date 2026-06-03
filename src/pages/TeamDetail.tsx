@@ -63,6 +63,7 @@ export default function TeamDetail() {
   const parsedId = Number(rawId.split('-')[0]);
   const [activeTab, setActiveTab] = useState<TabKey>('PLANTEL');
   const [openPlayerBio, setOpenPlayerBio] = useState<number | null>(null);
+  const [failedImages, setFailedImages] = useState<Record<string | number, boolean>>({});
 
   const { data: team, isLoading, error } = useApiData<Team>(
     ['team', String(parsedId)],
@@ -211,13 +212,14 @@ export default function TeamDetail() {
                   <div className="stadium-card overflow-hidden bg-gradient-to-br from-fifa-gold/10 to-fifa-red/10 border-2 border-fifa-gold/30 relative group">
                     <div className="absolute inset-0 bg-gradient-to-br from-fifa-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     <div className="w-full aspect-[4/5] overflow-hidden rounded-t-none bg-slate-950">
-                      {coachPhoto ? (
+                      {coachPhoto && !failedImages['coach'] ? (
                         <img
                           src={proxiedImage(coachPhoto)}
                           alt={coachName}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           loading="lazy"
                           referrerPolicy="no-referrer"
+                          onError={() => setFailedImages(prev => ({ ...prev, coach: true }))}
                         />
                       ) : isLoadingPhotos ? (
                         <div className="w-full h-full bg-white/10 animate-pulse" />
@@ -265,13 +267,14 @@ export default function TeamDetail() {
                           </ErrorBoundary>
 
                           <div className="w-full aspect-[4/5] overflow-hidden bg-slate-950">
-                            {player.photo ? (
+                            {player.photo && !failedImages[player.id] ? (
                               <img
                                 src={proxiedImage(player.photo)}
                                 alt={player.name}
                                 className="w-full h-full object-cover"
                                 loading="lazy"
                                 referrerPolicy="no-referrer"
+                                onError={() => setFailedImages(prev => ({ ...prev, [player.id]: true }))}
                               />
                             ) : isLoadingPhotos ? (
                               <div className="w-full h-full bg-white/10 animate-pulse" />

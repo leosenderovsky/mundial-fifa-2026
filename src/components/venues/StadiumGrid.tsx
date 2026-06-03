@@ -26,6 +26,10 @@ export function StadiumGrid({ stadiums, onSelectStadium }: StadiumGridProps) {
               src={proxiedImage(stadium.imageUrl)}
               alt={stadium.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              onError={(e) => {
+                e.currentTarget.src = '/stadium-placeholder.jpg';
+                e.currentTarget.onerror = null; // Prevent looping if placeholder fails
+              }}
             />
             <div className="absolute top-4 left-4 flex gap-2">
               <span className="bg-white/90 dark:bg-slate-900/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black uppercase">
