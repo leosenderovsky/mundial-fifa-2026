@@ -68,7 +68,7 @@ export const GroupCard = ({
                     </span>
                   </td>
                   <td className="py-3 flex items-center gap-3">
-                    <span className={`fi fi-${team.flag} w-6 h-4 rounded-sm`} title={team.nameEs} />
+                    <span className={`fi fi-${team.flag} w-6 h-4 rounded-sm`} title={team.nameEs} aria-label={team.nameEs} />
                     <span className="font-bold uppercase tracking-tight text-xs">{team.nameEs}</span>
                   </td>
                   <td className="py-3 text-center font-mono text-xs">0</td>
@@ -88,7 +88,9 @@ export const GroupCard = ({
                   </td>
                   <td className="py-3 flex items-center gap-3">
                     {getFlagCode(entry.team) ? (
-                      <span className={`fi fi-${getFlagCode(entry.team)} w-6 h-4 rounded-sm`} title={entry.team.name} />
+                      <span className={`fi fi-${getFlagCode(entry.team)} w-6 h-4 rounded-sm`} title={entry.team.name} aria-label={entry.team.name} />
+                    ) : (entry.team as any).flag ? (
+                      <span className={`fi fi-${(entry.team as any).flag} w-6 h-4 rounded-sm`} title={entry.team.name} aria-label={entry.team.name} />
                     ) : entry.team.crest ? (
                       <img src={proxiedImage(entry.team.crest)} alt={entry.team.name} className="w-6 h-4 object-contain" />
                     ) : (
