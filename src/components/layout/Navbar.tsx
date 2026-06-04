@@ -53,7 +53,7 @@ export const Navbar = () => {
         {/* LOGO */}
         <Link to="/" className="flex flex-col">
           <span className="font-headline font-black italic uppercase tracking-tighter text-2xl lg:text-3xl text-fifa-blue dark:text-white leading-none">
-            FIFA 2026
+            MUNDIAL FIFA 2026
           </span>
         </Link>
 
@@ -96,7 +96,7 @@ export const Navbar = () => {
               className="fixed inset-0 z-[60] bg-white dark:bg-slate-900 backdrop-blur-sm flex flex-col p-6 sm:p-8"
             >
               <div className="flex justify-between items-center mb-12">
-                <span className="font-headline font-black italic text-2xl text-fifa-blue dark:text-white uppercase">FIFA 2026</span>
+                <span className="font-headline font-black italic text-2xl text-fifa-blue dark:text-white uppercase">MUNDIAL FIFA 2026</span>
                 <button onClick={() => setIsMobileMenuOpen(false)} aria-label="Cerrar menú" className="p-2 rounded-full bg-slate-100 dark:bg-slate-700 shadow-md hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors">
                   <X size={32} className="text-slate-900 dark:text-white" />
                 </button>

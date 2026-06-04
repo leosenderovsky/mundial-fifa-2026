@@ -18,7 +18,7 @@ export const Footer = () => {
           
           {/* Brand Col */}
           <div className="space-y-6">
-            <h3 className="headline-md text-fifa-blue dark:text-white">FIFA 2026</h3>
+            <h3 className="headline-md text-fifa-blue dark:text-white">MUNDIAL FIFA 2026</h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 max-w-xs leading-relaxed">
               La Copa Mundial de la FIFA 2026™ marcará la 23ª edición del certamen, por primera vez con 48 equipos y tres países anfitriones.
             </p>
