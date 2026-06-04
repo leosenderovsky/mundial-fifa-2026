@@ -1,0 +1,293 @@
+// netlify/functions/rss-proxy.js
+// Proxy server-side para RSS feeds — evita CORS y protege URLs
+// Parsea XML, filtra por keywords del Mundial 2026, retorna JSON normalizado
+
+const { XMLParser } = require('fast-xml-parser');
+
+// Keywords unificados (español + inglés + portugués)
+const MUNDIAL_KEYWORDS = [
+  // Español
+  'mundial 2026', 'copa del mundo 2026', 'copa mundial 2026',
+  'mundial fifa', 'world cup 2026', 'fifa 2026',
+  'mundial de futbol', 'mundial de fútbol',
+  'eliminatorias mundial', 'fase de grupos mundial',
+  'octavos de final', 'cuartos de final', 'semifinal mundial', 'final mundial',
+  'goleadores mundial', 'fixture mundial', 'sorteo mundial',
+  'estadio azteca', 'metlife', 'bc place',
+  'argentina mundial', 'brasil mundial', 'mexico mundial',
+  'españa mundial', 'francia mundial', 'alemania mundial',
+  'portugal mundial', 'marruecos mundial', 'uruguay mundial',
+  // Inglés
+  '2026 world cup', 'world cup 2026', 'fifa 2026',
+  'world cup squad', 'world cup draw', 'world cup group',
+  'world cup final', 'world cup host', 'world cup qualifier',
+  // Portugués
+  'copa do mundo 2026', 'copa do mundo', 'seleção mundial',
+  'copa fifa', 'oitavas de final', 'quartas de final',
+];
+
+/**
+ * Verifica si un texto contiene al menos un keyword del mundial
+ */
+function isMundialRelated(text = '') {
+  const lower = text.toLowerCase();
+  return MUNDIAL_KEYWORDS.some(kw => lower.includes(kw));
+}
+
+/**
+ * Normaliza un item de RSS a formato estándar
+ */
+function normalizeItem(item, sourceId, sourceName, country, countryCode, language) {
+  const title = item.title || '';
+  const description = stripHtml(item.description || item['content:encoded'] || '');
+  const link = item.link || item.guid || '';
+  const pubDate = item.pubDate || item.published || item['dc:date'] || '';
+  const imageUrl = extractImage(item);
+
+  return {
+    id: `${sourceId}-${Buffer.from(link).toString('base64').slice(0, 12)}`,
+    title: stripHtml(title).trim(),
+    description: description.slice(0, 280).trim(),
+    link,
+    pubDate: pubDate ? new Date(pubDate).toISOString() : new Date().toISOString(),
+    imageUrl,
+    sourceId,
+    sourceName,
+    country,
+    countryCode,
+    language,
+  };
+}
+
+function stripHtml(str = '') {
+  return str
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&/g, '&')
+    .replace(/</g, '<')
+    .replace(/>/g, '>')
+    .replace(/"/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+function extractImage(item) {
+  // Intenta distintos campos donde los feeds guardan imágenes
+  if (item['media:thumbnail']?.['@_url']) return item['media:thumbnail']['@_url'];
+  if (item['media:content']?.['@_url']) return item['media:content']['@_url'];
+  if (item.enclosure?.['@_url'] && item.enclosure['@_type']?.startsWith('image/'))
+    return item.enclosure['@_url'];
+  // Busca en content:encoded
+  const content = item['content:encoded'] || item.description || '';
+  const match = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+  return match ? match[1] : null;
+}
+
+/**
+ * Obtiene y parsea un feed RSS
+ */
+async function fetchFeed(source) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout por feed
+
+  try {
+    const res = await fetch(source.rss, {
+      signal: controller.signal,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; MundialFIFA2026Bot/1.0)',
+        'Accept': 'application/rss+xml, application/xml, text/xml, */*',
+      },
+    });
+
+    clearTimeout(timeout);
+
+    if (!res.ok) {
+      console.warn(`[rss-proxy] Feed ${source.id} returned ${res.status}`);
+      return [];
+    }
+
+    const xml = await res.text();
+
+    const parser = new XMLParser({
+      ignoreAttributes: false,
+      attributeNamePrefix: '@_',
+      allowBooleanAttributes: true,
+    });
+
+    const parsed = parser.parse(xml);
+    const channel = parsed?.rss?.channel || parsed?.feed;
+    if (!channel) return [];
+
+    // Soporta RSS 2.0 (items) y Atom (entry)
+    const rawItems = channel.item
+      ? Array.isArray(channel.item) ? channel.item : [channel.item]
+      : channel.entry
+      ? Array.isArray(channel.entry) ? channel.entry : [channel.entry]
+      : [];
+
+    // Normalizar y filtrar por keywords mundial
+    return rawItems
+      .map(item => normalizeItem(
+        item,
+        source.id,
+        source.name,
+        source.country,
+        source.countryCode,
+        source.language,
+      ))
+      .filter(item => {
+        const searchText = `${item.title} ${item.description}`;
+        return isMundialRelated(searchText);
+      })
+      .slice(0, 8); // máximo 8 por fuente
+
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err.name !== 'AbortError') {
+      console.warn(`[rss-proxy] Error fetching ${source.id}:`, err.message);
+    }
+    return [];
+  }
+}
+
+// Caché en memoria del proceso (dura mientras la función esté caliente)
+let memCache = null;
+let cacheTime = 0;
+const CACHE_TTL_MS = 10 * 60 * 1000; // 10 minutos
+
+exports.handler = async function (event) {
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Content-Type': 'application/json',
+    'Cache-Control': 'public, max-age=600',
+  };
+
+  // OPTIONS preflight
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 204, headers, body: '' };
+  }
+
+  // Devolver caché si está vigente
+  if (memCache && Date.now() - cacheTime < CACHE_TTL_MS) {
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ articles: memCache, cached: true }),
+    };
+  }
+
+  try {
+    // Obtener lista de fuentes activas desde query param o usar todas
+    // ?sources=infobae-arg,clarin-arg (opcional, para filtrar desde el cliente)
+    const requestedIds = event.queryStringParameters?.sources
+      ? event.queryStringParameters.sources.split(',')
+      : null;
+
+    // Importar fuentes (inlined para evitar dependencias de módulo ESM en Netlify CJS)
+    // Las fuentes están hardcoded aquí para que la function sea autónoma
+    const SOURCES = getSources();
+    const activeSources = requestedIds
+      ? SOURCES.filter(s => s.enabled && requestedIds.includes(s.id))
+      : SOURCES.filter(s => s.enabled);
+
+    // Fetch en paralelo con Promise.allSettled (resiliente a fallos individuales)
+    const results = await Promise.allSettled(
+      activeSources.map(source => fetchFeed(source))
+    );
+
+    let articles = results
+      .filter(r => r.status === 'fulfilled')
+      .flatMap(r => r.value);
+
+    // Deduplicar por título similar (Levenshtein simplificado: si los primeros 60 chars son iguales)
+    const seen = new Set();
+    articles = articles.filter(article => {
+      const key = article.title.slice(0, 60).toLowerCase().replace(/\s/g, '');
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    // Ordenar por fecha (más recientes primero)
+    articles.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+    // Asegurar diversidad de fuentes: intercalar para que no aparezcan seguidas del mismo medio
+    articles = interleaveBySource(articles);
+
+    // Actualizar caché
+    memCache = articles;
+    cacheTime = Date.now();
+
+    return {
+      statusCode: 200,
+      headers,
+      body: JSON.stringify({ articles, cached: false, total: articles.length }),
+    };
+
+  } catch (err) {
+    console.error('[rss-proxy] Error general:', err);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ error: 'Error al procesar feeds RSS', articles: [] }),
+    };
+  }
+};
+
+/**
+ * Intercala artículos para diversidad de fuentes
+ */
+function interleaveBySource(articles) {
+  const bySource = {};
+  articles.forEach(a => {
+    if (!bySource[a.sourceId]) bySource[a.sourceId] = [];
+    bySource[a.sourceId].push(a);
+  });
+
+  const queues = Object.values(bySource);
+  const result = [];
+  let i = 0;
+
+  while (queues.some(q => q.length > 0)) {
+    const q = queues[i % queues.length];
+    if (q.length > 0) result.push(q.shift());
+    i++;
+  }
+
+  return result;
+}
+
+/**
+ * Fuentes RSS hardcoded (espejo de rssSources.ts para uso en Netlify CJS)
+ */
+function getSources() {
+  return [
+    { id: 'infobae-arg', name: 'Infobae Deportes', country: 'Argentina', countryCode: 'ar', language: 'es', rss: 'https://www.infobae.com/feeds/rss/deportes.xml', enabled: true },
+    { id: 'clarin-arg', name: 'Clarín Deportes', country: 'Argentina', countryCode: 'ar', language: 'es', rss: 'https://www.clarin.com/rss/deportes/', enabled: true },
+    { id: 'lanacion-arg', name: 'La Nación', country: 'Argentina', countryCode: 'ar', language: 'es', rss: 'https://www.lanacion.com.ar/arc/outboundfeeds/rss/category/deportes/?outputType=xml', enabled: true },
+    { id: 'tyc-arg', name: 'TyC Sports', country: 'Argentina', countryCode: 'ar', language: 'es', rss: 'https://www.tycsports.com/rss.html', enabled: true },
+    { id: 'globo-bra', name: 'Globo Esporte', country: 'Brasil', countryCode: 'br', language: 'pt', rss: 'https://ge.globo.com/dynamo/rss2.xml', enabled: true },
+    { id: 'uol-bra', name: 'UOL Esporte', country: 'Brasil', countryCode: 'br', language: 'pt', rss: 'https://rss.uol.com.br/feed/esporte.xml', enabled: true },
+    { id: 'lance-bra', name: 'LANCE!', country: 'Brasil', countryCode: 'br', language: 'pt', rss: 'https://www.lance.com.br/feeds/rss', enabled: true },
+    { id: 'eltiempo-col', name: 'El Tiempo Deportes', country: 'Colombia', countryCode: 'co', language: 'es', rss: 'https://www.eltiempo.com/rss/deportes.xml', enabled: true },
+    { id: 'espectador-col', name: 'El Espectador', country: 'Colombia', countryCode: 'co', language: 'es', rss: 'https://www.elespectador.com/arc/outboundfeeds/rss/category/deportes/?outputType=xml', enabled: true },
+    { id: 'latercera-chi', name: 'La Tercera', country: 'Chile', countryCode: 'cl', language: 'es', rss: 'https://www.latercera.com/arcio/rss/category/el-deportivo/', enabled: true },
+    { id: 'biobio-chi', name: 'BioBioChile', country: 'Chile', countryCode: 'cl', language: 'es', rss: 'https://www.biobiochile.cl/lista/categoria/deportes/feed', enabled: true },
+    { id: 'emol-chi', name: 'Emol Deportes', country: 'Chile', countryCode: 'cl', language: 'es', rss: 'https://www.emol.com/rss/emol/deportes.xml', enabled: true },
+    { id: 'elcomercio-per', name: 'El Comercio Deportes', country: 'Perú', countryCode: 'pe', language: 'es', rss: 'https://elcomercio.pe/arc/outboundfeeds/rss/category/deporte-total/?outputType=xml', enabled: true },
+    { id: 'depor-per', name: 'Depor', country: 'Perú', countryCode: 'pe', language: 'es', rss: 'https://depor.com/arc/outboundfeeds/rss/?outputType=xml', enabled: true },
+    { id: 'rpp-per', name: 'RPP Deportes', country: 'Perú', countryCode: 'pe', language: 'es', rss: 'https://rpp.pe/rss/deportes.xml', enabled: true },
+    { id: 'eluniversal-mex', name: 'El Universal Deportes', country: 'México', countryCode: 'mx', language: 'es', rss: 'https://www.eluniversal.com.mx/rss.xml', enabled: true },
+    { id: 'record-mex', name: 'Récord', country: 'México', countryCode: 'mx', language: 'es', rss: 'https://www.record.com.mx/rss.xml', enabled: true },
+    { id: 'mediotiempo-mex', name: 'Mediotiempo', country: 'México', countryCode: 'mx', language: 'es', rss: 'https://www.mediotiempo.com/feeds/rss', enabled: true },
+    { id: 'ovacion-uru', name: 'Ovación - El País', country: 'Uruguay', countryCode: 'uy', language: 'es', rss: 'https://www.elpais.com.uy/rss/ovacion.xml', enabled: true },
+    { id: 'abc-par', name: 'ABC Color Deportes', country: 'Paraguay', countryCode: 'py', language: 'es', rss: 'https://www.abc.com.py/rss/deportes.xml', enabled: true },
+    { id: 'espnfc-int', name: 'ESPN FC', country: 'Internacional', countryCode: 'us', language: 'en', rss: 'https://www.espn.com/espn/rss/soccer/news', enabled: true },
+    { id: 'fifa-official', name: 'FIFA Official', country: 'Internacional', countryCode: 'ch', language: 'en', rss: 'https://inside.fifa.com/rss-feeds/news', enabled: true },
+    { id: 'tudn-int', name: 'TUDN', country: 'Internacional', countryCode: 'us', language: 'es', rss: 'https://www.tudn.com/rss', enabled: true },
+    { id: 'bbc-football', name: 'BBC Football', country: 'Reino Unido', countryCode: 'gb', language: 'en', rss: 'https://feeds.bbci.co.uk/sport/football/rss.xml', enabled: true },
+    { id: 'guardian-football', name: 'The Guardian Football', country: 'Reino Unido', countryCode: 'gb', language: 'en', rss: 'https://www.theguardian.com/football/rss', enabled: true },
+    { id: 'goal-int', name: 'Goal.com', country: 'Internacional', countryCode: 'int', language: 'en', rss: 'https://www.goal.com/feeds/en/news', enabled: true },
+  ];
+}
