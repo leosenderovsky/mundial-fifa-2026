@@ -104,7 +104,7 @@ export default function TeamDetail() {
   const coachNationality = team?.coach?.nationality;
 
   const playerNames = useMemo(() => mergedSquad.map((p) => p.name), [mergedSquad]);
-  const { photos: photoMap, isLoadingPhotos } = useSquadPhotos(playerNames, coachName);
+  const { photos: photoMap, isLoadingPhotos } = useSquadPhotos(playerNames, coachName, team?.name);
 
   const squadWithPhotos = useMemo(
     () =>

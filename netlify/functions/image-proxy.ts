@@ -1,5 +1,7 @@
 // Netlify Function: image-proxy
 // Proxy external images (crests, player photos) to avoid expanding CSP.
+import { Buffer } from 'node:buffer';
+
 declare const process: any;
 
 const ALLOWED_HOSTS = ['crests.football-data.org', 'media.api-sports.io', 'upload.wikimedia.org', 'www.thesportsdb.com', 'thesportsdb.com', 'images.thesportsdb.com'];

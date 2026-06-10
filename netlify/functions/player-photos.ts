@@ -20,18 +20,70 @@ interface SportsDbPlayer {
 }
 
 async function findWikiImage(name: string): Promise<string | null> {
-  const url = `https://es.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&prop=pageimages&piprop=original|thumbnail&pithumbsize=600&titles=${encodeURIComponent(name)}`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
-  if (!res.ok) return null;
+  // Intentar Wikipedia en español primero
+  const tryWiki = async (lang: string): Promise<string | null> => {
+    const url = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&prop=pageimages&piprop=original|thumbnail&pithumbsize=600&titles=${encodeURIComponent(name)}`;
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+      if (!res.ok) return null;
+      const data = await res.json() as any;
+      const pages = data?.query?.pages ?? [];
+      if (!Array.isArray(pages) || pages.length === 0) return null;
+      const page = pages[0];
+      if (!page || page.missing) return null;
+      return page.original?.source || page.thumbnail?.source || null;
+    } catch {
+      return null;
+    }
+  };
 
-  const data = await res.json() as any;
-  const pages = data?.query?.pages ?? [];
-  if (!Array.isArray(pages) || pages.length === 0) return null;
+  return (await tryWiki('es')) ?? (await tryWiki('en'));
+}
 
-  const page = pages[0];
-  if (!page || page.missing) return null;
+// Busca el equipo nacional en TheSportsDB y retorna su idTeam
+async function findNationalTeamId(teamName: string): Promise<string | null> {
+  try {
+    const url = `${BASE_URL}/searchteams.php?t=${encodeURIComponent(teamName)}`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
+    if (!res.ok) return null;
+    const data = await res.json() as any;
+    const teams: any[] = data?.teams ?? [];
+    if (!teams.length) return null;
 
-  return page.original?.source || page.thumbnail?.source || null;
+    // Priorizar equipos nacionales (strSport === 'Soccer' y sin 'FC'/'Club'/'SC' en el nombre)
+    const national = teams.find(
+      (t) =>
+        t.strSport === 'Soccer' &&
+        !/\b(fc|sc|ac|club|united|city)\b/i.test(t.strTeam ?? '')
+    ) ?? teams[0];
+
+    return national?.idTeam ?? null;
+  } catch {
+    return null;
+  }
+}
+
+// Dado el idTeam de la selección nacional, retorna un mapa nombre → URL de foto
+// Estas fotos son en contexto de selección nacional (camiseta del país)
+async function fetchNationalTeamPhotoMap(teamId: string): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  try {
+    const url = `${BASE_URL}/lookup_all_players.php?id=${teamId}`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+    if (!res.ok) return map;
+    const data = await res.json() as any;
+    const players: any[] = data?.player ?? [];
+
+    for (const p of players) {
+      const photo = p.strThumb || p.strCutout || p.strRender;
+      if (p.strPlayer && photo) {
+        map.set(p.strPlayer.trim().toLowerCase(), photo);
+      }
+    }
+  } catch {
+    // Ignorar — el mapa quedará vacío y se usarán los fallbacks individuales
+  }
+  return map;
 }
 
 // Mantener la implementación existente como fallback para TheSportsDB
@@ -121,7 +173,7 @@ export const handler = async (event: { httpMethod: string; body?: string }) => {
   }
 
   try {
-    const { names } = JSON.parse(event.body ?? '{}') as { names?: string[] };
+    const { names, teamName } = JSON.parse(event.body ?? '{}') as { names?: string[]; teamName?: string };
     if (!names?.length) {
       return { statusCode: 400, body: JSON.stringify({ error: 'names requerido' }) };
     }
@@ -132,6 +184,16 @@ export const handler = async (event: { httpMethod: string; body?: string }) => {
     const cache = new Map<string, string | null>();
     const batchSize = 5;
 
+    // Paso 1: lookup del equipo nacional (una sola llamada para todos los jugadores)
+    let nationalPhotoMap = new Map<string, string>();
+    if (teamName) {
+      const teamId = await findNationalTeamId(teamName);
+      if (teamId) {
+        nationalPhotoMap = await fetchNationalTeamPhotoMap(teamId);
+      }
+    }
+
+    // Paso 2: para cada jugador, usar foto nacional si existe; si no, cascada individual
     for (let i = 0; i < uniqueNames.length; i += batchSize) {
       const batch = uniqueNames.slice(i, i + batchSize);
       await Promise.all(
@@ -140,6 +202,23 @@ export const handler = async (event: { httpMethod: string; body?: string }) => {
             photos[name] = cache.get(name) ?? null;
             return;
           }
+          // Buscar en el mapa de fotos del seleccionado (coincidencia exacta o parcial)
+          const normalizedName = name.trim().toLowerCase();
+          const nationalPhoto =
+            nationalPhotoMap.get(normalizedName) ??
+            [...nationalPhotoMap.entries()].find(([k]) =>
+              k.includes(normalizedName.split(' ')[0] ?? '') ||
+              normalizedName.includes(k.split(' ')[0] ?? '')
+            )?.[1] ??
+            null;
+
+          if (nationalPhoto) {
+            photos[name] = nationalPhoto;
+            cache.set(name, nationalPhoto);
+            return;
+          }
+
+          // Fallback individual: API-Football → TheSportsDB por nombre → Wikipedia
           const p = await findPhotoByName(name, cache);
           photos[name] = p;
           cache.set(name, p);

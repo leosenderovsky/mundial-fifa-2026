@@ -51,11 +51,11 @@ export const api = {
   async getTeamById(id: number) { 
     return this.fetch(`/teams/${id}`); 
   },
-  async getPlayerPhotos(names: string[]) {
+  async getPlayerPhotos(names: string[], teamName?: string) {
     const res = await fetch('/.netlify/functions/player-photos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ names }),
+      body: JSON.stringify({ names, ...(teamName ? { teamName } : {}) }),
     });
     if (!res.ok) throw new Error('No se pudieron cargar las fotos');
     return res.json() as Promise<{ photos: Record<string, string | null> }>;

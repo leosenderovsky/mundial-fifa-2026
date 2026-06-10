@@ -21,7 +21,7 @@ const COUNTRY_FILTERS = [
 
 export const NewsSection: React.FC = () => {
   const [activeCountry, setActiveCountry] = useState('all');
-  const [activeLanguage, setActiveLanguage] = useState<'all' | 'es' | 'pt' | 'en'>('all');
+  const [activeLanguage, setActiveLanguage] = useState<'all' | 'es' | 'pt' | 'en'>('es');
   const [page, setPage] = useState(1);
   const PAGE_SIZE = 12;
 

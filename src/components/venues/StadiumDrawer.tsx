@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, Users, CloudRain, Thermometer, Info, MapPin, Ticket } from 'lucide-react';
+import { X, Calendar, Users, CloudRain, Thermometer, Info, MapPin } from 'lucide-react';
 import { Stadium } from '../../data/stadiums';
 import { proxiedImage } from '../../lib/imageProxy';
 import { StadiumMiniMap } from './StadiumMiniMap';
@@ -108,10 +108,7 @@ export const StadiumDrawer = ({ stadium, onClose }: Props) => {
               </div>
             </section>
 
-            <button className="w-full py-5 bg-fifa-red text-white font-black uppercase tracking-widest text-sm rounded-xl hover:bg-red-700 transition-all shadow-xl shadow-red-500/20 flex items-center justify-center gap-3">
-              <Ticket size={20} />
-              Comprar Entradas
-            </button>
+
           </div>
         </motion.div>
       </div>

@@ -4,32 +4,32 @@
  */
 
 const FEEDS = [
+  // Argentina
   { source: 'Infobae Deportes', url: 'https://www.infobae.com/feeds/rss/deportes.xml' },
   { source: 'Clarín Deportes', url: 'https://www.clarin.com/rss/deportes/' },
-  { source: 'La Nación Deportes', url: 'https://www.lanacion.com.ar/arc/outboundfeeds/rss/category/deportes/?outputType=xml' },
+  { source: 'La Nación', url: 'https://www.lanacion.com.ar/arc/outboundfeeds/rss/category/deportes/?outputType=xml' },
   { source: 'TyC Sports', url: 'https://www.tycsports.com/rss.html' },
-  { source: 'Globo Esporte', url: 'https://ge.globo.com/dynamo/rss2.xml' },
-  { source: 'UOL Esporte', url: 'https://rss.uol.com.br/feed/esporte.xml' },
-  { source: 'LANCE!', url: 'https://www.lance.com.br/feeds/rss' },
+  // Colombia
   { source: 'El Tiempo Deportes', url: 'https://www.eltiempo.com/rss/deportes.xml' },
   { source: 'El Espectador Deportes', url: 'https://www.elespectador.com/arc/outboundfeeds/rss/category/deportes/?outputType=xml' },
+  // Chile
   { source: 'La Tercera - El Deportivo', url: 'https://www.latercera.com/arcio/rss/category/el-deportivo/' },
-  { source: 'BioBioChile Deportes', url: 'https://www.biobiochile.cl/lista/categoria/deportes/feed' },
   { source: 'Emol Deportes', url: 'https://www.emol.com/rss/emol/deportes.xml' },
+  { source: 'BioBioChile Deportes', url: 'https://www.biobiochile.cl/lista/categoria/deportes/feed' },
+  // Perú
   { source: 'El Comercio Deportes', url: 'https://elcomercio.pe/arc/outboundfeeds/rss/category/deporte-total/?outputType=xml' },
   { source: 'Depor', url: 'https://depor.com/arc/outboundfeeds/rss/?outputType=xml' },
   { source: 'RPP Deportes', url: 'https://rpp.pe/rss/deportes.xml' },
-  { source: 'El Universal Deportes', url: 'https://www.eluniversal.com.mx/rss.xml' },
+  // México
   { source: 'Récord', url: 'https://www.record.com.mx/rss.xml' },
   { source: 'Mediotiempo', url: 'https://www.mediotiempo.com/feeds/rss' },
+  { source: 'El Universal Deportes', url: 'https://www.eluniversal.com.mx/rss.xml' },
+  // Uruguay
   { source: 'Ovación - El País', url: 'https://www.elpais.com.uy/rss/ovacion.xml' },
+  // Paraguay
   { source: 'ABC Color Deportes', url: 'https://www.abc.com.py/rss/deportes.xml' },
-  { source: 'ESPN FC', url: 'https://www.espn.com/espn/rss/soccer/news' },
-  { source: 'FIFA Official News', url: 'https://inside.fifa.com/rss-feeds/news' },
+  // Internacional en español
   { source: 'TUDN', url: 'https://www.tudn.com/rss' },
-  { source: 'BBC Football', url: 'https://feeds.bbci.co.uk/sport/football/rss.xml' },
-  { source: 'The Guardian Football', url: 'https://www.theguardian.com/football/rss' },
-  { source: 'Goal.com', url: 'https://www.goal.com/feeds/en/news' },
 ];
 
 const KEYWORDS = [
@@ -142,10 +142,12 @@ export const handler = async () => {
       })
     );
 
-    const merged = results
+    let merged = results
       .flatMap((r) => (r.status === 'fulfilled' ? r.value : []))
-      .filter((item, index, arr) => arr.findIndex((x) => x.title === item.title) === index)
-      .slice(0, 18);
+      .filter((item, index, arr) => arr.findIndex((x) => x.title === item.title) === index);
+
+    // Intercalar por fuente para máxima diversidad
+    merged = interleaveBySource(merged).slice(0, 18);
 
     return {
       statusCode: 200,
@@ -162,3 +164,23 @@ export const handler = async () => {
     };
   }
 };
+
+function interleaveBySource(items: NewsItem[]): NewsItem[] {
+  const bySource: Record<string, NewsItem[]> = {};
+  items.forEach(item => {
+    if (!bySource[item.source]) bySource[item.source] = [];
+    bySource[item.source].push(item);
+  });
+
+  const queues = Object.values(bySource);
+  const result: NewsItem[] = [];
+  let i = 0;
+
+  while (queues.some(q => q.length > 0)) {
+    const q = queues[i % queues.length];
+    if (q.length > 0) result.push(q.shift()!);
+    i++;
+  }
+
+  return result;
+}
