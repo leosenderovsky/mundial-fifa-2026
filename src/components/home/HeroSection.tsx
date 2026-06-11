@@ -10,7 +10,7 @@ export const HeroSection = () => {
   {/* IMAGEN DE FONDO RESPONSIVE Y CENTRADA */}
   <div className="absolute inset-0 w-full h-full opacity-40 mix-blend-overlay">
     <img 
-      src="/public/mundial-2026-bg.jpg" // Reemplaza por la ruta de tu imagen
+      src="/mundial-2026-bg.jpg" // Reemplaza por la ruta de tu imagen
       alt="FIFA World Cup 2026 Background"
       className="w-full h-full object-cover object-center pointer-events-none select-none"
     />
