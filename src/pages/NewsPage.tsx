@@ -340,4 +340,54 @@ export default function NewsPage() {
             </div>
           )}
 
-          {/* ── SIN RESULTADOS ─
+          {/* ── SIN RESULTADOS ───────────────────────────────── */}
+          {!isLoading && !isError && visible.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20 text-gray-500">
+              <Newspaper className="w-12 h-12 mb-4 opacity-30" />
+              <p className="text-lg font-medium">Sin noticias para este filtro</p>
+              <button
+                onClick={() => { setFilter('all'); setSearch(''); }}
+                className="mt-4 text-sm text-emerald-400 hover:underline"
+              >
+                Ver todas las noticias
+              </button>
+            </div>
+          )}
+
+          {/* ── CONTENIDO ─────────────────────────────────────── */}
+          {!isLoading && visible.length > 0 && (
+            <>
+              {/* Destacadas (2 primeras) */}
+              {featured.length > 0 && (
+                <section>
+                  <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
+                    Más recientes
+                  </h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {featured.map((item, i) => (
+                      <NewsCard key={`${item.link}-${i}`} item={item} featured />
+                    ))}
+                  </div>
+                </section>
+              )}
+
+              {/* Grilla general */}
+              {rest.length > 0 && (
+                <section>
+                  <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
+                    Últimas noticias
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {rest.map((item, i) => (
+                      <NewsCard key={`${item.link}-${i}`} item={item} />
+                    ))}
+                  </div>
+                </section>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
