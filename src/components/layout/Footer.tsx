@@ -14,7 +14,7 @@ export const Footer = () => {
         <div className="hidden md:block mb-6">
           <AdBanner slot="3333333333" format="horizontal" className="w-full" />
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16+">
           {/* Brand Col */}
           <div className="space-y-6">
             <h3 className="headline-md text-fifa-blue dark:text-white">
