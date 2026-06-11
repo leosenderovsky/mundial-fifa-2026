@@ -7,15 +7,26 @@ export const HeroSection = () => {
 
   return (
     <section className="relative h-[90vh] min-h-[700px] w-full overflow-hidden bg-gradient-to-br from-[#0033A0] to-[#00216E] flex items-center">
-      <div className="absolute inset-0 bg-noise pointer-events-none opacity-20" />
-      
-      {/* Decorative elements */}
-      <div className="absolute top-1/4 -right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px]" />
-      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-fifa-gold/10 rounded-full blur-[100px]" />
+  {/* IMAGEN DE FONDO RESPONSIVE Y CENTRADA */}
+  <div className="absolute inset-0 w-full h-full opacity-40 mix-blend-overlay">
+    <img 
+      src="/public/mundial-2026-bg.jpg" // Reemplaza por la ruta de tu imagen
+      alt="FIFA World Cup 2026 Background"
+      className="w-full h-full object-cover object-center pointer-events-none select-none"
+    />
+  </div>
 
-      <div className="absolute inset-0 bg-black/20" />
+  {/* Efecto de ruido original */}
+  <div className="absolute inset-0 bg-noise pointer-events-none opacity-20" />
+  
+  {/* Elementos decorativos originales */}
+  <div className="absolute top-1/4 -right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px]" />
+  <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-fifa-gold/10 rounded-full blur-[100px]" />
 
-      <div className="container mx-auto px-4 md:px-8 relative z-10">
+  {/* CAPA OSCURA (OVERLAY) POTENCIADA PARA LEGIBILIDAD */}
+  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-black/30 pointer-events-none" />
+
+  <div className="container mx-auto px-4 md:px-8 relative z-10">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
