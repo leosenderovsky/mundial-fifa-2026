@@ -1,11 +1,12 @@
 import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Newspaper, RefreshCw, Globe, Filter, ExternalLink,
-  Clock, Wifi, WifiOff
+  Newspaper, RefreshCw, Globe, ExternalLink,
+  Clock, Wifi, WifiOff, Search
 } from 'lucide-react';
 import { SEO } from '../components/shared/SEO';
 import { RSS_FEEDS, type RssFeed } from '../lib/rssFeeds';
+import { cn } from '../lib/utils';
 
 // ── Tipos ────────────────────────────────────────────────────────────────────
 interface NewsItem {
@@ -24,7 +25,7 @@ type ActiveFilter = 'all' | RssFeed['category'];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const SESSION_KEY = 'news_cache_v3';
-const TTL_MS = 10 * 60 * 1000; // 10 min
+const TTL_MS = 10 * 60 * 1000;
 
 function getCached(): { items: NewsItem[]; ts: number } | null {
   try {
@@ -38,7 +39,7 @@ function getCached(): { items: NewsItem[]; ts: number } | null {
 
 function setCached(items: NewsItem[]) {
   try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ items, ts: Date.now() })); }
-  catch { /* storage full – ignorar */ }
+  catch { /* storage full */ }
 }
 
 function timeAgo(dateStr: string): string {
@@ -67,7 +68,6 @@ async function fetchAllNews(): Promise<NewsItem[]> {
       if (!res.ok) throw new Error(`${feed.name}: HTTP ${res.status}`);
       const data = await res.json();
 
-      // Soportar múltiples estructuras de respuesta del proxy
       const rawItems: any[] = data.items ?? data.entries ?? data.rss?.channel?.item ?? [];
       return rawItems.slice(0, 8).map((item: any): NewsItem => ({
         title:         item.title ?? '',
@@ -93,7 +93,7 @@ async function fetchAllNews(): Promise<NewsItem[]> {
   return items;
 }
 
-// ── Componente NewsCard ────────────────────────────────────────────────────────
+// ── NewsCard ──────────────────────────────────────────────────────────────────
 function NewsCard({ item, featured = false }: { item: NewsItem; featured?: boolean }) {
   const [imgError, setImgError] = useState(false);
   const desc = item.description ? stripHtml(item.description) : '';
@@ -103,15 +103,18 @@ function NewsCard({ item, featured = false }: { item: NewsItem; featured?: boole
       href={item.link}
       target="_blank"
       rel="noopener noreferrer"
-      className={`group flex flex-col bg-white/5 border border-white/10 rounded-2xl overflow-hidden
-        hover:border-emerald-500/50 hover:bg-white/8 transition-all duration-300 hover:-translate-y-1
-        hover:shadow-xl hover:shadow-emerald-900/20
-        ${featured ? 'md:col-span-2 md:flex-row' : ''}`}
+      className={cn(
+        'stadium-card group flex flex-col bg-slate-900/70 border border-white/5',
+        'hover:border-fifa-blue/50 hover:-translate-y-1 hover:shadow-2xl transition-all duration-300',
+        featured ? 'md:col-span-2 md:flex-row' : ''
+      )}
     >
       {/* Imagen */}
       {item.imageUrl && !imgError ? (
-        <div className={`relative overflow-hidden bg-gray-800 flex-shrink-0
-          ${featured ? 'md:w-64 h-44 md:h-auto' : 'h-40'}`}>
+        <div className={cn(
+          'relative overflow-hidden bg-slate-800 flex-shrink-0',
+          featured ? 'md:w-72 h-48 md:h-auto' : 'h-44'
+        )}>
           <img
             src={item.imageUrl}
             alt={item.title}
@@ -119,42 +122,47 @@ function NewsCard({ item, featured = false }: { item: NewsItem; featured?: boole
             onError={() => setImgError(true)}
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         </div>
       ) : (
-        <div className={`bg-gradient-to-br from-emerald-900/30 to-gray-800 flex items-center justify-center flex-shrink-0
-          ${featured ? 'md:w-64 h-44 md:h-auto' : 'h-40'}`}>
-          <Newspaper className="w-10 h-10 text-emerald-700/50" />
+        <div className={cn(
+          'bg-gradient-to-br from-fifa-blue/20 to-slate-800 flex items-center justify-center flex-shrink-0',
+          featured ? 'md:w-72 h-48 md:h-auto' : 'h-44'
+        )}>
+          <Newspaper className="w-10 h-10 text-fifa-blue/40" />
         </div>
       )}
 
       {/* Contenido */}
-      <div className="flex flex-col flex-1 p-4 gap-2">
+      <div className="flex flex-col flex-1 p-5 gap-3">
         {/* Badge fuente */}
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="text-sm font-medium text-emerald-400">
+          <span className="text-xs font-bold uppercase tracking-wider text-fifa-blue dark:text-fifa-gold">
             {item.sourceFlag} {item.source}
           </span>
-          <span className="text-xs text-gray-500">{item.sourceCountry}</span>
-          <span className="ml-auto text-xs text-gray-500 flex items-center gap-1">
+          <span className="text-[10px] text-slate-500 uppercase tracking-wide">{item.sourceCountry}</span>
+          <span className="ml-auto text-xs text-slate-500 flex items-center gap-1 font-mono">
             <Clock className="w-3 h-3" />
             {timeAgo(item.pubDate)}
           </span>
         </div>
 
         {/* Título */}
-        <h3 className={`font-semibold leading-snug text-white group-hover:text-emerald-300 transition-colors line-clamp-3
-          ${featured ? 'text-lg' : 'text-sm'}`}>
+        <h3 className={cn(
+          'font-headline font-bold leading-snug text-slate-900 dark:text-white',
+          'group-hover:text-fifa-blue dark:group-hover:text-fifa-gold transition-colors line-clamp-3',
+          featured ? 'text-lg' : 'text-sm'
+        )}>
           {item.title}
         </h3>
 
-        {/* Descripción — solo en featured o si hay espacio */}
+        {/* Descripción */}
         {(featured || !item.imageUrl) && desc && (
-          <p className="text-xs text-gray-400 line-clamp-2">{desc}</p>
+          <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2 leading-relaxed">{desc}</p>
         )}
 
         {/* Footer */}
-        <div className="mt-auto pt-2 flex items-center gap-1 text-xs text-emerald-500 font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="mt-auto pt-2 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-fifa-blue dark:text-fifa-gold opacity-0 group-hover:opacity-100 transition-opacity">
           Leer nota <ExternalLink className="w-3 h-3" />
         </div>
       </div>
@@ -165,18 +173,18 @@ function NewsCard({ item, featured = false }: { item: NewsItem; featured?: boole
 // ── Skeleton ──────────────────────────────────────────────────────────────────
 function NewsSkeleton() {
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden animate-pulse">
-      <div className="h-40 bg-gray-700/40" />
-      <div className="p-4 space-y-3">
-        <div className="h-3 bg-gray-700/40 rounded w-1/3" />
-        <div className="h-4 bg-gray-700/40 rounded w-full" />
-        <div className="h-4 bg-gray-700/40 rounded w-4/5" />
+    <div className="stadium-card overflow-hidden animate-pulse">
+      <div className="h-44 bg-slate-200 dark:bg-slate-800" />
+      <div className="p-5 space-y-3">
+        <div className="h-2.5 bg-slate-200 dark:bg-slate-700 rounded w-1/3" />
+        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full" />
+        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-4/5" />
       </div>
     </div>
   );
 }
 
-// ── FILTROS ───────────────────────────────────────────────────────────────────
+// ── Filtros ───────────────────────────────────────────────────────────────────
 const FILTERS: { key: ActiveFilter; label: string; icon: string }[] = [
   { key: 'all',           label: 'Todas',         icon: '⚽' },
   { key: 'latinoamerica', label: 'Latinoamérica', icon: '🌎' },
@@ -202,7 +210,6 @@ export default function NewsPage() {
     setManualRefresh(n => n + 1);
   }, []);
 
-  // Filtrar
   const visible = allNews
     .filter(n => filter === 'all' || n.category === filter)
     .filter(n => !search || n.title.toLowerCase().includes(search.toLowerCase())
@@ -211,12 +218,9 @@ export default function NewsPage() {
   const featured = visible.slice(0, 2);
   const rest     = visible.slice(2);
 
-  // Estadísticas de fuentes
-  const sourceCounts = allNews.reduce<Record<string, number>>((acc, n) => {
-    acc[n.source] = (acc[n.source] ?? 0) + 1;
-    return acc;
-  }, {});
-  const totalSources = Object.keys(sourceCounts).length;
+  const totalSources = Object.keys(
+    allNews.reduce<Record<string, number>>((acc, n) => { acc[n.source] = 1; return acc; }, {})
+  ).length;
 
   return (
     <>
@@ -225,145 +229,127 @@ export default function NewsPage() {
         description="Las últimas noticias del Mundial FIFA 2026 desde los medios más importantes de Argentina, Brasil, México, España y el mundo."
       />
 
-      <div className="min-h-screen bg-gray-950 text-white pb-24">
+      <div className="min-h-screen bg-surface-canvas pt-12 pb-24 px-4 md:px-8">
+        <div className="container mx-auto space-y-10">
 
-        {/* ── HERO HEADER ───────────────────────────────────────── */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-gray-900 via-emerald-950/20 to-gray-900
-          border-b border-white/5 pt-8 pb-10 px-4">
-          {/* Glow decorativo */}
-          <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96
-            bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-
-          <div className="relative max-w-6xl mx-auto">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/20">
-                <Newspaper className="w-6 h-6 text-emerald-400" />
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight">
-                  Noticias del Mundial
-                </h1>
-                <p className="text-sm text-gray-400 mt-0.5">
-                  Cobertura internacional · actualización automática cada 10 min
-                </p>
-              </div>
-
-              {/* Refresh */}
-              <button
-                onClick={handleRefresh}
-                disabled={isFetching}
-                className="ml-auto flex items-center gap-2 px-4 py-2 rounded-xl
-                  bg-white/5 border border-white/10 hover:border-emerald-500/40
-                  hover:bg-emerald-500/10 text-sm text-gray-300 hover:text-emerald-300
-                  transition-all duration-200 disabled:opacity-50"
-              >
-                <RefreshCw className={`w-4 h-4 ${isFetching ? 'animate-spin' : ''}`} />
-                <span className="hidden sm:inline">Actualizar</span>
-              </button>
+          {/* ── HEADER ── */}
+          <header className="flex flex-col md:flex-row justify-between items-end gap-6 mb-2">
+            <div>
+              <span className="label-caps mb-2 block">Copa Mundial de la FIFA™</span>
+              <h1 className="display-md text-fifa-blue dark:text-white">
+                Noticias<br />del Mundial
+              </h1>
+              {!isLoading && allNews.length > 0 && (
+                <div className="flex flex-wrap gap-5 mt-4 text-sm">
+                  <span className="flex items-center gap-1.5 text-fifa-blue dark:text-fifa-gold font-bold">
+                    <Wifi className="w-4 h-4" />
+                    {allNews.length} noticias
+                  </span>
+                  <span className="flex items-center gap-1.5 text-slate-500">
+                    <Globe className="w-4 h-4" />
+                    {totalSources} fuentes internacionales
+                  </span>
+                </div>
+              )}
             </div>
 
-            {/* Stats */}
-            {!isLoading && allNews.length > 0 && (
-              <div className="flex flex-wrap gap-4 mt-4 text-sm">
-                <span className="flex items-center gap-1.5 text-emerald-400">
-                  <Wifi className="w-4 h-4" />
-                  {allNews.length} noticias
-                </span>
-                <span className="flex items-center gap-1.5 text-gray-400">
-                  <Globe className="w-4 h-4" />
-                  {totalSources} fuentes internacionales
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
+            <button
+              onClick={handleRefresh}
+              disabled={isFetching}
+              className={cn(
+                'flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold uppercase tracking-wider border transition-all duration-200',
+                'bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700',
+                'text-slate-600 dark:text-slate-300 hover:text-fifa-blue dark:hover:text-fifa-gold',
+                'hover:border-fifa-blue/40 dark:hover:border-fifa-gold/40',
+                'disabled:opacity-50 shadow-stadium dark:shadow-stadium-dark'
+              )}
+            >
+              <RefreshCw className={cn('w-4 h-4', isFetching && 'animate-spin')} />
+              Actualizar
+            </button>
+          </header>
 
-        <div className="max-w-6xl mx-auto px-4 mt-6 space-y-6">
+          {/* ── CONTROLES ── */}
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
 
-          {/* ── BUSCADOR + FILTROS ────────────────────────────── */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+            {/* Search — estilo Teams.tsx */}
+            <div className="relative w-full sm:w-80">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-white/40" size={18} />
               <input
                 type="text"
-                placeholder="Buscar noticias, fuente..."
+                placeholder="Buscar noticias o fuente..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-9 pr-4 py-2.5 bg-white/5 border border-white/10 rounded-xl
-                  text-sm text-white placeholder-gray-500 outline-none
-                  focus:border-emerald-500/50 focus:bg-white/8 transition-all"
+                className="w-full bg-white/5 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-full pl-12 pr-6 py-3 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-white/30 focus:ring-2 ring-fifa-blue outline-none transition-all"
               />
             </div>
 
-            {/* Region filters */}
-            <div className="flex gap-2">
+            {/* Tabs — estilo FixtureGroups.tsx */}
+            <div className="flex bg-white dark:bg-slate-800 p-1.5 rounded-xl shadow-stadium dark:shadow-stadium-dark overflow-x-auto no-scrollbar">
               {FILTERS.map(f => (
                 <button
                   key={f.key}
                   onClick={() => setFilter(f.key)}
-                  className={`px-3 py-2 rounded-xl text-xs font-medium border transition-all duration-200
-                    ${filter === f.key
-                      ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300'
-                      : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20 hover:text-gray-200'
-                    }`}
+                  className={cn(
+                    'flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-bold transition-all whitespace-nowrap',
+                    filter === f.key
+                      ? 'bg-fifa-blue text-white shadow-lg'
+                      : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-700'
+                  )}
                 >
-                  {f.icon} <span className="hidden sm:inline ml-1">{f.label}</span>
+                  {f.icon}
+                  <span className="hidden sm:inline">{f.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* ── ESTADOS ──────────────────────────────────────── */}
+          {/* ── ERROR ── */}
           {isError && (
-            <div className="flex items-center gap-3 p-4 bg-red-900/20 border border-red-500/30 rounded-2xl text-red-400">
+            <div className="stadium-card border border-red-200 dark:border-red-900/40 bg-red-50/80 dark:bg-red-950/30 p-5 flex items-center gap-4 text-red-700 dark:text-red-300">
               <WifiOff className="w-5 h-5 flex-shrink-0" />
-              <div>
-                <p className="font-medium text-sm">Error al cargar noticias</p>
-                <p className="text-xs text-red-400/70 mt-0.5">
-                  Revisá tu conexión o intentá actualizar.
-                </p>
+              <div className="flex-1">
+                <p className="font-bold text-sm uppercase tracking-wide">Error al cargar noticias</p>
+                <p className="text-xs mt-0.5 opacity-70">Revisá tu conexión o intentá actualizar.</p>
               </div>
               <button
                 onClick={() => refetch()}
-                className="ml-auto px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-xs transition"
+                className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 rounded-lg text-xs font-bold uppercase tracking-wide transition"
               >
                 Reintentar
               </button>
             </div>
           )}
 
-          {/* ── GRID CARGANDO ────────────────────────────────── */}
+          {/* ── SKELETON ── */}
           {isLoading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 9 }).map((_, i) => <NewsSkeleton key={i} />)}
             </div>
           )}
 
-          {/* ── SIN RESULTADOS ───────────────────────────────── */}
+          {/* ── SIN RESULTADOS ── */}
           {!isLoading && !isError && visible.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20 text-gray-500">
-              <Newspaper className="w-12 h-12 mb-4 opacity-30" />
-              <p className="text-lg font-medium">Sin noticias para este filtro</p>
+            <div className="stadium-card flex flex-col items-center justify-center py-24 text-slate-400">
+              <Newspaper className="w-14 h-14 mb-4 opacity-20" />
+              <p className="headline-md text-slate-500 uppercase">Sin noticias</p>
+              <p className="text-sm text-slate-400 mt-2">No hay resultados para este filtro.</p>
               <button
                 onClick={() => { setFilter('all'); setSearch(''); }}
-                className="mt-4 text-sm text-emerald-400 hover:underline"
+                className="mt-6 text-sm font-bold uppercase tracking-wider text-fifa-blue dark:text-fifa-gold hover:underline"
               >
                 Ver todas las noticias
               </button>
             </div>
           )}
 
-          {/* ── CONTENIDO ─────────────────────────────────────── */}
+          {/* ── CONTENIDO ── */}
           {!isLoading && visible.length > 0 && (
             <>
-              {/* Destacadas (2 primeras) */}
               {featured.length > 0 && (
                 <section>
-                  <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
-                    Más recientes
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <span className="label-caps mb-4 block">Más recientes</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {featured.map((item, i) => (
                       <NewsCard key={`${item.link}-${i}`} item={item} featured />
                     ))}
@@ -371,13 +357,10 @@ export default function NewsPage() {
                 </section>
               )}
 
-              {/* Grilla general */}
               {rest.length > 0 && (
                 <section>
-                  <h2 className="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3">
-                    Últimas noticias
-                  </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <span className="label-caps mb-4 block">Últimas noticias</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                     {rest.map((item, i) => (
                       <NewsCard key={`${item.link}-${i}`} item={item} />
                     ))}
@@ -386,6 +369,7 @@ export default function NewsPage() {
               )}
             </>
           )}
+
         </div>
       </div>
     </>
