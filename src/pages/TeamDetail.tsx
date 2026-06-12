@@ -73,17 +73,18 @@ export default function TeamDetail() {
   const squad = team?.squad ?? [];
   const needsFallback = Boolean(team && (!team.coach || squad.length === 0));
 
+  // TheSportsDB: siempre activo — proporciona fotos con camiseta de selección nacional
   const { data: fallbackTeamData } = useApiData<any>(
     ['fallback-team', team?.name ?? ''],
     () => api.getFallbackTeamByName(team?.name ?? ''),
-    { enabled: needsFallback && Boolean(team?.name) }
+    { enabled: Boolean(team?.name), staleTime: 1000 * 60 * 60 * 24 }
   );
   const fallbackTeam = fallbackTeamData?.teams?.[0] ?? null;
 
   const { data: fallbackPlayersData } = useApiData<any>(
     ['fallback-players', String(fallbackTeam?.idTeam)],
     () => api.getFallbackPlayersByTeamId(fallbackTeam?.idTeam ?? ''),
-    { enabled: needsFallback && Boolean(fallbackTeam?.idTeam) }
+    { enabled: Boolean(fallbackTeam?.idTeam), staleTime: 1000 * 60 * 60 * 24 }
   );
   const fallbackPlayers = fallbackPlayersData?.player ?? [];
 
@@ -103,6 +104,32 @@ export default function TeamDetail() {
   const coachBirth = team?.coach?.dateOfBirth;
   const coachNationality = team?.coach?.nationality;
 
+  // Mapa de fotos en contexto de selección nacional (de TheSportsDB lookup por equipo)
+  const nationalPhotoMap = useMemo(() => {
+    const map = new Map<string, string>();
+    fallbackPlayers.forEach((p: any) => {
+      const photo = p.strThumb || p.strCutout || p.strRender;
+      if (p.strPlayer && photo) {
+        map.set(p.strPlayer.trim().toLowerCase(), photo);
+      }
+    });
+    return map;
+  }, [fallbackPlayers]);
+
+  const getNationalPhoto = (name: string): string | undefined => {
+    if (!name) return undefined;
+    const norm = name.trim().toLowerCase();
+    if (nationalPhotoMap.has(norm)) return nationalPhotoMap.get(norm);
+    const firstToken = norm.split(' ')[0] ?? '';
+    if (firstToken.length < 3) return undefined;
+    for (const [key, url] of nationalPhotoMap) {
+      if (key.includes(firstToken) || firstToken.includes(key.split(' ')[0] ?? '')) {
+        return url;
+      }
+    }
+    return undefined;
+  };
+
   const playerNames = useMemo(() => mergedSquad.map((p) => p.name), [mergedSquad]);
   const { photos: photoMap, isLoadingPhotos } = useSquadPhotos(playerNames, coachName, team?.name);
 
@@ -110,9 +137,9 @@ export default function TeamDetail() {
     () =>
       mergedSquad.map((player) => ({
         ...player,
-        photo: player.photo ?? photoMap[player.name] ?? undefined,
+        photo: player.photo ?? getNationalPhoto(player.name) ?? photoMap[player.name] ?? undefined,
       })),
-    [mergedSquad, photoMap]
+    [mergedSquad, nationalPhotoMap, photoMap]
   );
 
   const coachPhoto =
