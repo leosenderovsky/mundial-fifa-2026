@@ -21,8 +21,8 @@ export default function FixtureGroups() {
     () => api.getStandings()
   );
   const { data: matchesData, isLoading: matchesLoading, error: matchesError } = useApiData<{ matches: Match[] }>(
-    ['matches', '2026-06-01', '2026-07-31'],
-    () => api.getMatches({ dateFrom: '2026-06-01', dateTo: '2026-07-31' })
+    ['wc-matches-all'],
+    () => api.getAllMatches()
   );
 
   const standings = standingsData?.standings ?? [];
@@ -45,15 +45,16 @@ export default function FixtureGroups() {
     const key = `GROUP_${letter}`;
     const groupStanding = standings.find((s) => s.group === key);
     const groupMatches = matches
-      .filter((m) => m.group === key && (m.status === 'SCHEDULED' || m.status === 'TIMED'))
+      .filter((m) => m.group === key)
       .sort((a, b) => a.utcDate.localeCompare(b.utcDate));
     const staticGroup = STATIC_GROUPS.find(sg => sg.key === key);
-    
+
     return {
       key,
       entries: groupStanding?.table ?? [],
       staticTeams: staticGroup?.teams ?? [],
-      nextMatch: groupMatches[0] ?? null,
+      matches: groupMatches,
+      nextMatch: groupMatches.find(m => m.status === 'SCHEDULED' || m.status === 'TIMED') ?? null,
     };
   });
 
@@ -106,7 +107,7 @@ export default function FixtureGroups() {
             </div>
             <div>
               <p className="font-bold uppercase tracking-tight text-xs mb-1">Datos del sorteo oficial</p>
-              <p className="text-sm opacity-80">Las posiciones se actualizarán cuando comience el torneo (11 jun 2026).</p>
+              <p className="text-sm opacity-80">Las posiciones se actualizan automáticamente con los resultados del torneo.</p>
             </div>
           </div>
         )}
@@ -140,12 +141,10 @@ export default function FixtureGroups() {
             {activeView === 'groups' && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {groups.map((group, idx) => {
-                  // Insert AdSense banner in the middle of the groups array
                   if (idx === Math.floor(groups.length / 2)) {
                     return (
                       <React.Fragment key={group.key}>
                         <div className="col-span-full">
-                          {/* AdSense Banner — middle of groups */}
                           <AdBanner slot="2222222222" format="horizontal" className="w-full" />
                         </div>
                         <GroupCard
@@ -153,6 +152,7 @@ export default function FixtureGroups() {
                           groupName={group.key}
                           entries={group.entries}
                           staticTeams={group.staticTeams}
+                          matches={group.matches}
                           nextMatch={group.nextMatch}
                           hasStandingsError={Boolean(standingsError)}
                           hasMatchesError={Boolean(matchesError)}
@@ -167,6 +167,7 @@ export default function FixtureGroups() {
                       groupName={group.key}
                       entries={group.entries}
                       staticTeams={group.staticTeams}
+                      matches={group.matches}
                       nextMatch={group.nextMatch}
                       hasStandingsError={Boolean(standingsError)}
                       hasMatchesError={Boolean(matchesError)}
@@ -201,4 +202,3 @@ export default function FixtureGroups() {
     </div>
   );
 }
-

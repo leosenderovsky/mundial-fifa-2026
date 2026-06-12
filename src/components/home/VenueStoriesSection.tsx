@@ -4,7 +4,7 @@ import { Star, History, MapPin, ArrowRight } from 'lucide-react';
 const STORIES = [
   {
     title: 'Apertura en el Azteca',
-    detail: 'La Copa del Mundo 2026 inicia en Ciudad de México.',
+    detail: 'La Copa del Mundo 2026 arrancó en Ciudad de México.',
     icon: History,
   },
   {

@@ -10,6 +10,7 @@ interface GroupCardProps {
   groupName: string;
   entries: StandingEntry[];
   staticTeams?: StaticTeam[];
+  matches?: Match[];
   nextMatch?: Match | null;
   hasStandingsError?: boolean;
   hasMatchesError?: boolean;
@@ -26,16 +27,76 @@ const formatKickoff = (utcDate?: string) => {
   return { time, date: day };
 };
 
-export const GroupCard = ({ 
-  groupName, 
-  entries, 
-  staticTeams = [], 
-  nextMatch, 
-  hasStandingsError, 
-  hasMatchesError 
+const MatchRow = ({ match }: { match: Match }) => {
+  const isFinished = match.status === 'FINISHED';
+  const isLive = match.status === 'IN_PLAY' || match.status === 'PAUSED';
+  const isScheduled = match.status === 'SCHEDULED' || match.status === 'TIMED';
+
+  return (
+    <div className="flex items-center justify-between p-2.5 rounded-lg bg-white dark:bg-slate-900/60 text-xs">
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <Link to={getTeamLink(match.homeTeam)} className="hover:scale-110 transition-transform shrink-0">
+          {getFlagCode(match.homeTeam) ? (
+            <span className={`fi fi-${getFlagCode(match.homeTeam)} w-5 h-3 rounded-sm`} title={match.homeTeam.name} />
+          ) : match.homeTeam.crest ? (
+            <img src={proxiedImage(match.homeTeam.crest)} alt={match.homeTeam.name} className="w-5 h-3 object-contain" />
+          ) : (
+            <div className="w-5 h-3 bg-slate-200 rounded-sm" />
+          )}
+        </Link>
+        <span className="font-bold uppercase truncate">{match.homeTeam.shortName ?? match.homeTeam.name}</span>
+      </div>
+
+      <div className="text-center min-w-[60px] shrink-0 mx-2">
+        {isFinished || isLive ? (
+          <span className={cn(
+            "font-mono font-bold",
+            isLive && "text-fifa-red animate-pulse"
+          )}>
+            {match.score.fullTime.home ?? match.score.halfTime.home ?? '-'}
+            {' - '}
+            {match.score.fullTime.away ?? match.score.halfTime.away ?? '-'}
+          </span>
+        ) : isScheduled ? (
+          <span className="font-mono text-slate-500">
+            {formatKickoff(match.utcDate).time}
+          </span>
+        ) : (
+          <span className="text-slate-400">vs</span>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
+        <span className="font-bold uppercase truncate">{match.awayTeam.shortName ?? match.awayTeam.name}</span>
+        <Link to={getTeamLink(match.awayTeam)} className="hover:scale-110 transition-transform shrink-0">
+          {getFlagCode(match.awayTeam) ? (
+            <span className={`fi fi-${getFlagCode(match.awayTeam)} w-5 h-3 rounded-sm`} title={match.awayTeam.name} />
+          ) : match.awayTeam.crest ? (
+            <img src={proxiedImage(match.awayTeam.crest)} alt={match.awayTeam.name} className="w-5 h-3 object-contain" />
+          ) : (
+            <div className="w-5 h-3 bg-slate-200 rounded-sm" />
+          )}
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+export const GroupCard = ({
+  groupName,
+  entries,
+  staticTeams = [],
+  matches = [],
+  nextMatch,
+  hasStandingsError,
+  hasMatchesError
 }: GroupCardProps) => {
   const kickoff = formatKickoff(nextMatch?.utcDate);
   const showStatic = entries.length === 0 && staticTeams.length > 0;
+
+  const finishedMatches = matches.filter(m => m.status === 'FINISHED');
+  const upcomingMatches = matches.filter(m => m.status === 'SCHEDULED' || m.status === 'TIMED');
+  const liveMatches = matches.filter(m => m.status === 'IN_PLAY' || m.status === 'PAUSED');
 
   return (
     <div className="stadium-card flex flex-col h-full border border-transparent hover:border-fifa-blue/20 transition-all">
@@ -112,49 +173,68 @@ export const GroupCard = ({
           </tbody>
         </table>
 
-        <div className="space-y-3">
-          <p className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Próximo Partido</p>
-          {nextMatch ? (
-            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 group cursor-pointer hover:bg-slate-100 transition-colors">
-              <Link to={getTeamLink(nextMatch.homeTeam)} className="hover:scale-110 transition-transform">
-                {getFlagCode(nextMatch.homeTeam) ? (
-                  <span
-                    className={`fi fi-${getFlagCode(nextMatch.homeTeam)} w-6 h-4 rounded-sm`}
-                    title={nextMatch.homeTeam.name}
-                    aria-label={nextMatch.homeTeam.name}
-                  />
-                ) : nextMatch.homeTeam.crest ? (
-                  <img src={proxiedImage(nextMatch.homeTeam.crest)} alt={nextMatch.homeTeam.name} className="w-6 h-4 object-contain" />
-                ) : (
-                  <div className="w-6 h-4 bg-slate-200 rounded-sm" />
-                )}
-              </Link>
-              <div className="flex flex-col items-center">
-                <span className="font-mono font-bold text-xs">{kickoff.time}</span>
-                <span className="text-[8px] text-slate-400">{kickoff.date}</span>
+        {(finishedMatches.length > 0 || liveMatches.length > 0 || upcomingMatches.length > 0) && (
+          <div className="space-y-2">
+            <p className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">
+              {finishedMatches.length > 0 ? 'Resultados' : liveMatches.length > 0 ? 'En Vivo' : 'Próximo Partido'}
+            </p>
+            {liveMatches.map(m => <MatchRow key={m.id} match={m} />)}
+            {finishedMatches.slice(0, 3).map(m => <MatchRow key={m.id} match={m} />)}
+            {upcomingMatches.length > 0 && finishedMatches.length === 0 && liveMatches.length === 0 && (
+              <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 group cursor-pointer hover:bg-slate-100 transition-colors">
+                <Link to={getTeamLink(upcomingMatches[0].homeTeam)} className="hover:scale-110 transition-transform">
+                  {getFlagCode(upcomingMatches[0].homeTeam) ? (
+                    <span
+                      className={`fi fi-${getFlagCode(upcomingMatches[0].homeTeam)} w-6 h-4 rounded-sm`}
+                      title={upcomingMatches[0].homeTeam.name}
+                      aria-label={upcomingMatches[0].homeTeam.name}
+                    />
+                  ) : upcomingMatches[0].homeTeam.crest ? (
+                    <img src={proxiedImage(upcomingMatches[0].homeTeam.crest)} alt={upcomingMatches[0].homeTeam.name} className="w-6 h-4 object-contain" />
+                  ) : (
+                    <div className="w-6 h-4 bg-slate-200 rounded-sm" />
+                  )}
+                </Link>
+                <div className="flex flex-col items-center">
+                  <span className="font-mono font-bold text-xs">{kickoff.time}</span>
+                  <span className="text-[8px] text-slate-400">{kickoff.date}</span>
+                </div>
+                <Link to={getTeamLink(upcomingMatches[0].awayTeam)} className="hover:scale-110 transition-transform">
+                  {getFlagCode(upcomingMatches[0].awayTeam) ? (
+                    <span
+                      className={`fi fi-${getFlagCode(upcomingMatches[0].awayTeam)} w-6 h-4 rounded-sm`}
+                      title={upcomingMatches[0].awayTeam.name}
+                      aria-label={upcomingMatches[0].awayTeam.name}
+                    />
+                  ) : upcomingMatches[0].awayTeam.crest ? (
+                    <img src={proxiedImage(upcomingMatches[0].awayTeam.crest)} alt={upcomingMatches[0].awayTeam.name} className="w-6 h-4 object-contain" />
+                  ) : (
+                    <div className="w-6 h-4 bg-slate-200 rounded-sm" />
+                  )}
+                </Link>
               </div>
-              <Link to={getTeamLink(nextMatch.awayTeam)} className="hover:scale-110 transition-transform">
-                {getFlagCode(nextMatch.awayTeam) ? (
-                  <span
-                    className={`fi fi-${getFlagCode(nextMatch.awayTeam)} w-6 h-4 rounded-sm`}
-                    title={nextMatch.awayTeam.name}
-                    aria-label={nextMatch.awayTeam.name}
-                  />
-                ) : nextMatch.awayTeam.crest ? (
-                  <img src={proxiedImage(nextMatch.awayTeam.crest)} alt={nextMatch.awayTeam.name} className="w-6 h-4 object-contain" />
-                ) : (
-                  <div className="w-6 h-4 bg-slate-200 rounded-sm" />
-                )}
-              </Link>
+            )}
+          </div>
+        )}
+
+        {matches.length === 0 && nextMatch && (
+          <div className="space-y-3">
+            <p className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Próximo Partido</p>
+            <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-500 text-center font-bold">
+              {kickoff.date}
             </div>
-          ) : (
+          </div>
+        )}
+
+        {matches.length === 0 && !nextMatch && (
+          <div className="space-y-3">
+            <p className="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Próximo Partido</p>
             <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900/50 text-xs text-slate-500 text-center font-bold">
               {kickoff.date}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
-

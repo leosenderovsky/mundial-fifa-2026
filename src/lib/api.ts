@@ -20,7 +20,13 @@ export const api = {
     }
     return res.json();
   },
-  async getLiveMatches() { return this.fetch('/competitions/WC/matches', { status: 'LIVE' }); },
+  async getLiveMatches() {
+    const today = new Date();
+    const from = new Date(today); from.setDate(today.getDate() - 1);
+    const to = new Date(today); to.setDate(today.getDate() + 2);
+    const fmt = (d: Date) => d.toISOString().split('T')[0];
+    return this.fetch('/competitions/WC/matches', { dateFrom: fmt(from), dateTo: fmt(to) });
+  },
   async getStandings() { return this.fetch('/competitions/WC/standings'); },
   async getScorers() { return this.fetch('/competitions/WC/scorers'); },
   async getMatches(params: { dateFrom?: string; dateTo?: string; stage?: string; status?: string } = {}) {
@@ -29,6 +35,9 @@ export const api = {
       if (value) cleanParams[key] = value;
     });
     return this.fetch('/competitions/WC/matches', cleanParams);
+  },
+  async getAllMatches() {
+    return this.fetch('/competitions/WC/matches');
   },
   async getCompetitionTeams() {
     return this.fetch('/competitions/WC/teams');

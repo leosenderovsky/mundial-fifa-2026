@@ -3,6 +3,7 @@ import { getFlagCode } from '../../lib/flags';
 import { Link } from 'react-router-dom';
 import { getTeamLink } from '../../lib/teamLinks';
 import { proxiedImage } from '../../lib/imageProxy';
+import { cn } from '../../lib/utils';
 
 interface KnockoutBracketProps {
   matches: Match[];
@@ -25,6 +26,16 @@ const stageOrder = Object.keys(STAGE_LABELS);
 const formatKickoff = (utcDate: string) =>
   new Date(utcDate).toLocaleDateString('es-AR', { day: '2-digit', month: 'short' }).toUpperCase();
 
+const TeamFlag = ({ team }: { team: Match['homeTeam'] }) => {
+  if (getFlagCode(team)) {
+    return <span className={`fi fi-${getFlagCode(team)} w-6 h-4 rounded-sm`} title={team.name} aria-label={team.name} />;
+  }
+  if (team.crest) {
+    return <img src={proxiedImage(team.crest)} alt={team.name} className="w-6 h-6 object-contain" />;
+  }
+  return <div className="w-6 h-6 bg-slate-200 rounded" />;
+};
+
 export const KnockoutBracket = ({ matches, isLoading, errorMessage, isStaticData }: KnockoutBracketProps) => {
   if (isLoading) {
     return (
@@ -42,8 +53,7 @@ export const KnockoutBracket = ({ matches, isLoading, errorMessage, isStaticData
     );
   }
 
-  const knockoutMatches = matches;
-  if (!knockoutMatches.length) {
+  if (!matches.length) {
     return (
       <div className="stadium-card p-10 text-center text-sm text-slate-500">
         La fase eliminatoria aún no está disponible en la API.
@@ -51,7 +61,7 @@ export const KnockoutBracket = ({ matches, isLoading, errorMessage, isStaticData
     );
   }
 
-  const grouped = knockoutMatches.reduce<Record<string, Match[]>>((acc, match) => {
+  const grouped = matches.reduce<Record<string, Match[]>>((acc, match) => {
     acc[match.stage] = acc[match.stage] ? [...acc[match.stage], match] : [match];
     return acc;
   }, {});
@@ -69,46 +79,47 @@ export const KnockoutBracket = ({ matches, isLoading, errorMessage, isStaticData
             {STAGE_LABELS[stage]}
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {grouped[stage].map((match) => (
-              <div key={match.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900/60 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <Link to={getTeamLink(match.homeTeam)} className="hover:scale-110 transition-transform">
-                    {getFlagCode(match.homeTeam) ? (
-                      <span
-                        className={`fi fi-${getFlagCode(match.homeTeam)} w-6 h-4 rounded-sm`}
-                        title={match.homeTeam.name}
-                        aria-label={match.homeTeam.name}
-                      />
-                    ) : match.homeTeam.crest ? (
-                      <img src={proxiedImage(match.homeTeam.crest)} alt={match.homeTeam.name} className="w-6 h-6 object-contain" />
+            {grouped[stage].map((match) => {
+              const isFinished = match.status === 'FINISHED';
+              const isLive = match.status === 'IN_PLAY' || match.status === 'PAUSED';
+              const isScheduled = match.status === 'SCHEDULED' || match.status === 'TIMED';
+
+              return (
+                <div key={match.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900/60 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <Link to={getTeamLink(match.homeTeam)} className="hover:scale-110 transition-transform">
+                      <TeamFlag team={match.homeTeam} />
+                    </Link>
+                    <span className="font-bold text-sm truncate max-w-[120px]">{match.homeTeam.name}</span>
+                  </div>
+                  <div className="text-center min-w-[80px]">
+                    {isFinished || isLive ? (
+                      <span className={cn(
+                        "text-sm font-mono font-bold",
+                        isLive && "text-fifa-red animate-pulse"
+                      )}>
+                        {match.score.fullTime.home ?? match.score.halfTime.home ?? '-'}
+                        {' - '}
+                        {match.score.fullTime.away ?? match.score.halfTime.away ?? '-'}
+                      </span>
+                    ) : isScheduled ? (
+                      <span className="text-xs font-mono">{formatKickoff(match.utcDate)}</span>
                     ) : (
-                      <div className="w-6 h-6 bg-slate-200 rounded" />
+                      <span className="text-xs font-mono text-slate-400">vs</span>
                     )}
-                  </Link>
-                  <span className="font-bold text-sm truncate max-w-[120px]">{match.homeTeam.name}</span>
+                    <span className="block text-[10px] text-slate-400 uppercase">
+                      {isLive ? 'En vivo' : isFinished ? 'Finalizado' : match.status}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-sm truncate max-w-[120px]">{match.awayTeam.name}</span>
+                    <Link to={getTeamLink(match.awayTeam)} className="hover:scale-110 transition-transform">
+                      <TeamFlag team={match.awayTeam} />
+                    </Link>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <span className="text-xs font-mono">{formatKickoff(match.utcDate)}</span>
-                  <span className="block text-[10px] text-slate-400 uppercase">{match.status}</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="font-bold text-sm truncate max-w-[120px]">{match.awayTeam.name}</span>
-                  <Link to={getTeamLink(match.awayTeam)} className="hover:scale-110 transition-transform">
-                    {getFlagCode(match.awayTeam) ? (
-                      <span
-                        className={`fi fi-${getFlagCode(match.awayTeam)} w-6 h-4 rounded-sm`}
-                        title={match.awayTeam.name}
-                        aria-label={match.awayTeam.name}
-                      />
-                    ) : match.awayTeam.crest ? (
-                      <img src={proxiedImage(match.awayTeam.crest)} alt={match.awayTeam.name} className="w-6 h-6 object-contain" />
-                    ) : (
-                      <div className="w-6 h-6 bg-slate-200 rounded" />
-                    )}
-                  </Link>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       ))}
