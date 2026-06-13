@@ -19,6 +19,19 @@ import { AdBanner } from '../components/shared/AdBanner';
 
 const TOURNAMENT_START = new Date(2026, 5, 11);
 
+function ScorersSectionWrapper() {
+  // TopScorers ya devuelve null si no hay datos reales; esta envoltura solo agrega el header
+  return (
+    <section>
+      <div className="flex items-center gap-3 mb-8">
+        <span className="text-fifa-red">⚡</span>
+        <h2 className="headline-lg text-fifa-blue dark:text-white uppercase">Máximos Goleadores</h2>
+      </div>
+      <TopScorers />
+    </section>
+  );
+}
+
 export default function Home() {
   const { data: matchesData, error: matchesError, isLoading: matchesLoading } = useApiData<{ matches: Match[] }>(
     ['home-matches'],
@@ -38,7 +51,9 @@ export default function Home() {
   const now = new Date();
   const isPreTournament = now < TOURNAMENT_START;
   const hasAnyMatchData = matches.length > 0;
-  const showTournamentView = !isPreTournament && hasAnyMatchData;
+  // El torneo inició el 11 de junio 2026. Mostrar vista de torneo siempre que no sea pre-torneo.
+  // hasAnyMatchData solo se usa para secciones que requieren datos de partidos específicos.
+  const showTournamentView = !isPreTournament;
 
   return (
     <main className="relative min-h-screen pb-20 md:pb-0">
@@ -82,13 +97,9 @@ export default function Home() {
               <GroupsSummary />
             </section>
 
-            <section>
-              <div className="flex items-center gap-3 mb-8">
-                <span className="text-fifa-red">⚡</span>
-                <h2 className="headline-lg text-fifa-blue dark:text-white uppercase">Máximos Goleadores</h2>
-              </div>
-              <TopScorers />
-            </section>
+            <ErrorBoundary>
+              <ScorersSectionWrapper />
+            </ErrorBoundary>
 
             <ErrorBoundary>
               <NewsSection />
@@ -109,18 +120,11 @@ export default function Home() {
                 <div className="bg-gradient-to-r from-fifa-blue to-blue-900 p-8 text-white flex flex-col md:flex-row justify-between items-center gap-8">
                   <div className="text-center md:text-left">
                     <h3 className="headline-md uppercase mb-3 leading-tight">
-                      {isPreTournament
-                        ? <>El torneo se disputa <br /> desde el 11 de junio de 2026</>
-                        : <>El torneo está en marcha</>
-                      }
+                      El Mundial está en marcha
                     </h3>
-                    {isPreTournament && (
-                      <div className="flex justify-center md:justify-start items-center gap-2">
-                        <span className="bg-fifa-gold text-fifa-blue text-[10px] font-black px-3 py-1 rounded-sm uppercase tracking-widest shadow-lg">
-                          Faltan {Math.ceil((TOURNAMENT_START.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))} días
-                        </span>
-                      </div>
-                    )}
+                    <p className="text-white/70 text-sm">
+                      Los datos de partidos se actualizan automáticamente. Revisá el fixture completo para ver todos los resultados.
+                    </p>
                   </div>
                 </div>
                 <div className="bg-white dark:bg-slate-800/50 p-6 flex flex-wrap justify-center gap-x-12 gap-y-4 border-t border-slate-100 dark:border-slate-800 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">

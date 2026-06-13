@@ -20,9 +20,8 @@ interface SportsDbPlayer {
 }
 
 async function findWikiImage(name: string): Promise<string | null> {
-  // Intentar Wikipedia en español primero
-  const tryWiki = async (lang: string): Promise<string | null> => {
-    const url = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&prop=pageimages&piprop=original|thumbnail&pithumbsize=600&titles=${encodeURIComponent(name)}`;
+  const tryWiki = async (lang: string, searchName: string): Promise<string | null> => {
+    const url = `https://${lang}.wikipedia.org/w/api.php?action=query&format=json&formatversion=2&prop=pageimages&piprop=original|thumbnail&pithumbsize=600&titles=${encodeURIComponent(searchName)}`;
     try {
       const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
       if (!res.ok) return null;
@@ -37,7 +36,23 @@ async function findWikiImage(name: string): Promise<string | null> {
     }
   };
 
-  return (await tryWiki('es')) ?? (await tryWiki('en'));
+  // Generar variaciones del nombre para aumentar la tasa de aciertos
+  const nameVariants = [
+    name,                                          // "Lionel Messi"
+    name.split(' ').reverse().join(' '),           // "Messi Lionel"
+    name.split(' ').slice(-1).join(' '),           // "Messi" (apellido)
+    name.split(' ').slice(0, 2).join(' '),         // "Lionel Messi" (primeros 2 tokens)
+  ].filter((v, i, arr) => v && arr.indexOf(v) === i); // deduplicar
+
+  for (const variant of nameVariants) {
+    // Probar español primero, luego inglés
+    const esResult = await tryWiki('es', variant);
+    if (esResult) return esResult;
+    const enResult = await tryWiki('en', variant);
+    if (enResult) return enResult;
+  }
+
+  return null;
 }
 
 // Busca el equipo nacional en TheSportsDB y retorna su idTeam
@@ -204,12 +219,14 @@ export const handler = async (event: { httpMethod: string; body?: string }) => {
           }
           // Buscar en el mapa de fotos del seleccionado (coincidencia exacta o parcial)
           const normalizedName = name.trim().toLowerCase();
+          const tokens = normalizedName.split(' ').filter(t => t.length > 2);
           const nationalPhoto =
             nationalPhotoMap.get(normalizedName) ??
-            [...nationalPhotoMap.entries()].find(([k]) =>
-              k.includes(normalizedName.split(' ')[0] ?? '') ||
-              normalizedName.includes(k.split(' ')[0] ?? '')
-            )?.[1] ??
+            [...nationalPhotoMap.entries()].find(([k]) => {
+              const kTokens = k.split(' ').filter(t => t.length > 2);
+              // Coincidencia si al menos un token significativo coincide en ambos sentidos
+              return tokens.some(t => kTokens.some(kt => kt.startsWith(t) || t.startsWith(kt)));
+            })?.[1] ??
             null;
 
           if (nationalPhoto) {

@@ -3,18 +3,18 @@ import { Star, History, MapPin, ArrowRight } from 'lucide-react';
 
 const STORIES = [
   {
-    title: 'Apertura en el Azteca',
-    detail: 'La Copa del Mundo 2026 arrancó en Ciudad de México.',
+    title: 'Inauguración en el Azteca',
+    detail: 'El Estadio Azteca abrió el Mundial 2026, convirtiéndose en el primero en albergar tres Copas del Mundo.',
     icon: History,
   },
   {
-    title: 'Final en Nueva York/Nueva Jersey',
-    detail: 'La definición del torneo se jugará en esa sede.',
+    title: 'Final el 19 de julio',
+    detail: 'El MetLife Stadium de Nueva York/Nueva Jersey será el escenario de la definición del torneo.',
     icon: Star,
   },
   {
-    title: 'Debut local de Canadá y USA',
-    detail: 'Toronto y Los Ángeles reciben sus partidos inaugurales.',
+    title: 'Tres países anfitriones',
+    detail: 'EE.UU., México y Canadá comparten la sede de la Copa del Mundo más grande de la historia.',
     icon: MapPin,
   },
 ];

@@ -61,33 +61,30 @@ async function fetchAllNews(): Promise<NewsItem[]> {
   const cached = getCached();
   if (cached) return cached.items;
 
-  const results = await Promise.allSettled(
-    RSS_FEEDS.map(async (feed) => {
-      const proxyUrl = `/.netlify/functions/rss-proxy?url=${encodeURIComponent(feed.url)}`;
-      const res = await fetch(proxyUrl, { signal: AbortSignal.timeout(8000) });
-      if (!res.ok) throw new Error(`${feed.name}: HTTP ${res.status}`);
-      const data = await res.json();
+  // Una sola llamada al proxy que ya agrega y filtra todos los feeds
+  const res = await fetch('/.netlify/functions/rss-proxy', {
+    signal: AbortSignal.timeout(30000),
+  });
 
-      const rawItems: any[] = data.items ?? data.entries ?? data.rss?.channel?.item ?? [];
-      return rawItems.slice(0, 8).map((item: any): NewsItem => ({
-        title:         item.title ?? '',
-        link:          item.link ?? item.url ?? '',
-        pubDate:       item.pubDate ?? item.published ?? item.isoDate ?? new Date().toISOString(),
-        description:   item.contentSnippet ?? item.summary ?? item.description ?? '',
-        imageUrl:      item.enclosure?.url ?? item['media:content']?.['@_url'] ?? item.image ?? '',
-        source:        feed.name,
-        sourceFlag:    feed.flag,
-        sourceCountry: feed.country,
-        category:      feed.category,
-      }));
-    })
-  );
+  if (!res.ok) throw new Error(`rss-proxy HTTP ${res.status}`);
 
-  const items: NewsItem[] = results
-    .filter((r): r is PromiseFulfilledResult<NewsItem[]> => r.status === 'fulfilled')
-    .flatMap(r => r.value)
-    .filter(i => i.title && i.link)
-    .sort((a, b) => new Date(b.pubDate).getTime() - new Date(a.pubDate).getTime());
+  const data = await res.json();
+  // rss-proxy devuelve { articles: [...], cached: bool, total: number }
+  const rawArticles: any[] = data.articles ?? [];
+
+  const items: NewsItem[] = rawArticles
+    .filter((a: any) => a.title && a.link)
+    .map((a: any): NewsItem => ({
+      title:         a.title,
+      link:          a.link,
+      pubDate:       a.pubDate ?? new Date().toISOString(),
+      description:   a.description ?? '',
+      imageUrl:      a.imageUrl ?? '',
+      source:        a.sourceName ?? a.sourceId ?? 'Fuente',
+      sourceFlag:    a.flag ?? '🌍',
+      sourceCountry: a.country ?? '',
+      category:      (a.category as RssFeed['category']) ?? 'global',
+    }));
 
   if (items.length > 0) setCached(items);
   return items;

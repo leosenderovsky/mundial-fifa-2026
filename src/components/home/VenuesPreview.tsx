@@ -40,10 +40,10 @@ export const VenuesPreview = () => {
         <div>
           <span className="label-caps text-fifa-red mb-4 block">Anfitriones</span>
           <h2 className="display-md text-fifa-blue dark:text-white leading-none mb-6">
-            Norteamérica: <br /> El Escenario <br /> del Mañana
+            Norteamérica: <br /> El Escenario <br /> del Mundial
           </h2>
           <p className="body-lg text-slate-600 dark:text-slate-400 max-w-md">
-            16 ciudades sede, 3 países, 1 sueño compartido. Explorá los estadios que harán historia en 2026.
+            16 ciudades sede, 3 países, 1 sueño compartido. Los estadios que hacen historia en 2026.
           </p>
         </div>
         
@@ -54,7 +54,7 @@ export const VenuesPreview = () => {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-widest text-slate-400">Sedes</p>
-              <span className="font-bold uppercase tracking-tight">16 ciudades confirmadas</span>
+              <span className="font-bold uppercase tracking-tight">16 ciudades sedes</span>
             </div>
           </div>
           <div className="flex items-center gap-4 bg-white dark:bg-slate-800 p-4 rounded-2xl shadow-sm">

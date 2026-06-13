@@ -29,7 +29,7 @@ export const TournamentGuideSection = () => (
     <div className="flex items-center justify-between gap-6 mb-8">
       <div>
         <span className="label-caps mb-2 block">Guía del torneo</span>
-        <h2 className="headline-lg text-fifa-blue dark:text-white uppercase">Formato Mundial 2026</h2>
+        <h2 className="headline-lg text-fifa-blue dark:text-white uppercase">El Torneo en Números</h2>
       </div>
       <Link
         to="/fixture"

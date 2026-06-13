@@ -3,8 +3,8 @@ import { CalendarDays, MapPin, Users, ArrowRight } from 'lucide-react';
 
 const FOLLOW_ITEMS = [
   {
-    title: 'Fixture completo',
-    detail: 'Todos los partidos de la fase de grupos y eliminatorias, con resultados actualizados.',
+    title: 'Resultados y fixture',
+    detail: 'Todos los partidos, resultados de la fase de grupos y eliminatorias actualizados.',
     icon: CalendarDays,
   },
   {
@@ -24,9 +24,9 @@ export const FollowWorldCupSection = () => (
     <div className="flex flex-col lg:flex-row gap-10 items-start lg:items-center">
       <div className="flex-1">
         <span className="label-caps mb-2 block text-white/70">TU PORTAL DEL MUNDIAL</span>
-        <h2 className="headline-lg uppercase mb-4">Todo el torneo, en un solo lugar</h2>
+        <h2 className="headline-lg uppercase mb-4">El torneo, en vivo, en un solo lugar</h2>
         <p className="text-sm text-white/70 max-w-xl">
-          Fixture completo, sedes, selecciones y estadísticas. Todo lo que necesitás para seguir el Mundial 2026, sin salir de acá.
+          Resultados en vivo, sedes, selecciones y estadísticas. Todo el Mundial 2026 en un solo lugar.
         </p>
         <Link
           to="/fixture"

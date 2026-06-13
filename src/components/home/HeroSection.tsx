@@ -1,40 +1,37 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { getDaysToTournament } from '../shared/CountdownTimer';
 
 export const HeroSection = () => {
-  const daysLeft = getDaysToTournament();
-
   return (
     <section className="relative h-[90vh] min-h-[700px] w-full overflow-hidden bg-gradient-to-br from-[#0033A0] to-[#00216E] flex items-center">
-  {/* IMAGEN DE FONDO RESPONSIVE Y CENTRADA */}
-  <div className="absolute inset-0 w-full h-full opacity-40 mix-blend-overlay">
-    <img 
-      src="/mundial-2026-bg.jpg" // Reemplaza por la ruta de tu imagen
-      alt="FIFA World Cup 2026 Background"
-      className="w-full h-full object-cover object-center pointer-events-none select-none"
-    />
-  </div>
+      {/* IMAGEN DE FONDO RESPONSIVE Y CENTRADA */}
+      <div className="absolute inset-0 w-full h-full opacity-40 mix-blend-overlay">
+        <img 
+          src="/mundial-2026-bg.jpg"
+          alt="FIFA World Cup 2026 Background"
+          className="w-full h-full object-cover object-center pointer-events-none select-none"
+        />
+      </div>
 
-  {/* Efecto de ruido original */}
-  <div className="absolute inset-0 bg-noise pointer-events-none opacity-20" />
-  
-  {/* Elementos decorativos originales */}
-  <div className="absolute top-1/4 -right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px]" />
-  <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-fifa-gold/10 rounded-full blur-[100px]" />
+      {/* Efecto de ruido original */}
+      <div className="absolute inset-0 bg-noise pointer-events-none opacity-20" />
+      
+      {/* Elementos decorativos originales */}
+      <div className="absolute top-1/4 -right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px]" />
+      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-fifa-gold/10 rounded-full blur-[100px]" />
 
-  {/* CAPA OSCURA (OVERLAY) POTENCIADA PARA LEGIBILIDAD */}
-  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-black/30 pointer-events-none" />
+      {/* CAPA OSCURA (OVERLAY) POTENCIADA PARA LEGIBILIDAD */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-black/30 pointer-events-none" />
 
-  <div className="container mx-auto px-4 md:px-8 relative z-10">
+      <div className="container mx-auto px-4 md:px-8 relative z-10">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           className="max-w-4xl"
         >
           <h1 className="display-lg text-white mb-6">
-            El mundo se <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50">une. 2026.</span>
+            El mundo <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/50">juega. 2026.</span>
           </h1>
           <p className="headline-md text-fifa-gold uppercase tracking-widest mb-12">
             48 Selecciones. 3 Países. 1 Campeón.
@@ -57,8 +54,8 @@ export const HeroSection = () => {
             </div>
             <div className="w-1 h-1 bg-white/30 rounded-full" />
             <div className="flex items-center gap-2">
-              <span className="text-fifa-gold text-2xl">{daysLeft}</span>
-              <span className="text-xs uppercase tracking-wider opacity-70">Días</span>
+              <span className="text-fifa-gold text-2xl">🏆</span>
+              <span className="text-xs uppercase tracking-wider opacity-70">En juego</span>
             </div>
           </div>
 
@@ -67,13 +64,13 @@ export const HeroSection = () => {
               to="/fixture"
               className="bg-white text-fifa-blue px-8 py-4 font-black uppercase tracking-tighter hover:bg-fifa-gold hover:text-white transition-all transform hover:-translate-y-1 inline-block"
             >
-              Ver Fixture Completo
+              Ver Partidos y Resultados
             </Link>
             <Link 
-              to="/sedes"
+              to="/selecciones"
               className="border-2 border-white text-white px-8 py-4 font-black uppercase tracking-tighter backdrop-blur-sm hover:bg-white/10 transition-all inline-block"
             >
-              Explorar Estadios
+              Ver Selecciones
             </Link>
           </div>
         </motion.div>

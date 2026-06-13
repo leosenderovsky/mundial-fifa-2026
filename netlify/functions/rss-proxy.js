@@ -37,7 +37,7 @@ function isMundialRelated(text = '') {
 /**
  * Normaliza un item de RSS a formato estándar
  */
-function normalizeItem(item, sourceId, sourceName, country, countryCode, language) {
+function normalizeItem(item, sourceId, sourceName, country, countryCode, language, flag, category) {
   const title = item.title || '';
   const description = stripHtml(item.description || item['content:encoded'] || '');
   const link = item.link || item.guid || '';
@@ -56,6 +56,8 @@ function normalizeItem(item, sourceId, sourceName, country, countryCode, languag
     country,
     countryCode,
     language,
+    flag: flag || '🌍',
+    category: category || 'global',
   };
 }
 
@@ -135,6 +137,8 @@ async function fetchFeed(source) {
         source.country,
         source.countryCode,
         source.language,
+        source.flag,
+        source.category,
       ))
       .filter(item => {
         const searchText = `${item.title} ${item.description}`;
@@ -263,31 +267,43 @@ function interleaveBySource(articles) {
  */
 function getSources() {
   return [
-    { id: 'infobae-arg', name: 'Infobae Deportes', country: 'Argentina', countryCode: 'ar', language: 'es', rss: 'https://www.infobae.com/feeds/rss/deportes.xml', enabled: true },
-    { id: 'clarin-arg', name: 'Clarín Deportes', country: 'Argentina', countryCode: 'ar', language: 'es', rss: 'https://www.clarin.com/rss/deportes/', enabled: true },
-    { id: 'lanacion-arg', name: 'La Nación', country: 'Argentina', countryCode: 'ar', language: 'es', rss: 'https://www.lanacion.com.ar/arc/outboundfeeds/rss/category/deportes/?outputType=xml', enabled: true },
-    { id: 'tyc-arg', name: 'TyC Sports', country: 'Argentina', countryCode: 'ar', language: 'es', rss: 'https://www.tycsports.com/rss.html', enabled: true },
-    { id: 'globo-bra', name: 'Globo Esporte', country: 'Brasil', countryCode: 'br', language: 'pt', rss: 'https://ge.globo.com/dynamo/rss2.xml', enabled: true },
-    { id: 'uol-bra', name: 'UOL Esporte', country: 'Brasil', countryCode: 'br', language: 'pt', rss: 'https://rss.uol.com.br/feed/esporte.xml', enabled: true },
-    { id: 'lance-bra', name: 'LANCE!', country: 'Brasil', countryCode: 'br', language: 'pt', rss: 'https://www.lance.com.br/feeds/rss', enabled: true },
-    { id: 'eltiempo-col', name: 'El Tiempo Deportes', country: 'Colombia', countryCode: 'co', language: 'es', rss: 'https://www.eltiempo.com/rss/deportes.xml', enabled: true },
-    { id: 'espectador-col', name: 'El Espectador', country: 'Colombia', countryCode: 'co', language: 'es', rss: 'https://www.elespectador.com/arc/outboundfeeds/rss/category/deportes/?outputType=xml', enabled: true },
-    { id: 'latercera-chi', name: 'La Tercera', country: 'Chile', countryCode: 'cl', language: 'es', rss: 'https://www.latercera.com/arcio/rss/category/el-deportivo/', enabled: true },
-    { id: 'biobio-chi', name: 'BioBioChile', country: 'Chile', countryCode: 'cl', language: 'es', rss: 'https://www.biobiochile.cl/lista/categoria/deportes/feed', enabled: true },
-    { id: 'emol-chi', name: 'Emol Deportes', country: 'Chile', countryCode: 'cl', language: 'es', rss: 'https://www.emol.com/rss/emol/deportes.xml', enabled: true },
-    { id: 'elcomercio-per', name: 'El Comercio Deportes', country: 'Perú', countryCode: 'pe', language: 'es', rss: 'https://elcomercio.pe/arc/outboundfeeds/rss/category/deporte-total/?outputType=xml', enabled: true },
-    { id: 'depor-per', name: 'Depor', country: 'Perú', countryCode: 'pe', language: 'es', rss: 'https://depor.com/arc/outboundfeeds/rss/?outputType=xml', enabled: true },
-    { id: 'rpp-per', name: 'RPP Deportes', country: 'Perú', countryCode: 'pe', language: 'es', rss: 'https://rpp.pe/rss/deportes.xml', enabled: true },
-    { id: 'eluniversal-mex', name: 'El Universal Deportes', country: 'México', countryCode: 'mx', language: 'es', rss: 'https://www.eluniversal.com.mx/rss.xml', enabled: true },
-    { id: 'record-mex', name: 'Récord', country: 'México', countryCode: 'mx', language: 'es', rss: 'https://www.record.com.mx/rss.xml', enabled: true },
-    { id: 'mediotiempo-mex', name: 'Mediotiempo', country: 'México', countryCode: 'mx', language: 'es', rss: 'https://www.mediotiempo.com/feeds/rss', enabled: true },
-    { id: 'ovacion-uru', name: 'Ovación - El País', country: 'Uruguay', countryCode: 'uy', language: 'es', rss: 'https://www.elpais.com.uy/rss/ovacion.xml', enabled: true },
-    { id: 'abc-par', name: 'ABC Color Deportes', country: 'Paraguay', countryCode: 'py', language: 'es', rss: 'https://www.abc.com.py/rss/deportes.xml', enabled: true },
-    { id: 'espnfc-int', name: 'ESPN FC', country: 'Internacional', countryCode: 'us', language: 'en', rss: 'https://www.espn.com/espn/rss/soccer/news', enabled: true },
-    { id: 'fifa-official', name: 'FIFA Official', country: 'Internacional', countryCode: 'ch', language: 'en', rss: 'https://inside.fifa.com/rss-feeds/news', enabled: true },
-    { id: 'tudn-int', name: 'TUDN', country: 'Internacional', countryCode: 'us', language: 'es', rss: 'https://www.tudn.com/rss', enabled: true },
-    { id: 'bbc-football', name: 'BBC Football', country: 'Reino Unido', countryCode: 'gb', language: 'en', rss: 'https://feeds.bbci.co.uk/sport/football/rss.xml', enabled: true },
-    { id: 'guardian-football', name: 'The Guardian Football', country: 'Reino Unido', countryCode: 'gb', language: 'en', rss: 'https://www.theguardian.com/football/rss', enabled: true },
-    { id: 'goal-int', name: 'Goal.com', country: 'Internacional', countryCode: 'int', language: 'en', rss: 'https://www.goal.com/feeds/en/news', enabled: true },
+    // ARGENTINA
+    { id: 'infobae-arg',     name: 'Infobae Deportes',     country: 'Argentina',      countryCode: 'ar', language: 'es', flag: '🇦🇷', category: 'latinoamerica', rss: 'https://www.infobae.com/feeds/rss/deportes.xml',                                                                enabled: true },
+    { id: 'clarin-arg',      name: 'Clarín Deportes',      country: 'Argentina',      countryCode: 'ar', language: 'es', flag: '🇦🇷', category: 'latinoamerica', rss: 'https://www.clarin.com/rss/deportes/',                                                                       enabled: true },
+    { id: 'lanacion-arg',    name: 'La Nación',            country: 'Argentina',      countryCode: 'ar', language: 'es', flag: '🇦🇷', category: 'latinoamerica', rss: 'https://www.lanacion.com.ar/arc/outboundfeeds/rss/category/deportes/?outputType=xml',                        enabled: true },
+    { id: 'ole-arg',         name: 'Olé',                  country: 'Argentina',      countryCode: 'ar', language: 'es', flag: '🇦🇷', category: 'latinoamerica', rss: 'https://www.ole.com.ar/rss/futbol/',                                                                         enabled: true },
+    { id: 'tyc-arg',         name: 'TyC Sports',           country: 'Argentina',      countryCode: 'ar', language: 'es', flag: '🇦🇷', category: 'latinoamerica', rss: 'https://www.tycsports.com/rss.html',                                                                         enabled: true },
+    // BRASIL
+    { id: 'globo-bra',       name: 'Globo Esporte',        country: 'Brasil',         countryCode: 'br', language: 'pt', flag: '🇧🇷', category: 'latinoamerica', rss: 'https://ge.globo.com/dynamo/rss2.xml',                                                                       enabled: true },
+    { id: 'lance-bra',       name: 'LANCE!',               country: 'Brasil',         countryCode: 'br', language: 'pt', flag: '🇧🇷', category: 'latinoamerica', rss: 'https://www.lance.com.br/feeds/rss',                                                                         enabled: true },
+    // MÉXICO
+    { id: 'mediotiempo-mex', name: 'Mediotiempo',          country: 'México',         countryCode: 'mx', language: 'es', flag: '🇲🇽', category: 'latinoamerica', rss: 'https://www.mediotiempo.com/feeds/rss',                                                                      enabled: true },
+    { id: 'record-mex',      name: 'Récord',               country: 'México',         countryCode: 'mx', language: 'es', flag: '🇲🇽', category: 'latinoamerica', rss: 'https://www.record.com.mx/rss.xml',                                                                          enabled: true },
+    { id: 'eluniversal-mex', name: 'El Universal',         country: 'México',         countryCode: 'mx', language: 'es', flag: '🇲🇽', category: 'latinoamerica', rss: 'https://www.eluniversal.com.mx/rss.xml',                                                                     enabled: true },
+    // COLOMBIA
+    { id: 'eltiempo-col',    name: 'El Tiempo',            country: 'Colombia',       countryCode: 'co', language: 'es', flag: '🇨🇴', category: 'latinoamerica', rss: 'https://www.eltiempo.com/rss/deportes.xml',                                                                  enabled: true },
+    { id: 'espectador-col',  name: 'El Espectador',        country: 'Colombia',       countryCode: 'co', language: 'es', flag: '🇨🇴', category: 'latinoamerica', rss: 'https://www.elespectador.com/arc/outboundfeeds/rss/category/deportes/?outputType=xml',                      enabled: true },
+    // CHILE
+    { id: 'latercera-chi',   name: 'La Tercera',           country: 'Chile',          countryCode: 'cl', language: 'es', flag: '🇨🇱', category: 'latinoamerica', rss: 'https://www.latercera.com/arcio/rss/category/el-deportivo/',                                                enabled: true },
+    { id: 'biobio-chi',      name: 'BioBioChile',          country: 'Chile',          countryCode: 'cl', language: 'es', flag: '🇨🇱', category: 'latinoamerica', rss: 'https://www.biobiochile.cl/lista/categoria/deportes/feed',                                                  enabled: true },
+    { id: 'emol-chi',        name: 'Emol Deportes',        country: 'Chile',          countryCode: 'cl', language: 'es', flag: '🇨🇱', category: 'latinoamerica', rss: 'https://www.emol.com/rss/emol/deportes.xml',                                                                 enabled: true },
+    // PERÚ
+    { id: 'elcomercio-per',  name: 'El Comercio',          country: 'Perú',           countryCode: 'pe', language: 'es', flag: '🇵🇪', category: 'latinoamerica', rss: 'https://elcomercio.pe/arc/outboundfeeds/rss/category/deporte-total/?outputType=xml',                        enabled: true },
+    { id: 'depor-per',       name: 'Depor',                country: 'Perú',           countryCode: 'pe', language: 'es', flag: '🇵🇪', category: 'latinoamerica', rss: 'https://depor.com/arc/outboundfeeds/rss/?outputType=xml',                                                    enabled: true },
+    { id: 'rpp-per',         name: 'RPP Deportes',         country: 'Perú',           countryCode: 'pe', language: 'es', flag: '🇵🇪', category: 'latinoamerica', rss: 'https://rpp.pe/rss/deportes.xml',                                                                            enabled: true },
+    // URUGUAY
+    { id: 'ovacion-uru',     name: 'Ovación',              country: 'Uruguay',        countryCode: 'uy', language: 'es', flag: '🇺🇾', category: 'latinoamerica', rss: 'https://www.elpais.com.uy/rss/ovacion.xml',                                                                  enabled: true },
+    // PARAGUAY
+    { id: 'abc-par',         name: 'ABC Color',            country: 'Paraguay',       countryCode: 'py', language: 'es', flag: '🇵🇾', category: 'latinoamerica', rss: 'https://www.abc.com.py/rss/deportes.xml',                                                                    enabled: true },
+    // ESPAÑA
+    { id: 'marca-esp',       name: 'Marca',                country: 'España',         countryCode: 'es', language: 'es', flag: '🇪🇸', category: 'europa',        rss: 'https://e00-marca.uecdn.es/rss/futbol/mundial.xml',                                                          enabled: true },
+    { id: 'as-esp',          name: 'AS',                   country: 'España',         countryCode: 'es', language: 'es', flag: '🇪🇸', category: 'europa',        rss: 'https://as.com/rss/tags/copa_del_mundo.xml',                                                                enabled: true },
+    { id: 'elpais-esp',      name: 'El País',              country: 'España',         countryCode: 'es', language: 'es', flag: '🇪🇸', category: 'europa',        rss: 'https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/section/deportes/portada',                         enabled: true },
+    { id: 'mundodep-esp',    name: 'Mundo Deportivo',      country: 'España',         countryCode: 'es', language: 'es', flag: '🇪🇸', category: 'europa',        rss: 'https://www.mundodeportivo.com/rss/futbol/mundial',                                                          enabled: true },
+    // GLOBAL
+    { id: 'goal-int',        name: 'Goal.com',             country: 'Global',         countryCode: 'int', language: 'es', flag: '🌍', category: 'global',        rss: 'https://www.goal.com/feeds/es/news',                                                                        enabled: true },
+    { id: 'espnfc-int',      name: 'ESPN FC',              country: 'Global',         countryCode: 'us',  language: 'en', flag: '🌍', category: 'global',        rss: 'https://www.espn.com/espn/rss/soccer/news',                                                                  enabled: true },
+    { id: 'bbc-football',    name: 'BBC Football',         country: 'Reino Unido',    countryCode: 'gb',  language: 'en', flag: '🌍', category: 'global',        rss: 'https://feeds.bbci.co.uk/sport/football/rss.xml',                                                           enabled: true },
+    { id: 'guardian-football',name: 'The Guardian',        country: 'Reino Unido',    countryCode: 'gb',  language: 'en', flag: '🌍', category: 'global',        rss: 'https://www.theguardian.com/football/rss',                                                                  enabled: true },
   ];
 }
