@@ -13,9 +13,9 @@ const formatMatchMinute = (utcDate: string) => {
 
 export const LiveMatchSection = () => {
   const { data, isLoading } = useApiData<{ matches: Match[] }>(
-    ['live-matches'],
+    ['home-matches'],
     () => api.getLiveMatches(),
-    { refetchInterval: 30000 }
+    { refetchInterval: 120_000 }
   );
 
   const matches = data?.matches ?? [];

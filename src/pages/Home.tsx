@@ -15,6 +15,7 @@ import { FollowWorldCupSection } from '../components/home/FollowWorldCupSection'
 import { useApiData } from '../hooks/useApiData';
 import { api } from '../lib/api';
 import type { Match } from '../types/api';
+import { PLAYED_MATCHES } from '../data/worldCupResults';
 import { AdBanner } from '../components/shared/AdBanner';
 
 const TOURNAMENT_START = new Date(2026, 5, 11);
@@ -38,7 +39,13 @@ export default function Home() {
     () => api.getLiveMatches(),
     { staleTime: 60_000 }
   );
-  const matches = matchesData?.matches ?? [];
+  const apiMatches: Match[] = matchesData?.matches ?? [];
+  const hasApiMatches = apiMatches.length > 0;
+
+  // Si la API falla, usar los resultados conocidos como fallback
+  const matches: Match[] = hasApiMatches
+    ? apiMatches
+    : (PLAYED_MATCHES as Match[]);
 
   const liveMatches = matches.filter(
     (m) => m.status === 'IN_PLAY' || m.status === 'PAUSED'

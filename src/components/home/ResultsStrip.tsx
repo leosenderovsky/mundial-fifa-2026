@@ -8,7 +8,7 @@ import type { Match } from '../../types/api';
 
 export const ResultsStrip = () => {
   const { data, isLoading } = useApiData<{ matches: Match[] }>(
-    ['home-recent-results'],
+    ['home-matches'],
     () => api.getLiveMatches(),
     { staleTime: 60_000 }
   );

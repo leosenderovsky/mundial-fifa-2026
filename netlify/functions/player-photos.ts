@@ -193,62 +193,71 @@ export const handler = async (event: { httpMethod: string; body?: string }) => {
       return { statusCode: 400, body: JSON.stringify({ error: 'names requerido' }) };
     }
 
-    const uniqueNames = [...new Set(names.map((n) => n.trim()).filter(Boolean))].slice(0, 35);
+    const uniqueNames = [...new Set(names.map((n) => n.trim()).filter(Boolean))].slice(0, 30);
     const photos: Record<string, string | null> = {};
-
     const cache = new Map<string, string | null>();
-    const batchSize = 3;
 
-    // Paso 1: lookup del equipo nacional (una sola llamada para todos los jugadores)
+    // Timeout de seguridad: salir a los 8.5s con lo acumulado
+    const DEADLINE = Date.now() + 8_500;
+
+    // Paso 1: lookup del equipo nacional (una sola llamada para todos)
     let nationalPhotoMap = new Map<string, string>();
-    if (teamName) {
+    if (teamName && Date.now() < DEADLINE) {
       const teamId = await findNationalTeamId(teamName);
       if (teamId) {
         nationalPhotoMap = await fetchNationalTeamPhotoMap(teamId);
       }
     }
 
-    // Paso 2: para cada jugador, usar foto nacional si existe; si no, cascada individual
-    for (let i = 0; i < uniqueNames.length; i += batchSize) {
-      const batch = uniqueNames.slice(i, i + batchSize);
+    // Paso 2: clasificar jugadores: los que tienen foto nacional vs los que no
+    const withNational: string[] = [];
+    const withoutNational: string[] = [];
+
+    for (const name of uniqueNames) {
+      const normalizedName = name.trim().toLowerCase();
+      const tokens = normalizedName.split(' ').filter((t) => t.length > 2);
+      const nationalPhoto =
+        nationalPhotoMap.get(normalizedName) ??
+        [...nationalPhotoMap.entries()].find(([k]) => {
+          const kTokens = k.split(' ').filter((t) => t.length > 2);
+          return tokens.some((t) => kTokens.some((kt) => kt.startsWith(t) || t.startsWith(kt)));
+        })?.[1] ??
+        null;
+
+      if (nationalPhoto) {
+        photos[name] = nationalPhoto;
+        cache.set(name, nationalPhoto);
+        withNational.push(name);
+      } else {
+        withoutNational.push(name);
+      }
+    }
+
+    // Paso 3: para los sin foto nacional, cascada individual en batches de 2
+    const batchSize = 2;
+    for (let i = 0; i < withoutNational.length; i += batchSize) {
+      if (Date.now() >= DEADLINE) break;   // ← salir antes de timeout de Netlify
+      const batch = withoutNational.slice(i, i + batchSize);
       await Promise.all(
         batch.map(async (name) => {
-          if (cache.has(name)) {
-            photos[name] = cache.get(name) ?? null;
-            return;
-          }
-          // Buscar en el mapa de fotos del seleccionado (coincidencia exacta o parcial)
-          const normalizedName = name.trim().toLowerCase();
-          const tokens = normalizedName.split(' ').filter(t => t.length > 2);
-          const nationalPhoto =
-            nationalPhotoMap.get(normalizedName) ??
-            [...nationalPhotoMap.entries()].find(([k]) => {
-              const kTokens = k.split(' ').filter(t => t.length > 2);
-              // Coincidencia si al menos un token significativo coincide en ambos sentidos
-              return tokens.some(t => kTokens.some(kt => kt.startsWith(t) || t.startsWith(kt)));
-            })?.[1] ??
-            null;
-
-          if (nationalPhoto) {
-            photos[name] = nationalPhoto;
-            cache.set(name, nationalPhoto);
-            return;
-          }
-
-          // Fallback individual: API-Football → TheSportsDB por nombre → Wikipedia
+          if (Date.now() >= DEADLINE) { photos[name] = null; return; }
           const p = await Promise.race([
             findPhotoByName(name, cache),
-            new Promise<null>((res) => setTimeout(() => res(null), 7000)),
+            new Promise<null>((res) => setTimeout(() => res(null), 4_000)),
           ]);
           photos[name] = p;
           cache.set(name, p);
         })
       );
-
-      // Delay between batches to reduce burst rate
-      if (i + batchSize < uniqueNames.length) {
-        await new Promise((r) => setTimeout(r, 200));
+      // Pausa corta entre batches
+      if (i + batchSize < withoutNational.length && Date.now() < DEADLINE) {
+        await new Promise((r) => setTimeout(r, 150));
       }
+    }
+
+    // Asegurar que todos los nombres tengan una entrada (null si no se encontró)
+    for (const name of uniqueNames) {
+      if (!(name in photos)) photos[name] = null;
     }
 
     return {
