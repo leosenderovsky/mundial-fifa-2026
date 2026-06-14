@@ -6,6 +6,93 @@ import { Link } from 'react-router-dom';
 import { getTeamLink } from '../../lib/teamLinks';
 import { proxiedImage } from '../../lib/imageProxy';
 
+const GROUP_VENUES: Record<string, string> = {
+  GROUP_A:  'Los Ángeles · Guadalajara · SFO',
+  GROUP_B:  'Toronto · Kansas City · Seattle',
+  GROUP_C:  'Dallas · Houston · Boston',
+  GROUP_D:  'Nueva York · Filadelfia · Miami',
+  GROUP_E:  'Los Ángeles · San Francisco · Guadalajara',
+  GROUP_F:  'Vancouver · Seattle · Kansas City',
+  GROUP_G:  'Atlanta · Dallas · Miami',
+  GROUP_H:  'Nueva York · Boston · Filadelfia',
+  GROUP_I:  'Houston · Atlanta · Toronto',
+  GROUP_J:  'Monterrey · Ciudad de México · Guadalajara',
+  GROUP_K:  'San Francisco · Los Ángeles · Vancouver',
+  GROUP_L:  'Monterrey · Ciudad de México · Kansas City',
+};
+
+interface ComputedEntry {
+  name: string;
+  nameEs?: string;
+  flag: string;
+  played: number;
+  won: number;
+  drawn: number;
+  lost: number;
+  goalsFor: number;
+  goalsAgainst: number;
+  points: number;
+}
+
+function computeStandingsFromMatches(
+  staticTeams: StaticTeam[],
+  matches: Match[]
+): ComputedEntry[] {
+  const map = new Map<string, ComputedEntry>();
+
+  staticTeams.forEach((t) => {
+    map.set(t.name.toLowerCase(), {
+      name: t.name,
+      nameEs: t.nameEs,
+      flag: t.flag,
+      played: 0, won: 0, drawn: 0, lost: 0,
+      goalsFor: 0, goalsAgainst: 0, points: 0,
+    });
+  });
+
+  matches
+    .filter((m) => m.status === 'FINISHED')
+    .forEach((m) => {
+      const hg = m.score.fullTime.home ?? 0;
+      const ag = m.score.fullTime.away ?? 0;
+      const hKey = (m.homeTeam.shortName ?? m.homeTeam.name).toLowerCase();
+      const aKey = (m.awayTeam.shortName ?? m.awayTeam.name).toLowerCase();
+
+      // Buscar coincidencia flexible (nombre parcial)
+      const findEntry = (key: string): ComputedEntry | undefined => {
+        if (map.has(key)) return map.get(key);
+        for (const [k, v] of map) {
+          if (k.includes(key) || key.includes(k)) return v;
+        }
+        return undefined;
+      };
+
+      const home = findEntry(hKey);
+      const away = findEntry(aKey);
+
+      if (home) {
+        home.played++;
+        home.goalsFor += hg;
+        home.goalsAgainst += ag;
+        if (hg > ag) { home.won++; home.points += 3; }
+        else if (hg === ag) { home.drawn++; home.points += 1; }
+        else { home.lost++; }
+      }
+      if (away) {
+        away.played++;
+        away.goalsFor += ag;
+        away.goalsAgainst += hg;
+        if (ag > hg) { away.won++; away.points += 3; }
+        else if (ag === hg) { away.drawn++; away.points += 1; }
+        else { away.lost++; }
+      }
+    });
+
+  return [...map.values()].sort(
+    (a, b) => b.points - a.points || (b.goalsFor - b.goalsAgainst) - (a.goalsFor - a.goalsAgainst)
+  );
+}
+
 interface GroupCardProps {
   groupName: string;
   entries: StandingEntry[];
@@ -98,6 +185,11 @@ export const GroupCard = ({
   const upcomingMatches = matches.filter(m => m.status === 'SCHEDULED' || m.status === 'TIMED');
   const liveMatches = matches.filter(m => m.status === 'IN_PLAY' || m.status === 'PAUSED');
 
+  const computedEntries = (showStatic && finishedMatches.length > 0)
+    ? computeStandingsFromMatches(staticTeams, matches)
+    : [];
+  const useComputed = computedEntries.length > 0;
+
   return (
     <div className="stadium-card flex flex-col h-full border border-transparent hover:border-fifa-blue/20 transition-all">
       <div className="bg-gradient-to-r from-fifa-blue to-blue-900 p-5 flex justify-between items-center">
@@ -105,7 +197,7 @@ export const GroupCard = ({
           {formatGroupLabel(groupName)}
         </h3>
         <span className="text-[10px] font-mono text-white/60 bg-white/10 px-2 py-1 rounded">
-          {entries[0]?.team?.venue ?? 'Sede por confirmar'}
+          {GROUP_VENUES[groupName] ?? 'Sede por confirmar'}
         </span>
       </div>
 
@@ -120,7 +212,24 @@ export const GroupCard = ({
             </tr>
           </thead>
           <tbody className="font-medium">
-            {showStatic ? (
+            {useComputed ? (
+              computedEntries.map((entry, idx) => (
+                <tr key={entry.name} className="border-b border-slate-50 dark:border-slate-800/50 group">
+                  <td className="py-3">
+                    <span className={cn(
+                      "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold",
+                      idx < 2 ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-500"
+                    )}>{idx + 1}</span>
+                  </td>
+                  <td className="py-3 flex items-center gap-3">
+                    {entry.flag && <span className={`fi fi-${entry.flag} w-6 h-4 rounded-sm`} />}
+                    <span className="font-bold uppercase tracking-tight text-xs">{entry.nameEs ?? entry.name}</span>
+                  </td>
+                  <td className="py-3 text-center font-mono text-xs">{entry.played}</td>
+                  <td className="py-3 text-center font-mono font-bold text-fifa-blue dark:text-fifa-gold">{entry.points}</td>
+                </tr>
+              ))
+            ) : showStatic ? (
               staticTeams.map((team, idx) => (
                 <tr key={team.name} className="border-b border-slate-50 dark:border-slate-800/50 group">
                   <td className="py-3">
@@ -132,8 +241,8 @@ export const GroupCard = ({
                     <span className={`fi fi-${team.flag} w-6 h-4 rounded-sm`} title={team.nameEs} aria-label={team.nameEs} />
                     <span className="font-bold uppercase tracking-tight text-xs">{team.nameEs}</span>
                   </td>
-                  <td className="py-3 text-center font-mono text-xs">0</td>
-                  <td className="py-3 text-center font-mono font-bold text-fifa-blue dark:text-fifa-gold">0</td>
+                  <td className="py-3 text-center font-mono text-xs">—</td>
+                  <td className="py-3 text-center font-mono font-bold text-fifa-blue dark:text-fifa-gold">—</td>
                 </tr>
               ))
             ) : entries.length > 0 ? (

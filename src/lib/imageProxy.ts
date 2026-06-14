@@ -1,7 +1,15 @@
+const BYPASS_DOMAINS = [
+  'cdn.thesportsdb.com',
+  'www.thesportsdb.com',
+  'media.api-sports.io',
+  'upload.wikimedia.org',
+];
+
 export function proxiedImage(url?: string | null): string | undefined {
   if (!url) return undefined;
   try {
     const parsed = new URL(url);
+    if (BYPASS_DOMAINS.some((d) => parsed.hostname.endsWith(d))) return url;
     // Only proxy absolute http(s) URLs
     if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
       // Keep direct image URLs as the default path. The production CSP allows

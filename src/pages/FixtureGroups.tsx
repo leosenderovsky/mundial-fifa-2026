@@ -100,17 +100,7 @@ export default function FixtureGroups() {
           </div>
         </header>
 
-        {isUsingStaticData && activeView === 'groups' && (
-          <div className="mb-12 flex items-center gap-4 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-3xl text-blue-800 dark:text-blue-300 shadow-sm">
-            <div className="bg-blue-100 dark:bg-blue-800 p-3 rounded-2xl">
-              <Info className="text-blue-600 dark:text-blue-400" />
-            </div>
-            <div>
-              <p className="font-bold uppercase tracking-tight text-xs mb-1">Datos del sorteo oficial</p>
-              <p className="text-sm opacity-80">Las posiciones se actualizan automáticamente con los resultados del torneo.</p>
-            </div>
-          </div>
-        )}
+
 
         {(isUsingStaticMatches || standingsError || matchesError) && activeView !== 'groups' && (
           <div className="mb-8 flex items-center gap-4 p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-3xl text-blue-800 dark:text-blue-300 shadow-sm">

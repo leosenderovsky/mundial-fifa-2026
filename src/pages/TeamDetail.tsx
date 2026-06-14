@@ -73,10 +73,19 @@ export default function TeamDetail() {
   const squad = team?.squad ?? [];
   const needsFallback = Boolean(team && (!team.coach || squad.length === 0));
 
-  // TheSportsDB: siempre activo — proporciona fotos con camiseta de selección nacional
+  const teamSearchName = team?.name ?? '';
+  const teamSearchAlt = team?.shortName ?? team?.tla ?? '';
+
   const { data: fallbackTeamData } = useApiData<any>(
-    ['fallback-team', team?.name ?? ''],
-    () => api.getFallbackTeamByName(team?.name ?? ''),
+    ['fallback-team', teamSearchName],
+    async () => {
+      // Intento 1: nombre completo
+      const r1 = await api.getFallbackTeamByName(teamSearchName);
+      if (r1?.teams?.length) return r1;
+      // Intento 2: nombre corto / TLA
+      if (teamSearchAlt) return api.getFallbackTeamByName(teamSearchAlt);
+      return r1;
+    },
     { enabled: Boolean(team?.name), staleTime: 1000 * 60 * 60 * 24 }
   );
   const fallbackTeam = fallbackTeamData?.teams?.[0] ?? null;

@@ -197,7 +197,7 @@ export const handler = async (event: { httpMethod: string; body?: string }) => {
     const photos: Record<string, string | null> = {};
 
     const cache = new Map<string, string | null>();
-    const batchSize = 5;
+    const batchSize = 3;
 
     // Paso 1: lookup del equipo nacional (una sola llamada para todos los jugadores)
     let nationalPhotoMap = new Map<string, string>();
@@ -236,7 +236,10 @@ export const handler = async (event: { httpMethod: string; body?: string }) => {
           }
 
           // Fallback individual: API-Football → TheSportsDB por nombre → Wikipedia
-          const p = await findPhotoByName(name, cache);
+          const p = await Promise.race([
+            findPhotoByName(name, cache),
+            new Promise<null>((res) => setTimeout(() => res(null), 7000)),
+          ]);
           photos[name] = p;
           cache.set(name, p);
         })
