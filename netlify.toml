@@ -95,7 +95,6 @@
 [[redirects]]
   from = "/*"
   to = "/index.html"
-<<<<<<< HEAD
   status = 200
 
 [functions]
@@ -103,6 +102,3 @@
 
 [functions."player-photos"]
   timeout = 26
-=======
-  status = 200
->>>>>>> 18448226d419714d20dd867e75385cfd9a67bf75
