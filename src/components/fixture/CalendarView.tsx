@@ -106,20 +106,23 @@ export const CalendarView = ({ matches, isLoading, errorMessage, isStaticData }:
 
               return (
                 <div key={match.id} className="flex items-center justify-between p-4 bg-white dark:bg-slate-900/60 rounded-xl">
-                  <div className="flex items-center gap-4">
-                    <Link to={getTeamLink(match.homeTeam)} className="hover:scale-110 transition-transform">
+                  {/* Equipo local */}
+                  <div className="flex items-center gap-3 flex-1">
+                    <Link to={getTeamLink(match.homeTeam)} className="hover:scale-110 transition-transform flex-shrink-0">
                       <TeamFlag team={match.homeTeam} />
                     </Link>
-                    <span className="font-bold text-sm">{match.homeTeam.name}</span>
+                    <span className="font-bold text-sm truncate">{match.homeTeam.name}</span>
                   </div>
-                  <div className="text-center min-w-[100px]">
+                  
+                  {/* Marcador central */}
+                  <div className="text-center flex-shrink-0 w-28 px-2">
                     {isFinished || isLive ? (
                       <span className={cn(
                         "text-sm font-mono font-bold",
                         isLive && "text-fifa-red animate-pulse"
                       )}>
                         {match.score.fullTime.home ?? match.score.halfTime.home ?? '-'}
-                        {' - '}
+                        {' – '}
                         {match.score.fullTime.away ?? match.score.halfTime.away ?? '-'}
                       </span>
                     ) : isScheduled ? (
@@ -127,13 +130,15 @@ export const CalendarView = ({ matches, isLoading, errorMessage, isStaticData }:
                     ) : (
                       <span className="text-xs font-mono text-slate-400">vs</span>
                     )}
-                    <span className="block text-[10px] text-slate-400 uppercase">
+                    <span className="block text-[10px] text-slate-400 uppercase mt-0.5">
                       {match.group ? match.group.replace('GROUP_', 'Grupo ') : match.stage}
                     </span>
                   </div>
-                  <div className="flex items-center gap-4 justify-end">
-                    <span className="font-bold text-sm">{match.awayTeam.name}</span>
-                    <Link to={getTeamLink(match.awayTeam)} className="hover:scale-110 transition-transform">
+                  
+                  {/* Equipo visitante */}
+                  <div className="flex items-center gap-3 flex-1 justify-end">
+                    <span className="font-bold text-sm truncate text-right">{match.awayTeam.name}</span>
+                    <Link to={getTeamLink(match.awayTeam)} className="hover:scale-110 transition-transform flex-shrink-0">
                       <TeamFlag team={match.awayTeam} />
                     </Link>
                   </div>

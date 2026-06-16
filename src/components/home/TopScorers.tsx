@@ -2,7 +2,6 @@ import { motion } from 'framer-motion';
 import { useApiData } from '../../hooks/useApiData';
 import { api } from '../../lib/api';
 import { SkeletonLoader } from '../shared/SkeletonLoader';
-import { proxiedImage } from '../../lib/imageProxy';
 import { STATIC_TOP_SCORERS, type StaticScorer } from '../../data/worldCupResults';
 
 interface Scorer {
@@ -16,7 +15,6 @@ interface ScorersResponse {
   scorers: Scorer[];
 }
 
-// Convierte los scorers estáticos al formato del API
 const staticToApiScorers = (list: StaticScorer[]): Scorer[] =>
   list.slice(0, 3).map((s) => ({
     player: { name: s.playerName, nationality: s.teamName },
@@ -26,30 +24,18 @@ const staticToApiScorers = (list: StaticScorer[]): Scorer[] =>
   }));
 
 export const TopScorers = () => {
-  const { data, isLoading, error } = useApiData<ScorersResponse>(
+  const { data, isLoading } = useApiData<ScorersResponse>(
     ['top-scorers'],
     () => api.getTopScorers(5),
     { staleTime: 5 * 60_000, refetchInterval: 5 * 60_000, retry: 1 }
   );
 
   const apiTop = data?.scorers?.slice(0, 3) ?? [];
-  // Usar API si respondió; fallback estático si falló o vino vacía
   const top: Scorer[] = apiTop.length > 0 ? apiTop : staticToApiScorers(STATIC_TOP_SCORERS);
   const isStaticFallback = apiTop.length === 0;
 
-  const playerNames = top.map((s) => s.player.name);
-
-  const { data: photoData, isLoading: isLoadingPhotos } = useApiData<{
-    photos: Record<string, string | null>;
-  }>(
-    ['scorers-photos', ...playerNames],
-    () => api.getPlayerPhotos(playerNames),
-    { enabled: playerNames.length > 0, staleTime: 1000 * 60 * 60 * 24, retry: 1 }
-  );
-  const photoMap = photoData?.photos ?? {};
-
   if (isLoading) return <SkeletonLoader variant="match" />;
-  if (top.length === 0) return null;   // solo null si ni el fallback tiene datos
+  if (top.length === 0) return null;
 
   return (
     <div className="space-y-4">
@@ -58,65 +44,75 @@ export const TopScorers = () => {
           Datos al último partido disputado · Se actualizan automáticamente
         </p>
       )}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {top.map((s, i) => {
-          const photo = photoMap[s.player.name];
-          const flagCode = STATIC_TOP_SCORERS.find(
+          const staticEntry = STATIC_TOP_SCORERS.find(
             (st) => st.playerName === s.player.name
-          )?.teamFlag;
+          );
+          const flagCode = staticEntry?.teamFlag;
+          const rank = i + 1;
 
           return (
             <motion.div
               key={i}
-              whileHover={{ y: -10 }}
-              className="stadium-card aspect-[4/5] relative group overflow-hidden"
+              whileHover={{ y: -6 }}
+              className="stadium-card relative overflow-hidden group"
             >
-              <div className="absolute inset-0 bg-slate-900 dark:bg-slate-950" />
-
-              {photo && !isLoadingPhotos ? (
-                <img
-                  src={proxiedImage(photo)}
-                  alt={s.player.name}
-                  className="absolute inset-0 w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                />
-              ) : isLoadingPhotos ? (
-                <div className="absolute inset-0 bg-slate-800 animate-pulse" />
-              ) : flagCode ? (
-                // Fallback: bandera del país si no hay foto
-                <div className="absolute inset-0 flex items-center justify-center">
+              {/* Fondo: bandera gigante con baja opacidad */}
+              {flagCode && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
                   <span
                     className={`fi fi-${flagCode}`}
-                    style={{ fontSize: '8rem', opacity: 0.15 }}
+                    style={{ fontSize: '11rem', opacity: 0.07, filter: 'blur(1px)' }}
                   />
                 </div>
-              ) : null}
+              )}
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent" />
+              {/* Gradiente oscuro de cobertura */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-900/80 via-slate-900/60 to-slate-900/80" />
 
-              <div className="absolute bottom-0 left-0 right-0 p-8 space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-12 h-10 bg-fifa-gold flex items-center justify-center font-mono font-bold text-xl rounded">
-                    {s.goals}
-                  </div>
-                  <span className="text-[10px] font-black uppercase text-white/60 tracking-widest">
-                    Goles
+              {/* Contenido */}
+              <div className="relative z-10 p-8 flex flex-col gap-5">
+                {/* Ranking */}
+                <div className="flex items-start justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500">
+                    #{rank} Goleador
                   </span>
-                  {s.assists != null && s.assists > 0 && (
-                    <span className="text-[10px] font-black text-white/40 tracking-widest ml-2">
-                      {s.assists} asist.
-                    </span>
+                  {flagCode && (
+                    <span className={`fi fi-${flagCode} w-8 h-6 rounded-sm shadow-lg`} />
                   )}
                 </div>
-                <h3 className="headline-md text-white text-3xl uppercase leading-none">
-                  {s.player.name}
-                </h3>
-                <div className="flex items-center gap-2">
-                  {flagCode && <span className={`fi fi-${flagCode} w-4 h-3 rounded-sm`} />}
-                  <p className="text-fifa-gold font-bold uppercase text-xs tracking-[0.3em]">
+
+                {/* Nombre */}
+                <div>
+                  <h3 className="font-headline font-black uppercase text-white text-2xl leading-none mb-1 group-hover:text-fifa-gold transition-colors">
+                    {s.player.name}
+                  </h3>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-fifa-gold">
                     {s.team.shortName ?? s.team.name}
                   </p>
+                </div>
+
+                {/* Stats */}
+                <div className="flex items-end gap-6 pt-2 border-t border-white/10">
+                  <div className="flex flex-col">
+                    <span className="text-5xl font-black font-mono text-white leading-none">
+                      {s.goals}
+                    </span>
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mt-1">
+                      Goles
+                    </span>
+                  </div>
+                  {s.assists != null && s.assists > 0 && (
+                    <div className="flex flex-col">
+                      <span className="text-2xl font-black font-mono text-slate-300 leading-none">
+                        {s.assists}
+                      </span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mt-1">
+                        Asist.
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </motion.div>

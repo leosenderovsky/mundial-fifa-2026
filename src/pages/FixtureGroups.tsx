@@ -60,11 +60,25 @@ export default function FixtureGroups() {
 
   const isUsingStaticData = groups.every(g => g.entries.length === 0);
 
+  // Sólo mostrar la pestaña knockout si ya hay partidos de fase eliminatoria
+  const hasKnockoutData = knockoutMatches.some(
+    (m) => m.status === 'FINISHED' || m.status === 'IN_PLAY' || m.status === 'SCHEDULED' || m.status === 'TIMED'
+  );
+
   const views = [
     { id: 'groups', label: 'Por Grupos', icon: LayoutGrid },
     { id: 'calendar', label: 'Calendario', icon: Calendar },
-    { id: 'knockout', label: 'Fase Eliminatoria', icon: GitMerge, highlight: true },
+    ...(hasKnockoutData
+      ? [{ id: 'knockout', label: 'Fase Eliminatoria', icon: GitMerge, highlight: true }]
+      : []),
   ];
+
+  // Si la pestaña knockout desaparece pero estaba activa, volver a grupos
+  React.useEffect(() => {
+    if (activeView === 'knockout' && !hasKnockoutData) {
+      setActiveView('groups');
+    }
+  }, [hasKnockoutData, activeView]);
 
   return (
     <div className="min-h-screen bg-surface-canvas pt-12 pb-24 px-4 md:px-8">

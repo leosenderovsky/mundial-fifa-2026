@@ -209,20 +209,41 @@ export const handler = async (event: { httpMethod: string; body?: string }) => {
       }
     }
 
-    // Paso 2: clasificar jugadores: los que tienen foto nacional vs los que no
+    // Paso 2: clasificar jugadores con matching más robusto
     const withNational: string[] = [];
     const withoutNational: string[] = [];
 
     for (const name of uniqueNames) {
       const normalizedName = name.trim().toLowerCase();
-      const tokens = normalizedName.split(' ').filter((t) => t.length > 2);
-      const nationalPhoto =
-        nationalPhotoMap.get(normalizedName) ??
-        [...nationalPhotoMap.entries()].find(([k]) => {
-          const kTokens = k.split(' ').filter((t) => t.length > 2);
-          return tokens.some((t) => kTokens.some((kt) => kt.startsWith(t) || t.startsWith(kt)));
-        })?.[1] ??
-        null;
+      // Tokens significativos (>2 chars) del nombre a buscar
+      const tokens = normalizedName.split(/\s+/).filter((t) => t.length > 2);
+
+      // 1. Match exacto
+      let nationalPhoto = nationalPhotoMap.get(normalizedName) ?? null;
+
+      // 2. Match por todos los tokens contenidos
+      if (!nationalPhoto) {
+        for (const [k, v] of nationalPhotoMap) {
+          const kTokens = k.split(/\s+/).filter((t) => t.length > 2);
+          const allMatch = tokens.length > 0 && tokens.every((t) =>
+            kTokens.some((kt) => kt.startsWith(t) || t.startsWith(kt))
+          );
+          if (allMatch) { nationalPhoto = v; break; }
+        }
+      }
+
+      // 3. Match por apellido (último token)
+      if (!nationalPhoto && tokens.length > 0) {
+        const lastName = tokens[tokens.length - 1] ?? '';
+        if (lastName.length > 3) {
+          for (const [k, v] of nationalPhotoMap) {
+            const kLast = k.split(/\s+/).filter((t) => t.length > 2).at(-1) ?? '';
+            if (kLast.startsWith(lastName) || lastName.startsWith(kLast)) {
+              nationalPhoto = v; break;
+            }
+          }
+        }
+      }
 
       if (nationalPhoto) {
         photos[name] = nationalPhoto;
@@ -234,7 +255,7 @@ export const handler = async (event: { httpMethod: string; body?: string }) => {
     }
 
     // Paso 3: para los sin foto nacional, cascada individual en batches de 2
-    const batchSize = 2;
+    const batchSize = 3;
     for (let i = 0; i < withoutNational.length; i += batchSize) {
       if (Date.now() >= DEADLINE) break;   // ← salir antes de timeout de Netlify
       const batch = withoutNational.slice(i, i + batchSize);
@@ -243,7 +264,7 @@ export const handler = async (event: { httpMethod: string; body?: string }) => {
           if (Date.now() >= DEADLINE) { photos[name] = null; return; }
           const p = await Promise.race([
             findPhotoByName(name, cache),
-            new Promise<null>((res) => setTimeout(() => res(null), 4_000)),
+            new Promise<null>((res) => setTimeout(() => res(null), 5_000)),
           ]);
           photos[name] = p;
           cache.set(name, p);

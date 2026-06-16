@@ -42,7 +42,7 @@ function normalizeItem(item, sourceId, sourceName, country, countryCode, languag
   const description = stripHtml(item.description || item['content:encoded'] || '');
   const link = item.link || item.guid || '';
   const pubDate = item.pubDate || item.published || item['dc:date'] || '';
-  const imageUrl = extractImage(item);
+  const imageUrl = extractImage(item) || null;   // null explícito, no string vacío
 
   return {
     id: `${sourceId}-${Buffer.from(link).toString('base64').slice(0, 12)}`,
@@ -75,15 +75,48 @@ function stripHtml(str = '') {
 }
 
 function extractImage(item) {
-  // Intenta distintos campos donde los feeds guardan imágenes
-  if (item['media:thumbnail']?.['@_url']) return item['media:thumbnail']['@_url'];
-  if (item['media:content']?.['@_url']) return item['media:content']['@_url'];
-  if (item.enclosure?.['@_url'] && item.enclosure['@_type']?.startsWith('image/'))
-    return item.enclosure['@_url'];
-  // Busca en content:encoded
+  // 1. media:thumbnail
+  const mt = item['media:thumbnail'];
+  if (mt) {
+    if (Array.isArray(mt) && mt[0]?.['@_url']) return mt[0]['@_url'];
+    if (mt['@_url']) return mt['@_url'];
+  }
+
+  // 2. media:content con tipo imagen
+  const mc = item['media:content'];
+  if (mc) {
+    const arr = Array.isArray(mc) ? mc : [mc];
+    const img = arr.find((m) => m['@_type']?.startsWith('image/') || m['@_url']);
+    if (img?.['@_url']) return img['@_url'];
+  }
+
+  // 3. enclosure con tipo imagen
+  const enc = item.enclosure;
+  if (enc?.['@_url'] && enc?.['@_type']?.startsWith('image/')) return enc['@_url'];
+
+  // 4. itunes:image
+  if (item['itunes:image']?.['@_href']) return item['itunes:image']['@_href'];
+
+  // 5. image directo (algunos feeds Atom)
+  if (typeof item.image === 'string' && item.image.startsWith('http')) return item.image;
+  if (item.image?.url) return item.image.url;
+
+  // 6. Buscar <img src="..."> dentro de content:encoded o description
   const content = item['content:encoded'] || item.description || '';
-  const match = content.match(/<img[^>]+src=["']([^"']+)["']/i);
-  return match ? match[1] : null;
+  if (content) {
+    const imgMatch = content.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (imgMatch?.[1] && imgMatch[1].startsWith('http')) return imgMatch[1];
+    // También buscar srcset
+    const srcsetMatch = content.match(/srcset=["']([^\s"']+)/i);
+    if (srcsetMatch?.[1] && srcsetMatch[1].startsWith('http')) return srcsetMatch[1];
+  }
+
+  // 7. Buscar URL de imagen en el campo description plano
+  const desc = item.description || '';
+  const urlMatch = desc.match(/https?:\/\/[^\s"'<>]+\.(?:jpg|jpeg|png|webp|gif)(?:\?[^\s"'<>]*)?/i);
+  if (urlMatch?.[0]) return urlMatch[0];
+
+  return null;
 }
 
 /**

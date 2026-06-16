@@ -79,7 +79,7 @@ async function fetchAllNews(): Promise<NewsItem[]> {
       link:          a.link,
       pubDate:       a.pubDate ?? new Date().toISOString(),
       description:   a.description ?? '',
-      imageUrl:      a.imageUrl ?? '',
+      imageUrl:      a.imageUrl || '',
       source:        a.sourceName ?? a.sourceId ?? 'Fuente',
       sourceFlag:    a.flag ?? '🌍',
       sourceCountry: a.country ?? '',
@@ -123,10 +123,24 @@ function NewsCard({ item, featured = false }: { item: NewsItem; featured?: boole
         </div>
       ) : (
         <div className={cn(
-          'bg-gradient-to-br from-fifa-blue/20 to-slate-800 flex items-center justify-center flex-shrink-0',
+          'relative overflow-hidden bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center flex-shrink-0',
           featured ? 'md:w-72 h-48 md:h-auto' : 'h-44'
         )}>
-          <Newspaper className="w-10 h-10 text-fifa-blue/40" />
+          {/* Emoji de bandera grande como fondo visual */}
+          <span
+            className="absolute text-8xl select-none pointer-events-none"
+            style={{ opacity: 0.12, filter: 'blur(2px)' }}
+            aria-hidden="true"
+          >
+            {item.sourceFlag}
+          </span>
+          {/* Ícono central */}
+          <div className="relative z-10 flex flex-col items-center gap-2">
+            <Newspaper className="w-8 h-8 text-slate-600" />
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-600">
+              {item.source}
+            </span>
+          </div>
         </div>
       )}
 

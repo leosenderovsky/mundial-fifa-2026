@@ -84,9 +84,9 @@ export interface StaticScorer {
 }
 
 export const STATIC_TOP_SCORERS: StaticScorer[] = [
-  { playerName: 'Folarin Balogun',  teamName: 'United States', teamShortName: 'USA', teamFlag: 'us', goals: 2, assists: 0 },
-  { playerName: 'Julián Quiñones', teamName: 'Mexico',         teamShortName: 'MEX', teamFlag: 'mx', goals: 1, assists: 0 },
-  { playerName: 'Raúl Jiménez',    teamName: 'Mexico',         teamShortName: 'MEX', teamFlag: 'mx', goals: 1, assists: 0 },
-  { playerName: 'Hwang Hee-chan',   teamName: 'Korea Republic', teamShortName: 'KOR', teamFlag: 'kr', goals: 1, assists: 0 },
-  { playerName: 'Lee Kang-in',      teamName: 'Korea Republic', teamShortName: 'KOR', teamFlag: 'kr', goals: 1, assists: 0 },
+  { playerName: 'Folarin Balogun',  teamName: 'United States',   teamShortName: 'USA',  teamFlag: 'us', goals: 2, assists: 0 },
+  { playerName: 'Kai Havertz',      teamName: 'Germany',          teamShortName: 'GER',  teamFlag: 'de', goals: 2, assists: 0 },
+  { playerName: 'Yasin Ayari',      teamName: 'Sweden',           teamShortName: 'SWE',  teamFlag: 'se', goals: 2, assists: 0 },
+  { playerName: 'Elijah Just',      teamName: 'New Zealand',      teamShortName: 'NZL',  teamFlag: 'nz', goals: 2, assists: 0 },
+  { playerName: 'Julián Quiñones',  teamName: 'Mexico',           teamShortName: 'MEX',  teamFlag: 'mx', goals: 1, assists: 0 },
 ];
