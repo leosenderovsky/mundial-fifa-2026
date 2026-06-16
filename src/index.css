@@ -61,6 +61,14 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* ── Tactical Pitch ─────────────────────── */
+  .pitch-grid {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
 }
 
 @layer utilities {
