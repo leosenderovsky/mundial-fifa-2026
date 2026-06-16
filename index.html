@@ -5,12 +5,23 @@
     <link rel="icon" type="image/svg+xml" href="/logo-fifa.svg" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+
     <!-- SEO Primario -->
     <title>Copa Mundial de la FIFA 2026 | Resultados, Fixture y Sedes</title>
     <meta name="description" content="Seguí en vivo el Mundial FIFA 2026. Resultados de fútbol, fixture completo, grupos, sedes de EE.UU., México y Canadá, y análisis con IA del World Cup." />
     <meta name="keywords" content="mundial, fifa, futbol, world cup, 2026, resultados en vivo, fixture mundial, sedes mundial 2026, argentina mundial" />
     <link rel="canonical" href="https://mundial-fifa-2026.netlify.app/" />
+
+    <!-- Idioma y región -->
+    <meta http-equiv="Content-Language" content="es" />
+    <link rel="alternate" hreflang="es" href="https://mundial-fifa-2026.netlify.app/" />
+    <link rel="alternate" hreflang="es-419" href="https://mundial-fifa-2026.netlify.app/" />
+    <link rel="alternate" hreflang="x-default" href="https://mundial-fifa-2026.netlify.app/" />
+
+    <!-- Autoría y rastreadores -->
+    <meta name="author" content="Portal Mundial FIFA 2026" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -25,35 +36,80 @@
     <meta name="twitter:description" content="Resultados y análisis IA del Mundial de Fútbol 2026." />
     <meta name="twitter:image" content="https://mundial-fifa-2026.netlify.app/og-image.jpg" />
 
-    <!-- JSON-LD Datos Estructurados para Google -->
+    <!-- JSON-LD SportsEvent con las 16 sedes -->
     <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "SportsEvent",
-        "name": "Copa Mundial de la FIFA 2026",
-        "description": "Portal de datos del Mundial de Fútbol FIFA 2026: fixture, resultados, sedes y análisis con IA.",
-        "url": "https://mundial-fifa-2026.netlify.app/",
-        "image": "https://mundial-fifa-2026.netlify.app/og-image.jpg",
-        "sport": "Soccer",
-        "startDate": "2026-06-11",
-        "endDate": "2026-07-19",
-        "location": [
-          { "@type": "Place", "name": "MetLife Stadium", "address": { "@type": "PostalAddress", "addressCountry": "US" } },
-          { "@type": "Place", "name": "Estadio Azteca", "address": { "@type": "PostalAddress", "addressCountry": "MX" } },
-          { "@type": "Place", "name": "BC Place", "address": { "@type": "PostalAddress", "addressCountry": "CA" } }
-        ],
-        "organizer": {
-          "@type": "Organization",
-          "name": "FIFA",
-          "url": "https://www.fifa.com"
-        }
-      }
+    {
+      "@context": "https://schema.org",
+      "@type": "SportsEvent",
+      "name": "Copa Mundial de la FIFA 2026",
+      "alternateName": ["FIFA World Cup 2026", "World Cup 2026", "Mundial 2026"],
+      "description": "La 23ª edición de la Copa Mundial de la FIFA. 48 selecciones de todo el mundo compiten en 16 estadios de Estados Unidos, México y Canadá.",
+      "url": "https://mundial-fifa-2026.netlify.app/",
+      "image": "https://mundial-fifa-2026.netlify.app/og-image.jpg",
+      "sport": "Soccer",
+      "startDate": "2026-06-11",
+      "endDate": "2026-07-19",
+      "eventStatus": "https://schema.org/EventScheduled",
+      "inLanguage": "es",
+      "organizer": {
+        "@type": "Organization",
+        "name": "FIFA",
+        "url": "https://www.fifa.com",
+        "sameAs": "https://www.wikidata.org/wiki/Q41415"
+      },
+      "location": [
+        { "@type": "Place", "name": "MetLife Stadium", "address": { "@type": "PostalAddress", "addressLocality": "East Rutherford", "addressRegion": "NJ", "addressCountry": "US" }, "geo": { "@type": "GeoCoordinates", "latitude": 40.8135, "longitude": -74.0744 } },
+        { "@type": "Place", "name": "Estadio Azteca", "address": { "@type": "PostalAddress", "addressLocality": "Ciudad de México", "addressCountry": "MX" }, "geo": { "@type": "GeoCoordinates", "latitude": 19.3029, "longitude": -99.1505 } },
+        { "@type": "Place", "name": "AT&T Stadium", "address": { "@type": "PostalAddress", "addressLocality": "Arlington", "addressRegion": "TX", "addressCountry": "US" }, "geo": { "@type": "GeoCoordinates", "latitude": 32.7473, "longitude": -97.0945 } },
+        { "@type": "Place", "name": "Mercedes-Benz Stadium", "address": { "@type": "PostalAddress", "addressLocality": "Atlanta", "addressRegion": "GA", "addressCountry": "US" } },
+        { "@type": "Place", "name": "BC Place", "address": { "@type": "PostalAddress", "addressLocality": "Vancouver", "addressCountry": "CA" } },
+        { "@type": "Place", "name": "Levi's Stadium", "address": { "@type": "PostalAddress", "addressLocality": "Santa Clara", "addressRegion": "CA", "addressCountry": "US" } },
+        { "@type": "Place", "name": "Rose Bowl Stadium", "address": { "@type": "PostalAddress", "addressLocality": "Pasadena", "addressRegion": "CA", "addressCountry": "US" } },
+        { "@type": "Place", "name": "SoFi Stadium", "address": { "@type": "PostalAddress", "addressLocality": "Inglewood", "addressRegion": "CA", "addressCountry": "US" } },
+        { "@type": "Place", "name": "Allegiant Stadium", "address": { "@type": "PostalAddress", "addressLocality": "Las Vegas", "addressRegion": "NV", "addressCountry": "US" } },
+        { "@type": "Place", "name": "Arrowhead Stadium", "address": { "@type": "PostalAddress", "addressLocality": "Kansas City", "addressRegion": "MO", "addressCountry": "US" } },
+        { "@type": "Place", "name": "NRG Stadium", "address": { "@type": "PostalAddress", "addressLocality": "Houston", "addressRegion": "TX", "addressCountry": "US" } },
+        { "@type": "Place", "name": "Estadio BBVA", "address": { "@type": "PostalAddress", "addressLocality": "Monterrey", "addressCountry": "MX" } },
+        { "@type": "Place", "name": "Estadio Akron", "address": { "@type": "PostalAddress", "addressLocality": "Guadalajara", "addressCountry": "MX" } },
+        { "@type": "Place", "name": "BMO Field", "address": { "@type": "PostalAddress", "addressLocality": "Toronto", "addressCountry": "CA" } },
+        { "@type": "Place", "name": "Lincoln Financial Field", "address": { "@type": "PostalAddress", "addressLocality": "Philadelphia", "addressRegion": "PA", "addressCountry": "US" } },
+        { "@type": "Place", "name": "Gillette Stadium", "address": { "@type": "PostalAddress", "addressLocality": "Foxborough", "addressRegion": "MA", "addressCountry": "US" } }
+      ]
+    }
     </script>
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@700;900&family=Inter:wght@400;600&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet">
+    <!-- JSON-LD WebSite + SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Copa Mundial FIFA 2026",
+      "url": "https://mundial-fifa-2026.netlify.app/",
+      "inLanguage": "es",
+      "description": "Portal en español del Mundial FIFA 2026: fixture, resultados, selecciones, sedes y noticias.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://mundial-fifa-2026.netlify.app/selecciones?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- Google Fonts con font-display:swap para no bloquear render -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Epilogue:wght@700;900&family=Inter:wght@400;600&family=Roboto+Mono:wght@700&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link href="https://fonts.googleapis.com/css2?family=Epilogue:wght@700;900&family=Inter:wght@400;600&family=Roboto+Mono:wght@700&display=swap" rel="stylesheet" />
+    </noscript>
     <!-- Material Symbols para el prototipo de Stitch -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet" />
     <!-- Google AdSense -->
@@ -61,7 +117,25 @@
      crossorigin="anonymous"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Contenido visible solo para crawlers sin JS (SEO fallback) -->
+      <noscript>
+        <main style="font-family: sans-serif; max-width: 900px; margin: 0 auto; padding: 2rem;">
+          <h1>Copa Mundial de la FIFA 2026</h1>
+          <p>Portal oficial en español de la Copa Mundial FIFA 2026. Fixture completo, resultados, las 48 selecciones y los 16 estadios sede en Estados Unidos, México y Canadá.</p>
+          <h2>Páginas principales</h2>
+          <ul>
+            <li><a href="/fixture">Fixture y Grupos — Calendario completo del Mundial 2026</a></li>
+            <li><a href="/selecciones">Las 48 Selecciones del Mundial FIFA 2026</a></li>
+            <li><a href="/sedes">16 Sedes y Estadios — EE.UU., México, Canadá</a></li>
+            <li><a href="/noticias">Noticias del Mundial 2026 en Español</a></li>
+            <li><a href="/mapa">Mapa Interactivo de Sedes</a></li>
+          </ul>
+          <h2>Datos del torneo</h2>
+          <p><strong>Inicio:</strong> 11 de junio de 2026 | <strong>Final:</strong> 19 de julio de 2026 | <strong>Equipos:</strong> 48 selecciones | <strong>Partidos:</strong> 104</p>
+        </main>
+      </noscript>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -84,8 +84,44 @@ export default function FixtureGroups() {
     <div className="min-h-screen bg-surface-canvas pt-12 pb-24 px-4 md:px-8">
       <SEO
         title="Fixture y Grupos"
-        description="Consultá el calendario completo y las tablas de posiciones de los 12 grupos del Mundial FIFA 2026."
-        keywords="fixture mundial, grupos mundial 2026, tabla de posiciones fifa, partidos mundial"
+        description="Fixture completo del Mundial FIFA 2026: grupos A–L con las 48 selecciones, fase de grupos, octavos, cuartos, semifinales y final. Resultados y tabla de posiciones en tiempo real."
+        keywords="fixture mundial 2026, grupos mundial 2026, tabla posiciones mundial, resultados mundial 2026, calendario mundial fifa"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://mundial-fifa-2026.netlify.app/" },
+              { "@type": "ListItem", "position": 2, "name": "Fixture y Grupos", "item": "https://mundial-fifa-2026.netlify.app/fixture" }
+            ]
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "¿Cuántos grupos tiene el Mundial 2026?",
+                "acceptedAnswer": { "@type": "Answer", "text": "El Mundial FIFA 2026 tiene 12 grupos (del A al L), con 4 equipos cada uno, para un total de 48 selecciones participantes." }
+              },
+              {
+                "@type": "Question",
+                "name": "¿Cuándo empieza el Mundial 2026?",
+                "acceptedAnswer": { "@type": "Answer", "text": "La Copa Mundial de la FIFA 2026 comienza el 11 de junio de 2026 con el partido inaugural en el Estadio Azteca de Ciudad de México." }
+              },
+              {
+                "@type": "Question",
+                "name": "¿Cuándo es la final del Mundial 2026?",
+                "acceptedAnswer": { "@type": "Answer", "text": "La final de la Copa Mundial FIFA 2026 se disputará el 19 de julio de 2026 en el MetLife Stadium de Nueva Jersey, Estados Unidos." }
+              },
+              {
+                "@type": "Question",
+                "name": "¿Cuántos partidos tiene el Mundial 2026?",
+                "acceptedAnswer": { "@type": "Answer", "text": "El Mundial FIFA 2026 tendrá un total de 104 partidos: 48 en fase de grupos, 32 en octavos de final, 16 en cuartos, 8 semifinales, y la final." }
+              }
+            ]
+          }
+        ]}
       />
       <div className="container mx-auto">
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">

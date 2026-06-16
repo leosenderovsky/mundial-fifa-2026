@@ -236,8 +236,17 @@ export default function NewsPage() {
   return (
     <>
       <SEO
-        title="Noticias del Mundial 2026 | Últimas novedades"
-        description="Las últimas noticias del Mundial FIFA 2026 desde los medios más importantes de Argentina, Brasil, México, España y el mundo."
+        title="Noticias del Mundial"
+        description="Últimas noticias del Mundial FIFA 2026 en español: resultados, análisis, selecciones, sedes y todo lo que pasa en el World Cup 2026 desde Argentina, España, México y todo el mundo."
+        keywords="noticias mundial 2026, noticias world cup, resultados mundial en vivo, analisis mundial fifa 2026"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://mundial-fifa-2026.netlify.app/" },
+            { "@type": "ListItem", "position": 2, "name": "Noticias", "item": "https://mundial-fifa-2026.netlify.app/noticias" }
+          ]
+        }}
       />
 
       <div className="min-h-screen bg-surface-canvas pt-12 pb-24 px-4 md:px-8">

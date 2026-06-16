@@ -33,9 +33,17 @@ export default function Teams() {
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <SEO
-        title="Selecciones"
-        description="Todas las selecciones clasificadas y su información oficial del Mundial 2026."
-        keywords="selecciones, equipos mundial, fifa 2026, planteles, estadisticas"
+        title="Selecciones Participantes"
+        description="Las 48 selecciones clasificadas al Mundial FIFA 2026 distribuidas en 12 grupos. Planteles, escudos, entrenadores y estadísticas de cada equipo del World Cup 2026."
+        keywords="selecciones mundial 2026, equipos world cup 2026, planteles fifa 2026, argentina mundial, brasil mundial, españa mundial"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://mundial-fifa-2026.netlify.app/" },
+            { "@type": "ListItem", "position": 2, "name": "Selecciones", "item": "https://mundial-fifa-2026.netlify.app/selecciones" }
+          ]
+        }}
       />
 
       <section className="pt-20 pb-16 px-4 md:px-8">

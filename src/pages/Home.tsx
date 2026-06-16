@@ -65,9 +65,52 @@ export default function Home() {
   return (
     <main className="relative min-h-screen pb-20 md:pb-0">
       <SEO
-        title="Inicio"
-        description="El portal oficial del Mundial FIFA 2026. Seguí a tus selecciones favoritas y viví la pasión del fútbol."
-        keywords="mundial, fifa 2026, copa del mundo, world cup results, sedes 2026"
+        title="El portal del Mundial"
+        description="Portal oficial del Mundial FIFA 2026. Fixture, resultados en vivo, grupos, sedes en EE.UU., México y Canadá, plantel de las 48 selecciones y análisis con IA. Todo sobre el World Cup 2026."
+        keywords="mundial 2026, copa del mundo 2026, fixture mundial, resultados mundial, sedes mundial 2026, world cup 2026"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "Copa Mundial FIFA 2026",
+            "url": "https://mundial-fifa-2026.netlify.app/",
+            "inLanguage": "es",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "https://mundial-fifa-2026.netlify.app/selecciones?q={search_term_string}"
+              },
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "¿Dónde se juega el Mundial 2026?",
+                "acceptedAnswer": { "@type": "Answer", "text": "La Copa Mundial FIFA 2026 se juega en 16 estadios de tres países: Estados Unidos (11 sedes), México (3 sedes) y Canadá (2 sedes)." }
+              },
+              {
+                "@type": "Question",
+                "name": "¿Cuántos equipos participan en el Mundial 2026?",
+                "acceptedAnswer": { "@type": "Answer", "text": "El Mundial FIFA 2026 contará con 48 selecciones nacionales, la mayor cantidad en la historia de la Copa del Mundo, distribuidas en 12 grupos de 4 equipos cada uno." }
+              },
+              {
+                "@type": "Question",
+                "name": "¿Cuándo es el partido inaugural del Mundial 2026?",
+                "acceptedAnswer": { "@type": "Answer", "text": "El partido inaugural del Mundial FIFA 2026 se disputará el 11 de junio de 2026 en el Estadio Azteca de Ciudad de México, México." }
+              },
+              {
+                "@type": "Question",
+                "name": "¿Qué selecciones están en el Mundial 2026?",
+                "acceptedAnswer": { "@type": "Answer", "text": "Las 48 selecciones del Mundial 2026 incluyen a Argentina (campeón defensor), Brasil, Francia, España, Alemania, Portugal, México, Estados Unidos, Canadá, Marruecos, Japón, Corea del Sur, entre otras de los seis continentes." }
+              }
+            ]
+          }
+        ]}
       />
 
       <HeroSection />

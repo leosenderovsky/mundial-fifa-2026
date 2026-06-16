@@ -100,12 +100,32 @@ export default function TeamDetail() {
     );
   }
 
+  const teamJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SportsTeam",
+    "name": team.name,
+    "sport": "Soccer",
+    "memberOf": {
+      "@type": "SportsEvent",
+      "name": "Copa Mundial de la FIFA 2026"
+    },
+    ...(team.crest ? { "logo": team.crest } : {}),
+    ...(mergedSquad.length > 0 ? {
+      "athlete": mergedSquad.slice(0, 10).map((p) => ({
+        "@type": "Person",
+        "name": p.name,
+        ...(p.position ? { "jobTitle": p.position } : {})
+      }))
+    } : {})
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <SEO
-        title={`${team.name} | Selecciones`}
-        description={`Información oficial, plantel y datos de ${team.name} en el Mundial 2026.`}
-        keywords={`${team.name}, selección, mundial 2026, fifa`}
+        title={`${team.name} — Plantel y Estadísticas`}
+        description={`Plantel completo de ${team.name} en el Mundial FIFA 2026. Jugadores, entrenador${team.coach?.name ? ` ${team.coach.name}` : ''}, y estadísticas del equipo en el World Cup 2026.`}
+        keywords={`${team.name.toLowerCase()} mundial 2026, plantel ${team.name.toLowerCase()}, seleccion ${team.shortName?.toLowerCase() ?? ''}, world cup 2026`}
+        jsonLd={teamJsonLd}
       />
       <section className="relative pt-20 pb-32 overflow-hidden">
         <div className="container mx-auto px-4 md:px-8 relative z-10">

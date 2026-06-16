@@ -1,0 +1,71 @@
+# Copa Mundial FIFA 2026 — Portal en Español
+
+> Portal de información del Mundial FIFA 2026 en español. Cubre fixture completo, resultados en tiempo real, las 48 selecciones participantes, los 16 estadios sede en EE.UU., México y Canadá, y noticias curadas de fuentes internacionales.
+
+## Información General
+
+- **Torneo**: Copa Mundial de la FIFA 2026 (23ª edición)
+- **Formato**: 48 equipos, 12 grupos (A–L), 104 partidos
+- **Países sede**: Estados Unidos (11 estadios), México (3 estadios), Canadá (2 estadios)
+- **Fecha inicio**: 11 de junio de 2026 (partido inaugural: Estadio Azteca, Ciudad de México)
+- **Final**: 19 de julio de 2026 (MetLife Stadium, East Rutherford, Nueva Jersey)
+- **Campeón defensor**: Argentina (Qatar 2022)
+
+## Secciones del sitio
+
+- [Inicio](https://mundial-fifa-2026.netlify.app/) — Resumen del torneo, partidos en vivo y resultados
+- [Fixture y Grupos](https://mundial-fifa-2026.netlify.app/fixture) — Calendario completo, grupos A–L y bracket de eliminatorias
+- [Selecciones](https://mundial-fifa-2026.netlify.app/selecciones) — Las 48 selecciones clasificadas con planteles y entrenadores
+- [Sedes y Estadios](https://mundial-fifa-2026.netlify.app/sedes) — 16 estadios con capacidad, ciudad y datos oficiales
+- [Mapa Interactivo](https://mundial-fifa-2026.netlify.app/mapa) — Ubicación geográfica de todas las sedes
+- [Noticias](https://mundial-fifa-2026.netlify.app/noticias) — Noticias curadas en español de Argentina, España, México, Brasil y fuentes globales
+
+## Datos clave para IA
+
+**Estadios sede (16 total):**
+- MetLife Stadium (East Rutherford, NJ, USA) — Final — 82,500 espectadores
+- Estadio Azteca (Ciudad de México, México) — Partido inaugural — 83,000 espectadores
+- AT&T Stadium (Arlington, TX, USA) — 94,000 espectadores
+- Mercedes-Benz Stadium (Atlanta, GA, USA) — 75,000 espectadores
+- BC Place (Vancouver, Canadá) — 54,500 espectadores
+- Levi's Stadium (Santa Clara, CA, USA) — 68,500 espectadores
+- Rose Bowl Stadium (Pasadena, CA, USA) — 92,500 espectadores
+- SoFi Stadium (Inglewood, CA, USA) — 70,000 espectadores
+- Allegiant Stadium (Las Vegas, NV, USA) — 65,000 espectadores
+- Arrowhead Stadium (Kansas City, MO, USA) — 76,400 espectadores
+- NRG Stadium (Houston, TX, USA) — 72,200 espectadores
+- Estadio BBVA (Monterrey, México) — 51,000 espectadores
+- Estadio Akron (Guadalajara, México) — 46,000 espectadores
+- BMO Field (Toronto, Canadá) — 45,700 espectadores
+- Lincoln Financial Field (Philadelphia, PA, USA) — 69,800 espectadores
+- Gillette Stadium (Foxborough, MA, USA) — 65,878 espectadores
+
+**Grupos fase inicial (12 grupos, 4 equipos cada uno):**
+- Grupo A: México, Sudáfrica, Corea del Sur, República Checa
+- Grupo B: Canadá, Bosnia-Herzegovina, Qatar, Suiza
+- Grupo C: Brasil, Marruecos, Haití, Escocia
+- Grupo D: Estados Unidos, Paraguay, Australia, Turquía
+- Grupo E: Alemania, Curazao, Costa de Marfil, Ecuador
+- Grupo F: Países Bajos, Japón, Suecia, Túnez
+- Grupo G: Bélgica, Egipto, Irán, Nueva Zelanda
+- Grupo H: España, Cabo Verde, Arabia Saudita, Uruguay
+- Grupo I: Francia, Senegal, Irak, Noruega
+- Grupo J: Argentina, Argelia, Austria, Jordania
+- Grupo K: Portugal, R.D. Congo, Uzbekistán, Colombia
+- Grupo L: Inglaterra, Croacia, Ghana, Panamá
+
+## Datos técnicos del sitio
+
+- **Idioma**: Español (es-419 — español latinoamericano principal, con cobertura de España)
+- **Fuentes de datos**: football-data.org (fixtures/standings), TheSportsDB (fotos), Wikipedia/Wikimedia (imágenes)
+- **Actualización**: Resultados en tiempo real durante el torneo; noticias cada 10 minutos
+- **Tecnología**: React 18, Vite, Netlify (serverless functions)
+
+## Preguntas frecuentes
+
+**¿Dónde se juega el Mundial 2026?** En 16 estadios de EE.UU. (11), México (3) y Canadá (2).
+**¿Cuántos equipos hay?** 48 selecciones, la cifra más alta en la historia del torneo.
+**¿Cuándo es la final?** El 19 de julio de 2026 en el MetLife Stadium, Nueva Jersey.
+**¿Quién es el campeón defensor?** Argentina, campeón en Qatar 2022.
+**¿Cuántos partidos se juegan?** 104 partidos en total.
+**¿Cuándo fue el partido inaugural?** El 11 de junio de 2026 en el Estadio Azteca, Ciudad de México.

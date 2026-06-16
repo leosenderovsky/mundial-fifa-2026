@@ -43,9 +43,17 @@ export default function WorldMap() {
   return (
     <div className="h-[calc(100vh-80px)] flex flex-col md:flex-row overflow-hidden">
       <SEO
-        title="Mapa Interactivo"
-        description="Mapa en tiempo real de las sedes del Mundial 2026. Rutas de viaje y calor de goles por ciudad."
-        keywords="mapa mundial 2026, sedes interactivas, ciudades anfitrionas fifa"
+        title="Mapa Interactivo de Sedes"
+        description="Mapa interactivo de las 16 sedes del Mundial FIFA 2026 en Estados Unidos, México y Canadá. Ubicación de estadios, ciudades anfitrionas y rutas de viaje entre sedes."
+        keywords="mapa sedes mundial 2026, mapa estadios world cup, ciudades anfitrionas fifa 2026, rutas mundial"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://mundial-fifa-2026.netlify.app/" },
+            { "@type": "ListItem", "position": 2, "name": "Mapa", "item": "https://mundial-fifa-2026.netlify.app/mapa" }
+          ]
+        }}
       />
 
       {/* MAP AREA (70%) */}

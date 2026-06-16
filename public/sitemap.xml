@@ -1,15 +1,106 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Páginas principales -->
   <url>
     <loc>https://mundial-fifa-2026.netlify.app/</loc>
+    <changefreq>hourly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://mundial-fifa-2026.netlify.app/fixture</loc>
-    <priority>0.8</priority>
+    <changefreq>hourly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://mundial-fifa-2026.netlify.app/selecciones</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
   </url>
   <url>
     <loc>https://mundial-fifa-2026.netlify.app/sedes</loc>
-    <priority>0.7</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
   </url>
+  <url>
+    <loc>https://mundial-fifa-2026.netlify.app/noticias</loc>
+    <changefreq>hourly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://mundial-fifa-2026.netlify.app/mapa</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.70</priority>
+  </url>
+
+  <!-- Grupo A -->
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026000-mexico</loc><changefreq>daily</changefreq><priority>0.82</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026001-sudafrica</loc><changefreq>daily</changefreq><priority>0.75</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026002-corea-del-sur</loc><changefreq>daily</changefreq><priority>0.77</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026003-republica-checa</loc><changefreq>daily</changefreq><priority>0.75</priority></url>
+
+  <!-- Grupo B -->
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026010-canada</loc><changefreq>daily</changefreq><priority>0.82</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026011-bosnia-herzegovina</loc><changefreq>daily</changefreq><priority>0.74</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026012-qatar</loc><changefreq>daily</changefreq><priority>0.75</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026013-suiza</loc><changefreq>daily</changefreq><priority>0.76</priority></url>
+
+  <!-- Grupo C -->
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026020-brasil</loc><changefreq>daily</changefreq><priority>0.88</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026021-marruecos</loc><changefreq>daily</changefreq><priority>0.77</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026022-haiti</loc><changefreq>daily</changefreq><priority>0.72</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026023-escocia</loc><changefreq>daily</changefreq><priority>0.74</priority></url>
+
+  <!-- Grupo D -->
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026030-estados-unidos</loc><changefreq>daily</changefreq><priority>0.86</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026031-paraguay</loc><changefreq>daily</changefreq><priority>0.76</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026032-australia</loc><changefreq>daily</changefreq><priority>0.75</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026033-turquia</loc><changefreq>daily</changefreq><priority>0.75</priority></url>
+
+  <!-- Grupo E -->
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026040-alemania</loc><changefreq>daily</changefreq><priority>0.87</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026041-curazao</loc><changefreq>daily</changefreq><priority>0.70</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026042-costa-de-marfil</loc><changefreq>daily</changefreq><priority>0.74</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026043-ecuador</loc><changefreq>daily</changefreq><priority>0.76</priority></url>
+
+  <!-- Grupo F -->
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026050-paises-bajos</loc><changefreq>daily</changefreq><priority>0.84</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026051-japon</loc><changefreq>daily</changefreq><priority>0.80</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026052-suecia</loc><changefreq>daily</changefreq><priority>0.75</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026053-tunez</loc><changefreq>daily</changefreq><priority>0.73</priority></url>
+
+  <!-- Grupo G -->
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026060-belgica</loc><changefreq>daily</changefreq><priority>0.83</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026061-egipto</loc><changefreq>daily</changefreq><priority>0.74</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026062-iran</loc><changefreq>daily</changefreq><priority>0.74</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026063-nueva-zelanda</loc><changefreq>daily</changefreq><priority>0.72</priority></url>
+
+  <!-- Grupo H -->
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026070-espana</loc><changefreq>daily</changefreq><priority>0.87</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026071-cabo-verde</loc><changefreq>daily</changefreq><priority>0.70</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026072-arabia-saudita</loc><changefreq>daily</changefreq><priority>0.74</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026073-uruguay</loc><changefreq>daily</changefreq><priority>0.80</priority></url>
+
+  <!-- Grupo I -->
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026080-francia</loc><changefreq>daily</changefreq><priority>0.87</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026081-senegal</loc><changefreq>daily</changefreq><priority>0.75</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026082-irak</loc><changefreq>daily</changefreq><priority>0.72</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026083-noruega</loc><changefreq>daily</changefreq><priority>0.75</priority></url>
+
+  <!-- Grupo J -->
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026090-argentina</loc><changefreq>daily</changefreq><priority>0.90</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026091-argelia</loc><changefreq>daily</changefreq><priority>0.74</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026092-austria</loc><changefreq>daily</changefreq><priority>0.75</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026093-jordania</loc><changefreq>daily</changefreq><priority>0.72</priority></url>
+
+  <!-- Grupo K -->
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026100-portugal</loc><changefreq>daily</changefreq><priority>0.87</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026101-r-d-congo</loc><changefreq>daily</changefreq><priority>0.72</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026102-uzbekistan</loc><changefreq>daily</changefreq><priority>0.72</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026103-colombia</loc><changefreq>daily</changefreq><priority>0.80</priority></url>
+
+  <!-- Grupo L -->
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026110-inglaterra</loc><changefreq>daily</changefreq><priority>0.87</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026111-croacia</loc><changefreq>daily</changefreq><priority>0.78</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026112-ghana</loc><changefreq>daily</changefreq><priority>0.74</priority></url>
+  <url><loc>https://mundial-fifa-2026.netlify.app/selecciones/2026113-panama</loc><changefreq>daily</changefreq><priority>0.74</priority></url>
 </urlset>

@@ -85,6 +85,7 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    X-Robots-Tag = "index, follow"
 
 # ─── Cache de assets estáticos ───────────────────────────────────────────────
 [[headers]]
