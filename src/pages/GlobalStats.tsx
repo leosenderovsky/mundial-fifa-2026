@@ -84,6 +84,48 @@ export default function GlobalStats() {
         title="Estadísticas Globales"
         description="Goleadores, asistidores, mejores equipos y resumen del torneo del Mundial FIFA 2026."
         keywords="estadisticas mundial, goleadores mundial 2026, tabla goleadores fifa"
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Inicio",
+                "item": "https://mundial-fifa-2026.netlify.app/",
+              },
+              {
+                "@type": "ListItem",
+                "position": 2,
+                "name": "Estadísticas Globales",
+                "item": "https://mundial-fifa-2026.netlify.app/stats",
+              },
+            ],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "¿Quién es el goleador del Mundial 2026?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "El goleador del Mundial FIFA 2026 se actualiza en tiempo real en esta página con los datos oficiales del torneo.",
+                },
+              },
+              {
+                "@type": "Question",
+                "name": "¿Cuántos goles se marcaron en el Mundial 2026?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "El total de goles del Mundial FIFA 2026 se actualiza partido a partido. El promedio histórico de los Mundiales modernos es de aproximadamente 2.6 goles por partido.",
+                },
+              },
+            ],
+          },
+        ]}
       />
       <div className="container mx-auto space-y-8">
         <header className="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
