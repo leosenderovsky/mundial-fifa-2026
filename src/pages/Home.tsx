@@ -115,7 +115,7 @@ export default function Home() {
 
       <HeroSection />
 
-      <div className="container mx-auto px-4 -mt-24 relative z-10 space-y-20 pb-20">
+      <div id="main-content" className="container mx-auto px-4 -mt-24 relative z-10 space-y-20 pb-20">
         <div className="w-full flex justify-center">
           <AdBanner slot="1111111111" format="horizontal" className="w-full max-w-4xl" />
         </div>

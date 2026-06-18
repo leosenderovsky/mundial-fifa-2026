@@ -69,8 +69,21 @@ export const PLAYED_MATCHES: Partial<Match>[] = [
     awayTeam: mkTeam('Scotland', 'SCO', 'gb-sct'),
     score: mkScore(0, 1),
   },
-  // GRUPO D — agregar resultados cuando se confirmen
-  // { id: 9007, ... }
+  // GRUPO D — Jornada 1
+  {
+    id: 9007, utcDate: '2026-06-12T23:00:00Z', status: 'FINISHED',
+    matchday: 1, stage: 'GROUP_STAGE', group: 'GROUP_D', lastUpdated: '',
+    homeTeam: mkTeam('United States', 'USA', 'us'),
+    awayTeam: mkTeam('Paraguay', 'PAR', 'py'),
+    score: mkScore(4, 1),
+  },
+  {
+    id: 9008, utcDate: '2026-06-13T00:00:00Z', status: 'FINISHED',
+    matchday: 1, stage: 'GROUP_STAGE', group: 'GROUP_D', lastUpdated: '',
+    homeTeam: mkTeam('Australia', 'AUS', 'au'),
+    awayTeam: mkTeam('Turkey', 'TUR', 'tr'),
+    score: mkScore(2, 0),
+  },
 ];
 
 // Goleadores estáticos — ACTUALIZAR por jornada
@@ -84,9 +97,9 @@ export interface StaticScorer {
 }
 
 export const STATIC_TOP_SCORERS: StaticScorer[] = [
-  { playerName: 'Folarin Balogun',  teamName: 'United States',   teamShortName: 'USA',  teamFlag: 'us', goals: 2, assists: 0 },
-  { playerName: 'Kai Havertz',      teamName: 'Germany',          teamShortName: 'GER',  teamFlag: 'de', goals: 2, assists: 0 },
-  { playerName: 'Yasin Ayari',      teamName: 'Sweden',           teamShortName: 'SWE',  teamFlag: 'se', goals: 2, assists: 0 },
-  { playerName: 'Elijah Just',      teamName: 'New Zealand',      teamShortName: 'NZL',  teamFlag: 'nz', goals: 2, assists: 0 },
-  { playerName: 'Julián Quiñones',  teamName: 'Mexico',           teamShortName: 'MEX',  teamFlag: 'mx', goals: 1, assists: 0 },
+  { playerName: 'Lionel Messi',    teamName: 'Argentina',      teamShortName: 'ARG',  teamFlag: 'ar', goals: 3, assists: 1 },
+  { playerName: 'Folarin Balogun', teamName: 'United States',  teamShortName: 'USA',  teamFlag: 'us', goals: 2, assists: 0 },
+  { playerName: 'Kai Havertz',     teamName: 'Germany',         teamShortName: 'GER',  teamFlag: 'de', goals: 2, assists: 0 },
+  { playerName: 'Yasin Ayari',     teamName: 'Sweden',          teamShortName: 'SWE',  teamFlag: 'se', goals: 2, assists: 0 },
+  { playerName: 'Julián Quiñones', teamName: 'Mexico',          teamShortName: 'MEX',  teamFlag: 'mx', goals: 1, assists: 0 },
 ];

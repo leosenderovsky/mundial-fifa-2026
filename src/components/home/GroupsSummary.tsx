@@ -64,8 +64,9 @@ export const GroupsSummary = () => {
         const apiGroup = standings.find((s) => s.group === key);
         const staticGroup = STATIC_GROUPS.find((sg) => sg.key === key);
 
-        // Priorizar datos reales; fallback a estáticos
-        const hasRealData = (apiGroup?.table?.length ?? 0) > 0;
+        // Solo usar datos de la API si algún equipo tiene partidos jugados.
+        // Evita mostrar el estado inicial vacío cuando la API retorna tabla sin PJ.
+        const hasRealData = (apiGroup?.table ?? []).some((e) => e.playedGames > 0);
         const computed = calcGroupStandings(key, (staticGroup?.teams as any) ?? []);
         const hasPlayedMatches = computed.some((e) => e.played > 0);
 

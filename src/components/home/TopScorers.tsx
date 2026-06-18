@@ -3,6 +3,7 @@ import { useApiData } from '../../hooks/useApiData';
 import { api } from '../../lib/api';
 import { SkeletonLoader } from '../shared/SkeletonLoader';
 import { STATIC_TOP_SCORERS, type StaticScorer } from '../../data/worldCupResults';
+import { getFlagCode } from '../../lib/flags';
 
 interface Scorer {
   player: { name: string; nationality: string };
@@ -49,7 +50,13 @@ export const TopScorers = () => {
           const staticEntry = STATIC_TOP_SCORERS.find(
             (st) => st.playerName === s.player.name
           );
-          const flagCode = staticEntry?.teamFlag;
+          // Primero usa la lista estática (tiene los flag codes ya mapeados).
+          // Si no está en la lista (ej. goleador nuevo detectado por la API),
+          // intenta derivar el código usando el shortName del equipo como tla.
+          const flagCode =
+            staticEntry?.teamFlag ??
+            getFlagCode({ tla: s.team.shortName ?? '' } as any) ??
+            undefined;
           const rank = i + 1;
 
           return (

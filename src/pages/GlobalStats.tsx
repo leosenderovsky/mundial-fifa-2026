@@ -187,14 +187,14 @@ export default function GlobalStats() {
             />
           </div>
 
-          {/* Máximos Asistidores */}
-          <div className="stadium-card p-8">
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="headline-md uppercase flex items-center gap-3">
-                <HandCoins className="text-fifa-gold" size={20} /> Máximos Asistidores
-              </h3>
-            </div>
-            {topAssists.length > 0 ? (
+          {/* Máximos Asistidores — solo se renderiza si la API tiene datos */}
+          {topAssists.length > 0 && (
+            <div className="stadium-card p-8">
+              <div className="flex justify-between items-center mb-8">
+                <h3 className="headline-md uppercase flex items-center gap-3">
+                  <HandCoins className="text-fifa-gold" size={20} /> Máximos Asistidores
+                </h3>
+              </div>
               <StatsTable
                 rows={topAssists.map((s, i) => ({
                   rank: i + 1,
@@ -210,10 +210,8 @@ export default function GlobalStats() {
                   tertiaryLabel: 'PJ',
                 }))}
               />
-            ) : (
-              <EmptyPlaceholder text="Los asistidores aparecerán aquí una vez que la API publique esos datos." />
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Equipos más goleadores */}
           <div className="stadium-card p-8">
