@@ -2,6 +2,21 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
 export const HeroSection = () => {
+  const handleScrollToContent = () => {
+    const target = document.getElementById('main-content');
+
+    if (!target) return;
+
+    const headerOffset = 96;
+    const elementPosition = target.getBoundingClientRect().top + window.scrollY;
+    const offsetPosition = elementPosition - headerOffset;
+
+    window.scrollTo({
+      top: offsetPosition,
+      behavior: 'smooth',
+    });
+  };
+
   return (
     <section className="relative h-[90vh] min-h-[700px] w-full overflow-hidden bg-gradient-to-br from-[#0033A0] to-[#00216E] flex items-center">
       {/* IMAGEN DE FONDO RESPONSIVE Y CENTRADA */}
@@ -74,7 +89,15 @@ export const HeroSection = () => {
             </Link>
           </div>
         </motion.div>
-      </div>      
+      </div> 
+      <button
+        type="button"
+        aria-label="Deslizar hacia el contenido"
+        onClick={handleScrollToContent}
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/30 text-[10px] font-bold uppercase tracking-[0.5em] animate-bounce cursor-pointer hover:text-white/60 transition-colors bg-transparent border-0 p-0"
+      >
+        Deslizar
+      </button>
     </section>
   );
 };
