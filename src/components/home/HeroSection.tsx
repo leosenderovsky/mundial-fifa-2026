@@ -74,18 +74,7 @@ export const HeroSection = () => {
             </Link>
           </div>
         </motion.div>
-      </div>
-
-      <button
-        type="button"
-        aria-label="Deslizar hacia el contenido"
-        onClick={() =>
-          document.getElementById('main-content')?.scrollIntoView({ behavior: 'smooth' })
-        }
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/30 text-[10px] font-bold uppercase tracking-[0.5em] animate-bounce cursor-pointer hover:text-white/60 transition-colors bg-transparent border-0 p-0"
-      >
-        Deslizar
-      </button>
+      </div>      
     </section>
   );
 };
