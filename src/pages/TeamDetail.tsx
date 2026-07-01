@@ -7,7 +7,7 @@ import { api } from '../lib/api';
 import { SkeletonLoader } from '../components/shared/SkeletonLoader';
 import { cn } from '../lib/utils';
 import { getFlagCode } from '../lib/flags';
-import type { Player, Team } from '../types/api';
+import type { Player, Team, Scorer } from '../types/api';
 import { SEO } from '../components/shared/SEO';
 import { AdBanner } from '../components/shared/AdBanner';
 import { proxiedImage } from '../lib/imageProxy';
@@ -86,6 +86,16 @@ export default function TeamDetail() {
   );
   const teamMatches = (matchesData?.matches ?? []).filter(
     (match: any) => match.homeTeam?.id === parsedId || match.awayTeam?.id === parsedId
+  );
+
+  // Goleadores del torneo filtrados por este equipo
+  const { data: scorersData } = useApiData<{ scorers: Scorer[] }>(
+    ['scorers'],
+    () => api.getTopScorers(100),
+    { staleTime: 1000 * 60 * 10 }
+  );
+  const teamScorers = (scorersData?.scorers ?? []).filter(
+    (s) => s.team?.id === parsedId
   );
 
   if (isLoading) return <SkeletonLoader variant="player" />;
@@ -270,9 +280,12 @@ export default function TeamDetail() {
           )}
 
           {activeTab === 'ESTADÍSTICAS' && (
-            <div className="stadium-card p-8 text-sm text-white/60">
-              Las estadísticas oficiales estarán disponibles cuando comience el torneo.
-            </div>
+            <TeamStatsTab
+              teamId={parsedId}
+              teamName={team.name}
+              teamMatches={teamMatches}
+              teamScorers={teamScorers}
+            />
           )}
 
           {activeTab === 'ACERCA DE' && (
@@ -314,6 +327,193 @@ export default function TeamDetail() {
           )}
         </div>
       </section>
+    </div>
+  );
+}
+
+// ── TeamStatsTab ──────────────────────────────────────────────────────────────
+function TeamStatsTab({
+  teamId,
+  teamName,
+  teamMatches,
+  teamScorers,
+}: {
+  teamId: number;
+  teamName: string;
+  teamMatches: any[];
+  teamScorers: Scorer[];
+}) {
+  const { data: standingsData } = useApiData<{ standings: any[] }>(
+    ['standings'],
+    () => api.getStandings(),
+    { staleTime: 5 * 60_000 }
+  );
+
+  // Buscar entry en la tabla de posiciones
+  let teamEntry: any = null;
+  for (const group of standingsData?.standings ?? []) {
+    const found = group.table?.find((e: any) => e.team?.id === teamId);
+    if (found) { teamEntry = found; break; }
+  }
+
+  // Estadísticas de partidos calculadas localmente
+  const finished = teamMatches.filter((m: any) => m.status === 'FINISHED');
+  const won  = finished.filter((m: any) => {
+    const home = m.homeTeam?.id === teamId;
+    const winner = m.score?.winner;
+    return (home && winner === 'HOME_TEAM') || (!home && winner === 'AWAY_TEAM');
+  }).length;
+  const drawn = finished.filter((m: any) => m.score?.winner === 'DRAW').length;
+  const lost  = finished.length - won - drawn;
+  const goalsFor     = teamEntry?.goalsFor     ?? finished.reduce((sum: number, m: any) => {
+    const home = m.homeTeam?.id === teamId;
+    return sum + ((home ? m.score?.fullTime?.home : m.score?.fullTime?.away) ?? 0);
+  }, 0);
+  const goalsAgainst = teamEntry?.goalsAgainst ?? finished.reduce((sum: number, m: any) => {
+    const home = m.homeTeam?.id === teamId;
+    return sum + ((home ? m.score?.fullTime?.away : m.score?.fullTime?.home) ?? 0);
+  }, 0);
+  const points = teamEntry?.points ?? (won * 3 + drawn);
+  const played = teamEntry?.playedGames ?? finished.length;
+
+  const noData = played === 0 && teamScorers.length === 0;
+
+  if (noData) {
+    return (
+      <div className="stadium-card p-8 text-sm text-white/60">
+        Las estadísticas se actualizarán automáticamente a medida que {teamName} dispute sus partidos.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+
+      {/* ── Tabla de rendimiento ─────────────────────────────────── */}
+      {played > 0 && (
+        <div className="stadium-card p-6 bg-white/5 border border-white/10">
+          <h3 className="label-caps text-white mb-5">Rendimiento en el torneo</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-white/40 uppercase text-[10px] tracking-widest border-b border-white/10">
+                  <th className="text-left py-2 pr-4">PJ</th>
+                  <th className="text-left py-2 pr-4">G</th>
+                  <th className="text-left py-2 pr-4">E</th>
+                  <th className="text-left py-2 pr-4">P</th>
+                  <th className="text-left py-2 pr-4">GF</th>
+                  <th className="text-left py-2 pr-4">GC</th>
+                  <th className="text-left py-2 pr-4">DIF</th>
+                  <th className="text-left py-2">PTS</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="text-white font-mono font-bold text-base">
+                  <td className="py-3 pr-4">{played}</td>
+                  <td className="py-3 pr-4 text-green-400">{won}</td>
+                  <td className="py-3 pr-4 text-yellow-400">{drawn}</td>
+                  <td className="py-3 pr-4 text-red-400">{lost}</td>
+                  <td className="py-3 pr-4">{goalsFor}</td>
+                  <td className="py-3 pr-4">{goalsAgainst}</td>
+                  <td className={cn('py-3 pr-4', (goalsFor - goalsAgainst) >= 0 ? 'text-green-400' : 'text-red-400')}>
+                    {goalsFor - goalsAgainst > 0 ? '+' : ''}{goalsFor - goalsAgainst}
+                  </td>
+                  <td className="py-3 text-fifa-gold font-black text-xl">{points}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* ── Goleadores del equipo ────────────────────────────────── */}
+      {teamScorers.length > 0 && (
+        <div className="stadium-card p-6 bg-white/5 border border-white/10">
+          <h3 className="label-caps text-white mb-5">Goleadores</h3>
+          <div className="space-y-3">
+            {teamScorers
+              .sort((a, b) => (b.goals ?? 0) - (a.goals ?? 0))
+              .map((scorer, idx) => (
+                <div key={scorer.player.id} className="flex items-center gap-4">
+                  <span className="w-6 text-right text-xs font-mono text-white/30">{idx + 1}</span>
+                  {scorer.player.photo ? (
+                    <img
+                      src={scorer.player.photo}
+                      alt={scorer.player.name}
+                      className="w-8 h-8 rounded-full object-cover bg-white/10"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white/40">
+                      {scorer.player.name.charAt(0)}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-sm text-white truncate">{scorer.player.name}</p>
+                    <p className="text-[10px] text-white/40 uppercase tracking-widest">
+                      {scorer.player.position ?? 'Jugador'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-4 text-right shrink-0">
+                    <div>
+                      <p className="text-xl font-black font-mono text-fifa-gold leading-none">{scorer.goals ?? 0}</p>
+                      <p className="text-[9px] text-white/30 uppercase">goles</p>
+                    </div>
+                    {scorer.assists != null && (
+                      <div>
+                        <p className="text-base font-bold font-mono text-white/60 leading-none">{scorer.assists}</p>
+                        <p className="text-[9px] text-white/30 uppercase">asist.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── Resultados partido a partido ─────────────────────────── */}
+      {finished.length > 0 && (
+        <div className="stadium-card p-6 bg-white/5 border border-white/10">
+          <h3 className="label-caps text-white mb-5">Partidos disputados</h3>
+          <div className="space-y-3">
+            {finished
+              .sort((a: any, b: any) => b.utcDate.localeCompare(a.utcDate))
+              .map((match: any) => {
+                const isHome = match.homeTeam?.id === teamId;
+                const opponent = isHome ? match.awayTeam : match.homeTeam;
+                const myGoals  = isHome ? match.score?.fullTime?.home : match.score?.fullTime?.away;
+                const oppGoals = isHome ? match.score?.fullTime?.away : match.score?.fullTime?.home;
+                const winner   = match.score?.winner;
+                const result   =
+                  winner === 'DRAW' ? 'E' :
+                  (isHome && winner === 'HOME_TEAM') || (!isHome && winner === 'AWAY_TEAM') ? 'G' : 'P';
+
+                return (
+                  <div key={match.id} className="flex items-center gap-4 p-3 bg-white/5 rounded-xl">
+                    <span className={cn(
+                      'w-6 h-6 rounded-full text-[10px] font-black flex items-center justify-center shrink-0',
+                      result === 'G' ? 'bg-green-500/20 text-green-400' :
+                      result === 'E' ? 'bg-yellow-500/20 text-yellow-400' :
+                                       'bg-red-500/20 text-red-400'
+                    )}>
+                      {result}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-white truncate">{opponent?.name ?? '—'}</p>
+                      <p className="text-[10px] text-white/40">
+                        {isHome ? 'Local' : 'Visitante'} · {match.group ?? match.stage}
+                      </p>
+                    </div>
+                    <span className="font-mono font-bold text-sm text-white shrink-0">
+                      {myGoals ?? '-'} — {oppGoals ?? '-'}
+                    </span>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

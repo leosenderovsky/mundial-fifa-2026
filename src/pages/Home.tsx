@@ -4,6 +4,7 @@ import { HeroSection } from '../components/home/HeroSection';
 import { LiveMatchSection } from '../components/home/LiveMatchSection';
 import { ResultsStrip } from '../components/home/ResultsStrip';
 import { GroupsSummary } from '../components/home/GroupsSummary';
+import { HomeKnockoutSection } from '../components/home/HomeKnockoutSection';
 import { VenuesPreview } from '../components/home/VenuesPreview';
 import { TopScorers } from '../components/home/TopScorers';
 import { TournamentGuideSection } from '../components/home/TournamentGuideSection';
@@ -141,6 +142,11 @@ export default function Home() {
                 <ResultsStrip />
               </section>
             )}
+
+            {/* ── Fase Eliminatoria en curso ─────────────────────────────────── */}
+            <ErrorBoundary>
+              <HomeKnockoutSection />
+            </ErrorBoundary>
 
             <section>
               <h2 className="headline-lg text-fifa-blue dark:text-white uppercase mb-8">Grupos en Resumen</h2>

@@ -204,21 +204,50 @@ const tbdTeam = (label: string, id: number): Team => ({
 });
 
 function generateKnockoutMatches(): Match[] {
-  const slots = [
-  { stage: 'LAST_32', date: '2026-06-28T17:00:00Z', home: '1º Grupo A', away: '3º Grupo B/C/D' },
-  { stage: 'LAST_32', date: '2026-06-29T20:00:00Z', home: '1º Grupo B', away: '3º Grupo A/C/D' },
-  { stage: 'LAST_32', date: '2026-06-30T17:00:00Z', home: '1º Grupo C', away: '3º Grupo A/B/D' },
-  { stage: 'LAST_32', date: '2026-07-01T20:00:00Z', home: '1º Grupo D', away: '3º Grupo A/B/C' },
-  { stage: 'LAST_16', date: '2026-07-04T17:00:00Z', home: 'Ganador R32-1', away: 'Ganador R32-2' },
-  { stage: 'LAST_16', date: '2026-07-05T20:00:00Z', home: 'Ganador R32-3', away: 'Ganador R32-4' },
-  { stage: 'LAST_16', date: '2026-07-06T17:00:00Z', home: 'Ganador R32-5', away: 'Ganador R32-6' },
-  { stage: 'LAST_16', date: '2026-07-07T20:00:00Z', home: 'Ganador R32-7', away: 'Ganador R32-8' },
-  { stage: 'QUARTER_FINALS', date: '2026-07-09T20:00:00Z', home: 'Ganador R16-1', away: 'Ganador R16-2' },
-  { stage: 'QUARTER_FINALS', date: '2026-07-10T17:00:00Z', home: 'Ganador R16-3', away: 'Ganador R16-4' },
-  { stage: 'SEMI_FINALS', date: '2026-07-14T20:00:00Z', home: 'Ganador CF-1', away: 'Ganador CF-2' },
-  { stage: 'SEMI_FINALS', date: '2026-07-15T20:00:00Z', home: 'Ganador CF-3', away: 'Ganador CF-4' },
-  { stage: 'THIRD_PLACE', date: '2026-07-18T17:00:00Z', home: 'Perdedor SF-1', away: 'Perdedor SF-2' },
-  { stage: 'FINAL', date: '2026-07-19T20:00:00Z', home: 'Ganador SF-1', away: 'Ganador SF-2' },
+  const slots: Array<{ stage: string; date: string; home: string; away: string }> = [
+    // ── RONDA DE 32 (16 partidos, 28 Jun – 2 Jul 2026) ──────────────────
+    { stage: 'LAST_32', date: '2026-06-28T17:00:00Z', home: '1º Grupo A',  away: '3º B/C/D/I' },
+    { stage: 'LAST_32', date: '2026-06-28T20:00:00Z', home: '1º Grupo B',  away: '3º A/C/D/I' },
+    { stage: 'LAST_32', date: '2026-06-29T17:00:00Z', home: '1º Grupo C',  away: '3º A/B/D/I' },
+    { stage: 'LAST_32', date: '2026-06-29T20:00:00Z', home: '1º Grupo D',  away: '3º A/B/C/I' },
+    { stage: 'LAST_32', date: '2026-06-30T17:00:00Z', home: '1º Grupo E',  away: '3º F/G/H/J' },
+    { stage: 'LAST_32', date: '2026-06-30T20:00:00Z', home: '1º Grupo F',  away: '3º E/G/H/J' },
+    { stage: 'LAST_32', date: '2026-07-01T17:00:00Z', home: '1º Grupo G',  away: '3º E/F/H/J' },
+    { stage: 'LAST_32', date: '2026-07-01T20:00:00Z', home: '1º Grupo H',  away: '3º E/F/G/J' },
+    { stage: 'LAST_32', date: '2026-07-02T17:00:00Z', home: '1º Grupo I',  away: '2º Grupo L' },
+    { stage: 'LAST_32', date: '2026-07-02T20:00:00Z', home: '1º Grupo J',  away: '2º Grupo K' },
+    { stage: 'LAST_32', date: '2026-07-03T17:00:00Z', home: '1º Grupo K',  away: '2º Grupo J' },
+    { stage: 'LAST_32', date: '2026-07-03T20:00:00Z', home: '1º Grupo L',  away: '2º Grupo I' },
+    { stage: 'LAST_32', date: '2026-07-04T17:00:00Z', home: '2º Grupo A',  away: '2º Grupo B' },
+    { stage: 'LAST_32', date: '2026-07-04T20:00:00Z', home: '2º Grupo C',  away: '2º Grupo D' },
+    { stage: 'LAST_32', date: '2026-07-05T17:00:00Z', home: '2º Grupo E',  away: '2º Grupo F' },
+    { stage: 'LAST_32', date: '2026-07-05T20:00:00Z', home: '2º Grupo G',  away: '2º Grupo H' },
+
+    // ── OCTAVOS DE FINAL / LAST 16 (8 partidos, 7–10 Jul 2026) ──────────
+    { stage: 'LAST_16', date: '2026-07-07T17:00:00Z', home: 'Ganador R32-1',  away: 'Ganador R32-2' },
+    { stage: 'LAST_16', date: '2026-07-07T20:00:00Z', home: 'Ganador R32-3',  away: 'Ganador R32-4' },
+    { stage: 'LAST_16', date: '2026-07-08T17:00:00Z', home: 'Ganador R32-5',  away: 'Ganador R32-6' },
+    { stage: 'LAST_16', date: '2026-07-08T20:00:00Z', home: 'Ganador R32-7',  away: 'Ganador R32-8' },
+    { stage: 'LAST_16', date: '2026-07-09T17:00:00Z', home: 'Ganador R32-9',  away: 'Ganador R32-10' },
+    { stage: 'LAST_16', date: '2026-07-09T20:00:00Z', home: 'Ganador R32-11', away: 'Ganador R32-12' },
+    { stage: 'LAST_16', date: '2026-07-10T17:00:00Z', home: 'Ganador R32-13', away: 'Ganador R32-14' },
+    { stage: 'LAST_16', date: '2026-07-10T20:00:00Z', home: 'Ganador R32-15', away: 'Ganador R32-16' },
+
+    // ── CUARTOS DE FINAL (4 partidos, 12–13 Jul 2026) ───────────────────
+    { stage: 'QUARTER_FINALS', date: '2026-07-12T17:00:00Z', home: 'Ganador Oct-1', away: 'Ganador Oct-2' },
+    { stage: 'QUARTER_FINALS', date: '2026-07-12T20:00:00Z', home: 'Ganador Oct-3', away: 'Ganador Oct-4' },
+    { stage: 'QUARTER_FINALS', date: '2026-07-13T17:00:00Z', home: 'Ganador Oct-5', away: 'Ganador Oct-6' },
+    { stage: 'QUARTER_FINALS', date: '2026-07-13T20:00:00Z', home: 'Ganador Oct-7', away: 'Ganador Oct-8' },
+
+    // ── SEMIFINALES (2 partidos, 15–16 Jul 2026) ────────────────────────
+    { stage: 'SEMI_FINALS', date: '2026-07-15T20:00:00Z', home: 'Ganador CF-1', away: 'Ganador CF-2' },
+    { stage: 'SEMI_FINALS', date: '2026-07-16T20:00:00Z', home: 'Ganador CF-3', away: 'Ganador CF-4' },
+
+    // ── TERCER PUESTO (1 partido, 19 Jul 2026) ──────────────────────────
+    { stage: 'THIRD_PLACE', date: '2026-07-19T17:00:00Z', home: 'Perdedor SF-1', away: 'Perdedor SF-2' },
+
+    // ── FINAL (1 partido, 19 Jul 2026) ──────────────────────────────────
+    { stage: 'FINAL', date: '2026-07-19T21:00:00Z', home: 'Ganador SF-1', away: 'Ganador SF-2' },
   ];
 
   return slots.map((slot, index) => ({

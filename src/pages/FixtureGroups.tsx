@@ -33,8 +33,9 @@ export default function FixtureGroups() {
     ? apiMatches.filter((m) => m.stage === 'GROUP_STAGE')
     : (!matchesLoading ? STATIC_GROUP_MATCHES : []);
 
-  const knockoutMatches = hasApiMatches
-    ? apiMatches.filter((m) => m.stage !== 'GROUP_STAGE')
+  const apiKnockoutMatches = apiMatches.filter((m) => m.stage !== 'GROUP_STAGE');
+  const knockoutMatches = apiKnockoutMatches.length > 0
+    ? apiKnockoutMatches
     : (!matchesLoading ? STATIC_KNOCKOUT_MATCHES : []);
 
   const matches = hasApiMatches ? apiMatches : [...calendarMatches, ...knockoutMatches];
@@ -60,25 +61,12 @@ export default function FixtureGroups() {
 
   const isUsingStaticData = groups.every(g => g.entries.length === 0);
 
-  // Sólo mostrar la pestaña knockout si ya hay partidos de fase eliminatoria
-  const hasKnockoutData = knockoutMatches.some(
-    (m) => m.status === 'FINISHED' || m.status === 'IN_PLAY' || m.status === 'SCHEDULED' || m.status === 'TIMED'
-  );
-
+  // Mostrar SIEMPRE la pestaña knockout — si la API no tiene datos, se usa fallback estático
   const views = [
-    { id: 'groups', label: 'Por Grupos', icon: LayoutGrid },
-    { id: 'calendar', label: 'Calendario', icon: Calendar },
-    ...(hasKnockoutData
-      ? [{ id: 'knockout', label: 'Fase Eliminatoria', icon: GitMerge, highlight: true }]
-      : []),
+    { id: 'groups',   label: 'Por Grupos',        icon: LayoutGrid },
+    { id: 'calendar', label: 'Calendario',         icon: Calendar   },
+    { id: 'knockout', label: 'Fase Eliminatoria',  icon: GitMerge, highlight: true },
   ];
-
-  // Si la pestaña knockout desaparece pero estaba activa, volver a grupos
-  React.useEffect(() => {
-    if (activeView === 'knockout' && !hasKnockoutData) {
-      setActiveView('groups');
-    }
-  }, [hasKnockoutData, activeView]);
 
   return (
     <div className="min-h-screen bg-surface-canvas pt-12 pb-24 px-4 md:px-8">
@@ -232,7 +220,7 @@ export default function FixtureGroups() {
                   matches={knockoutMatches}
                   isLoading={matchesLoading}
                   errorMessage={matchesError && knockoutMatches.length === 0 ? String(matchesError) : null}
-                  isStaticData={isUsingStaticMatches}
+                  isStaticData={apiKnockoutMatches.length === 0 && !matchesLoading}
                 />
               </div>
             )}
