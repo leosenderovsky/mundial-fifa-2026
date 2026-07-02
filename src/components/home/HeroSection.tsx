@@ -32,8 +32,8 @@ export const HeroSection = () => {
       <div className="absolute inset-0 bg-noise pointer-events-none opacity-20" />
       
       {/* Elementos decorativos originales */}
-      <div className="absolute top-1/4 -right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px]" />
-      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-fifa-gold/10 rounded-full blur-[100px]" />
+      <div className="absolute top-1/4 -right-20 w-96 h-96 bg-blue-500/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-fifa-gold/10 rounded-full blur-[100px] pointer-events-none" />
 
       {/* CAPA OSCURA (OVERLAY) POTENCIADA PARA LEGIBILIDAD */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/40 to-black/30 pointer-events-none" />
@@ -94,7 +94,7 @@ export const HeroSection = () => {
         type="button"
         aria-label="Deslizar hacia el contenido"
         onClick={handleScrollToContent}
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/30 text-[10px] font-bold uppercase tracking-[0.5em] animate-bounce cursor-pointer hover:text-white/60 transition-colors bg-transparent border-0 p-0"
+        className="hidden md:block absolute bottom-10 left-1/2 -translate-x-1/2 z-20 text-white/30 text-[10px] font-bold uppercase tracking-[0.5em] animate-bounce cursor-pointer hover:text-white/60 transition-colors bg-transparent border-0 p-0"
       >
         Deslizar
       </button>

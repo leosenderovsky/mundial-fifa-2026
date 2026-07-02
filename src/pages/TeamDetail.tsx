@@ -1,22 +1,55 @@
 import { useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Trophy, TrendingUp, Zap } from 'lucide-react';
+import { Trophy, TrendingUp, Zap, User } from 'lucide-react';
 import { useApiData } from '../hooks/useApiData';
 import { api } from '../lib/api';
 import { SkeletonLoader } from '../components/shared/SkeletonLoader';
 import { cn } from '../lib/utils';
 import { getFlagCode } from '../lib/flags';
-import type { Player, Team, Scorer } from '../types/api';
+import type { Player, Team } from '../types/api';
 import { SEO } from '../components/shared/SEO';
+import { ErrorBoundary } from '../components/shared/ErrorBoundary';
+import { GeminiPlayerBio } from '../components/teams/GeminiPlayerBio';
 import { AdBanner } from '../components/shared/AdBanner';
 import { proxiedImage } from '../lib/imageProxy';
 import { COACHES } from '../data/coachData';
 import { normalizePosition } from '../lib/playerUtils';
-import { TacticalPitch } from '../components/teams/TacticalPitch';
-import { SquadPanel } from '../components/teams/SquadPanel';
+import { useSquadPhotos } from '../hooks/useSquadPhotos';
 
 type TabKey = 'PLANTEL' | 'PARTIDOS' | 'ESTADÍSTICAS' | 'ACERCA DE';
+
+const groupPlayersByPosition = (squad: Player[]) => {
+  const groups: Record<string, Player[]> = {
+    Arqueros: [],
+    Defensores: [],
+    Mediocampistas: [],
+    Delanteros: [],
+    Otros: [],
+  };
+
+  squad.forEach((player) => {
+    const pos = normalizePosition(player.position);
+    switch (pos) {
+      case 'Goalkeeper':
+        groups.Arqueros.push(player);
+        break;
+      case 'Defence':
+        groups.Defensores.push(player);
+        break;
+      case 'Midfield':
+        groups.Mediocampistas.push(player);
+        break;
+      case 'Offence':
+        groups.Delanteros.push(player);
+        break;
+      default:
+        groups.Otros.push(player);
+    }
+  });
+
+  return groups;
+};
 
 const formatDate = (value?: string) => {
   if (!value) return null;
@@ -29,7 +62,7 @@ export default function TeamDetail() {
   const rawId = teamSlug ?? teamId ?? '';
   const parsedId = Number(rawId.split('-')[0]);
   const [activeTab, setActiveTab] = useState<TabKey>('PLANTEL');
-  const [pitchFilter, setPitchFilter] = useState<string>('ALL');
+  const [openPlayerBio, setOpenPlayerBio] = useState<number | null>(null);
 
   const { data: team, isLoading, error } = useApiData<Team>(
     ['team', String(parsedId)],
@@ -39,27 +72,17 @@ export default function TeamDetail() {
   const squad = team?.squad ?? [];
   const needsFallback = Boolean(team && (!team.coach || squad.length === 0));
 
-  const teamSearchName = team?.name ?? '';
-  const teamSearchAlt = team?.shortName ?? team?.tla ?? '';
-
   const { data: fallbackTeamData } = useApiData<any>(
-    ['fallback-team', teamSearchName],
-    async () => {
-      // Intento 1: nombre completo
-      const r1 = await api.getFallbackTeamByName(teamSearchName);
-      if (r1?.teams?.length) return r1;
-      // Intento 2: nombre corto / TLA
-      if (teamSearchAlt) return api.getFallbackTeamByName(teamSearchAlt);
-      return r1;
-    },
-    { enabled: Boolean(team?.name), staleTime: 1000 * 60 * 60 * 24 }
+    ['fallback-team', team?.name ?? ''],
+    () => api.getFallbackTeamByName(team?.name ?? ''),
+    { enabled: needsFallback && Boolean(team?.name) }
   );
   const fallbackTeam = fallbackTeamData?.teams?.[0] ?? null;
 
   const { data: fallbackPlayersData } = useApiData<any>(
     ['fallback-players', String(fallbackTeam?.idTeam)],
     () => api.getFallbackPlayersByTeamId(fallbackTeam?.idTeam ?? ''),
-    { enabled: Boolean(fallbackTeam?.idTeam), staleTime: 1000 * 60 * 60 * 24 }
+    { enabled: needsFallback && Boolean(fallbackTeam?.idTeam) }
   );
   const fallbackPlayers = fallbackPlayersData?.player ?? [];
 
@@ -79,6 +102,27 @@ export default function TeamDetail() {
   const coachBirth = team?.coach?.dateOfBirth;
   const coachNationality = team?.coach?.nationality;
 
+  const playerNames = useMemo(() => mergedSquad.map((p) => p.name), [mergedSquad]);
+  const { photos: photoMap, isLoadingPhotos } = useSquadPhotos(playerNames, coachName);
+
+  const squadWithPhotos = useMemo(
+    () =>
+      mergedSquad.map((player) => ({
+        ...player,
+        photo: player.photo ?? photoMap[player.name] ?? undefined,
+      })),
+    [mergedSquad, photoMap]
+  );
+
+  const coachPhoto =
+    team?.coach?.photo ??
+    fallbackTeam?.strTeamManagerThumb ??
+    fallbackTeam?.strCoachThumb ??
+    photoMap[coachName] ??
+    undefined;
+
+  const groupedSquad = useMemo(() => groupPlayersByPosition(squadWithPhotos), [squadWithPhotos]);
+
   const { data: matchesData } = useApiData<{ matches: any[] }>(
     ['team-matches', String(parsedId)],
     () => api.getMatches({ dateFrom: '2026-06-01', dateTo: '2026-07-31' }),
@@ -86,16 +130,6 @@ export default function TeamDetail() {
   );
   const teamMatches = (matchesData?.matches ?? []).filter(
     (match: any) => match.homeTeam?.id === parsedId || match.awayTeam?.id === parsedId
-  );
-
-  // Goleadores del torneo filtrados por este equipo
-  const { data: scorersData } = useApiData<{ scorers: Scorer[] }>(
-    ['scorers'],
-    () => api.getTopScorers(100),
-    { staleTime: 1000 * 60 * 10 }
-  );
-  const teamScorers = (scorersData?.scorers ?? []).filter(
-    (s) => s.team?.id === parsedId
   );
 
   if (isLoading) return <SkeletonLoader variant="player" />;
@@ -110,32 +144,12 @@ export default function TeamDetail() {
     );
   }
 
-  const teamJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "SportsTeam",
-    "name": team.name,
-    "sport": "Soccer",
-    "memberOf": {
-      "@type": "SportsEvent",
-      "name": "Copa Mundial de la FIFA 2026"
-    },
-    ...(team.crest ? { "logo": team.crest } : {}),
-    ...(mergedSquad.length > 0 ? {
-      "athlete": mergedSquad.slice(0, 10).map((p) => ({
-        "@type": "Person",
-        "name": p.name,
-        ...(p.position ? { "jobTitle": p.position } : {})
-      }))
-    } : {})
-  };
-
   return (
     <div className="min-h-screen bg-slate-950 text-white">
       <SEO
-        title={`${team.name} — Plantel y Estadísticas`}
-        description={`Plantel completo de ${team.name} en el Mundial FIFA 2026. Jugadores, entrenador${team.coach?.name ? ` ${team.coach.name}` : ''}, y estadísticas del equipo en el World Cup 2026.`}
-        keywords={`${team.name.toLowerCase()} mundial 2026, plantel ${team.name.toLowerCase()}, seleccion ${team.shortName?.toLowerCase() ?? ''}, world cup 2026`}
-        jsonLd={teamJsonLd}
+        title={`${team.name} | Selecciones`}
+        description={`Información oficial, plantel y datos de ${team.name} en el Mundial 2026.`}
+        keywords={`${team.name}, selección, mundial 2026, fifa`}
       />
       <section className="relative pt-20 pb-32 overflow-hidden">
         <div className="container mx-auto px-4 md:px-8 relative z-10">
@@ -187,43 +201,112 @@ export default function TeamDetail() {
 
           {activeTab === 'PLANTEL' && (
             <div className="space-y-10">
-
-              {/* AdSense Banner */}
+              {/* AdSense Banner — before GeminiPlayerBio components */}
               <div className="w-full">
                 <AdBanner slot="2222222222" format="horizontal" className="w-full" />
               </div>
-
-              {/* ── Layout principal: Cancha + Panel ───────────────────────────── */}
-              <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-start">
-
-                {/* Cancha táctica — sticky en desktop */}
-                <div className="w-full lg:w-[45%] lg:sticky lg:top-28">
-                  <TacticalPitch
-                    squad={mergedSquad}
-                    activeFilter={pitchFilter}
-                    onFilterChange={setPitchFilter}
-                  />
-                  <p className="mt-4 text-xs text-white/30 italic flex items-center gap-1.5">
-                    <span className="material-symbols-outlined text-base" style={{ fontSize: '14px' }}>info</span>
-                    Tocá una posición en la cancha para filtrar el plantel
-                  </p>
-                </div>
-
-                {/* Panel de plantel */}
-                <div className="flex-1 min-w-0">
-                  <SquadPanel
-                    squad={mergedSquad}
-                    coachName={coachName}
-                    coachBirth={coachBirth}
-                    coachNationality={coachNationality}
-                    activeFilter={pitchFilter}
-                    onFilterChange={setPitchFilter}
-                  />
+              <div className="mb-8">
+                <h3 className="label-caps text-white mb-6">Cuerpo técnico</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+                  <div className="stadium-card overflow-hidden bg-gradient-to-br from-fifa-gold/10 to-fifa-red/10 border-2 border-fifa-gold/30 relative group">
+                    <div className="absolute inset-0 bg-gradient-to-br from-fifa-gold/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="w-full aspect-[4/5] overflow-hidden rounded-t-none bg-slate-950">
+                      {coachPhoto ? (
+                        <img
+                          src={proxiedImage(coachPhoto)}
+                          alt={coachName}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          loading="lazy"
+                          referrerPolicy="no-referrer"
+                        />
+                      ) : isLoadingPhotos ? (
+                        <div className="w-full h-full bg-white/10 animate-pulse" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-white/5">
+                          <User size={40} className="text-fifa-gold" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="px-5 py-6">
+                      <p className="text-[10px] text-fifa-gold font-bold uppercase tracking-[0.25em] mb-2">Director técnico</p>
+                      <h4 className="font-bold text-lg mb-3 text-white">{coachName}</h4>
+                      <div className="space-y-2 text-xs text-white/60">
+                        {coachBirth && (
+                          <div className="flex justify-between">
+                            <span>Nac.</span>
+                            <span>{formatDate(coachBirth)}</span>
+                          </div>
+                        )}
+                        {coachNationality && (
+                          <div className="flex justify-between">
+                            <span>Nacionalidad</span>
+                            <span>{coachNationality}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* ── Franja de estadísticas del equipo ────────────────────────── */}
-              <TeamStatsStrip teamId={parsedId} teamName={team.name} />
+              {Object.entries(groupedSquad).map(([label, players]) => (
+                players.length > 0 && (
+                  <div key={label}>
+                    <h3 className="label-caps text-white mb-6">{label}</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {players.map((player) => (
+                        <div
+                          key={player.id}
+                          className="stadium-card overflow-hidden bg-white/5 border border-white/10 relative cursor-pointer group"
+                          onClick={() => setOpenPlayerBio(openPlayerBio === player.id ? null : player.id)}
+                        >
+                          <ErrorBoundary>
+                            <GeminiPlayerBio playerName={player.name} isOpen={openPlayerBio === player.id} />
+                          </ErrorBoundary>
+
+                          <div className="w-full aspect-[4/5] overflow-hidden bg-slate-950">
+                            {player.photo ? (
+                              <img
+                                src={player.photo}
+                                alt={player.name}
+                                className="w-full h-full object-cover"
+                                loading="lazy"
+                                referrerPolicy="no-referrer"
+                              />
+                            ) : isLoadingPhotos ? (
+                              <div className="w-full h-full bg-white/10 animate-pulse" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-white/5">
+                                <User size={48} className="text-fifa-gold" />
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="px-5 py-5">
+                            <div className="flex items-center justify-between mb-3">
+                              <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">{player.position}</span>
+                              {player.shirtNumber && (
+                                <span className="text-[10px] font-black uppercase tracking-[0.25em] text-white/80">#{player.shirtNumber}</span>
+                              )}
+                            </div>
+                            <h4 className="font-bold text-lg text-white mb-3">{player.name}</h4>
+                            <div className="space-y-3 text-sm text-white/60">
+                              <div className="flex justify-between">
+                                <span>Nac.</span>
+                                <span>{formatDate(player.dateOfBirth) ?? 'N/D'}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Nacionalidad</span>
+                                <span>{player.nationality ?? 'N/D'}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              ))}
             </div>
           )}
 
@@ -280,12 +363,9 @@ export default function TeamDetail() {
           )}
 
           {activeTab === 'ESTADÍSTICAS' && (
-            <TeamStatsTab
-              teamId={parsedId}
-              teamName={team.name}
-              teamMatches={teamMatches}
-              teamScorers={teamScorers}
-            />
+            <div className="stadium-card p-8 text-sm text-white/60">
+              Las estadísticas oficiales estarán disponibles cuando comience el torneo.
+            </div>
           )}
 
           {activeTab === 'ACERCA DE' && (
@@ -327,234 +407,6 @@ export default function TeamDetail() {
           )}
         </div>
       </section>
-    </div>
-  );
-}
-
-// ── TeamStatsTab ──────────────────────────────────────────────────────────────
-function TeamStatsTab({
-  teamId,
-  teamName,
-  teamMatches,
-  teamScorers,
-}: {
-  teamId: number;
-  teamName: string;
-  teamMatches: any[];
-  teamScorers: Scorer[];
-}) {
-  const { data: standingsData } = useApiData<{ standings: any[] }>(
-    ['standings'],
-    () => api.getStandings(),
-    { staleTime: 5 * 60_000 }
-  );
-
-  // Buscar entry en la tabla de posiciones
-  let teamEntry: any = null;
-  for (const group of standingsData?.standings ?? []) {
-    const found = group.table?.find((e: any) => e.team?.id === teamId);
-    if (found) { teamEntry = found; break; }
-  }
-
-  // Estadísticas de partidos calculadas localmente
-  const finished = teamMatches.filter((m: any) => m.status === 'FINISHED');
-  const won  = finished.filter((m: any) => {
-    const home = m.homeTeam?.id === teamId;
-    const winner = m.score?.winner;
-    return (home && winner === 'HOME_TEAM') || (!home && winner === 'AWAY_TEAM');
-  }).length;
-  const drawn = finished.filter((m: any) => m.score?.winner === 'DRAW').length;
-  const lost  = finished.length - won - drawn;
-  const goalsFor     = teamEntry?.goalsFor     ?? finished.reduce((sum: number, m: any) => {
-    const home = m.homeTeam?.id === teamId;
-    return sum + ((home ? m.score?.fullTime?.home : m.score?.fullTime?.away) ?? 0);
-  }, 0);
-  const goalsAgainst = teamEntry?.goalsAgainst ?? finished.reduce((sum: number, m: any) => {
-    const home = m.homeTeam?.id === teamId;
-    return sum + ((home ? m.score?.fullTime?.away : m.score?.fullTime?.home) ?? 0);
-  }, 0);
-  const points = teamEntry?.points ?? (won * 3 + drawn);
-  const played = teamEntry?.playedGames ?? finished.length;
-
-  const noData = played === 0 && teamScorers.length === 0;
-
-  if (noData) {
-    return (
-      <div className="stadium-card p-8 text-sm text-white/60">
-        Las estadísticas se actualizarán automáticamente a medida que {teamName} dispute sus partidos.
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-8">
-
-      {/* ── Tabla de rendimiento ─────────────────────────────────── */}
-      {played > 0 && (
-        <div className="stadium-card p-6 bg-white/5 border border-white/10">
-          <h3 className="label-caps text-white mb-5">Rendimiento en el torneo</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-white/40 uppercase text-[10px] tracking-widest border-b border-white/10">
-                  <th className="text-left py-2 pr-4">PJ</th>
-                  <th className="text-left py-2 pr-4">G</th>
-                  <th className="text-left py-2 pr-4">E</th>
-                  <th className="text-left py-2 pr-4">P</th>
-                  <th className="text-left py-2 pr-4">GF</th>
-                  <th className="text-left py-2 pr-4">GC</th>
-                  <th className="text-left py-2 pr-4">DIF</th>
-                  <th className="text-left py-2">PTS</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="text-white font-mono font-bold text-base">
-                  <td className="py-3 pr-4">{played}</td>
-                  <td className="py-3 pr-4 text-green-400">{won}</td>
-                  <td className="py-3 pr-4 text-yellow-400">{drawn}</td>
-                  <td className="py-3 pr-4 text-red-400">{lost}</td>
-                  <td className="py-3 pr-4">{goalsFor}</td>
-                  <td className="py-3 pr-4">{goalsAgainst}</td>
-                  <td className={cn('py-3 pr-4', (goalsFor - goalsAgainst) >= 0 ? 'text-green-400' : 'text-red-400')}>
-                    {goalsFor - goalsAgainst > 0 ? '+' : ''}{goalsFor - goalsAgainst}
-                  </td>
-                  <td className="py-3 text-fifa-gold font-black text-xl">{points}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* ── Goleadores del equipo ────────────────────────────────── */}
-      {teamScorers.length > 0 && (
-        <div className="stadium-card p-6 bg-white/5 border border-white/10">
-          <h3 className="label-caps text-white mb-5">Goleadores</h3>
-          <div className="space-y-3">
-            {teamScorers
-              .sort((a, b) => (b.goals ?? 0) - (a.goals ?? 0))
-              .map((scorer, idx) => (
-                <div key={scorer.player.id} className="flex items-center gap-4">
-                  <span className="w-6 text-right text-xs font-mono text-white/30">{idx + 1}</span>
-                  {scorer.player.photo ? (
-                    <img
-                      src={scorer.player.photo}
-                      alt={scorer.player.name}
-                      className="w-8 h-8 rounded-full object-cover bg-white/10"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                    />
-                  ) : (
-                    <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-[10px] text-white/40">
-                      {scorer.player.name.charAt(0)}
-                    </div>
-                  )}
-                  <div className="flex-1 min-w-0">
-                    <p className="font-bold text-sm text-white truncate">{scorer.player.name}</p>
-                    <p className="text-[10px] text-white/40 uppercase tracking-widest">
-                      {scorer.player.position ?? 'Jugador'}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-4 text-right shrink-0">
-                    <div>
-                      <p className="text-xl font-black font-mono text-fifa-gold leading-none">{scorer.goals ?? 0}</p>
-                      <p className="text-[9px] text-white/30 uppercase">goles</p>
-                    </div>
-                    {scorer.assists != null && (
-                      <div>
-                        <p className="text-base font-bold font-mono text-white/60 leading-none">{scorer.assists}</p>
-                        <p className="text-[9px] text-white/30 uppercase">asist.</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-
-      {/* ── Resultados partido a partido ─────────────────────────── */}
-      {finished.length > 0 && (
-        <div className="stadium-card p-6 bg-white/5 border border-white/10">
-          <h3 className="label-caps text-white mb-5">Partidos disputados</h3>
-          <div className="space-y-3">
-            {finished
-              .sort((a: any, b: any) => b.utcDate.localeCompare(a.utcDate))
-              .map((match: any) => {
-                const isHome = match.homeTeam?.id === teamId;
-                const opponent = isHome ? match.awayTeam : match.homeTeam;
-                const myGoals  = isHome ? match.score?.fullTime?.home : match.score?.fullTime?.away;
-                const oppGoals = isHome ? match.score?.fullTime?.away : match.score?.fullTime?.home;
-                const winner   = match.score?.winner;
-                const result   =
-                  winner === 'DRAW' ? 'E' :
-                  (isHome && winner === 'HOME_TEAM') || (!isHome && winner === 'AWAY_TEAM') ? 'G' : 'P';
-
-                return (
-                  <div key={match.id} className="flex items-center gap-4 p-3 bg-white/5 rounded-xl">
-                    <span className={cn(
-                      'w-6 h-6 rounded-full text-[10px] font-black flex items-center justify-center shrink-0',
-                      result === 'G' ? 'bg-green-500/20 text-green-400' :
-                      result === 'E' ? 'bg-yellow-500/20 text-yellow-400' :
-                                       'bg-red-500/20 text-red-400'
-                    )}>
-                      {result}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-white truncate">{opponent?.name ?? '—'}</p>
-                      <p className="text-[10px] text-white/40">
-                        {isHome ? 'Local' : 'Visitante'} · {match.group ?? match.stage}
-                      </p>
-                    </div>
-                    <span className="font-mono font-bold text-sm text-white shrink-0">
-                      {myGoals ?? '-'} — {oppGoals ?? '-'}
-                    </span>
-                  </div>
-                );
-              })}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function TeamStatsStrip({ teamId, teamName }: { teamId: number; teamName: string }) {
-  const { data: standingsData } = useApiData<{ standings: any[] }>(
-    ['standings'],
-    () => api.getStandings(),
-    { staleTime: 5 * 60_000 }
-  );
-
-  // Buscar el equipo en la tabla de posiciones
-  let teamEntry: any = null;
-  for (const group of standingsData?.standings ?? []) {
-    const found = group.table?.find((e: any) => e.team?.id === teamId);
-    if (found) { teamEntry = found; break; }
-  }
-
-  // Si no hay datos de standings, no mostrar la franja
-  if (!teamEntry) return null;
-
-  const stats = [
-    { label: 'Puntos',     value: teamEntry.points       ?? 0 },
-    { label: 'Goles',      value: teamEntry.goalsFor     ?? 0 },
-    { label: 'Victorias',  value: teamEntry.won          ?? 0 },
-  ];
-
-  return (
-    <div className="bg-[#0033A0] rounded-2xl overflow-hidden">
-      <div className="grid grid-cols-3 divide-x divide-white/10">
-        {stats.map((s) => (
-          <div key={s.label} className="px-8 py-10">
-            <p className="font-label text-[10px] tracking-widest text-white/50 uppercase mb-3">
-              {s.label}
-            </p>
-            <p className="text-6xl font-mono font-bold text-white leading-none">
-              {s.value}
-            </p>
-          </div>
-        ))}
-      </div>
     </div>
   );
 }
